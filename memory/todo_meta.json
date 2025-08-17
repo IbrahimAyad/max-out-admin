@@ -10,8 +10,8 @@
       },
       "2": {
         "id": "2",
-        "content": "Set up React Native project foundation with TypeScript and luxury brand design system",
-        "details": "Initialize React Native project with TypeScript, configure navigation (React Navigation 6), set up the design system with the specified color palette (black, white, gold accents), typography hierarchy (SF Pro Display/Roboto), and component library matching luxury fashion brand standards.",
+        "content": "Build luxury responsive web admin dashboard with TypeScript and luxury brand design system",
+        "details": "Create responsive web admin dashboard with React, TypeScript, and TailwindCSS. Implement luxury design system with specified color palette (black, white, gold accents), typography hierarchy (SF Pro Display/Roboto), and component library matching luxury fashion brand standards. Make it fully responsive for mobile, tablet, and desktop with PWA capabilities.",
         "status": "in_progress",
         "priority": "high"
       },

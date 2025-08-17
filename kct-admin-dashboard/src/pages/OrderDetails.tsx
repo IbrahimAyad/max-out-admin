@@ -159,47 +159,60 @@ export default function OrderDetails() {
               <h3 className="text-lg font-medium text-neutral-900">Order Items</h3>
             </div>
             <div className="divide-y divide-neutral-200">
-              {order.items?.map((item: any) => (
-                <div key={item.id} className="p-6 flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    {item.product_image_url ? (
-                      <img
-                        src={getImageUrl(item.product_image_url) || ''}
-                        alt={item.product_name}
-                        className="h-16 w-16 rounded-md object-cover"
-                      />
-                    ) : (
+              {order.items && order.items.length > 0 ? (
+                order.items.map((item: any) => (
+                  <div key={item.id} className="p-6 flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      {/* For now, use placeholder since order_items doesn't have image URL */}
                       <div className="h-16 w-16 rounded-md bg-neutral-100 flex items-center justify-center">
                         <Package className="h-8 w-8 text-neutral-400" />
                       </div>
-                    )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-neutral-900">
+                        {item.product_name}
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        SKU: {item.product_sku}
+                      </p>
+                      {item.size && (
+                        <p className="text-xs text-neutral-500">
+                          Size: {item.size}
+                        </p>
+                      )}
+                      {item.color && (
+                        <p className="text-xs text-neutral-500">
+                          Color: {item.color}
+                        </p>
+                      )}
+                      <p className="text-sm text-neutral-500">
+                        Quantity: {item.quantity}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-neutral-900">
+                        {formatCurrency(item.unit_price)}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        each
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-neutral-900">
+                        {formatCurrency(item.line_total)}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        total
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-neutral-900">
-                      {item.product_name}
-                    </h4>
-                    <p className="text-sm text-neutral-500">
-                      Quantity: {item.quantity}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-neutral-900">
-                      {formatCurrency(item.price_at_time)}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      each
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-neutral-900">
-                      {formatCurrency(item.price_at_time * item.quantity)}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      total
-                    </p>
-                  </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-neutral-500">
+                  <Package className="h-12 w-12 mx-auto text-neutral-400 mb-2" />
+                  <p>No items found for this order</p>
                 </div>
-              ))}
+              )}
             </div>
             
             {/* Order Total */}

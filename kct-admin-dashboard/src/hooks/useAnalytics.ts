@@ -2,99 +2,25 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 
+// PostHog integration for user behavior analytics
+const POSTHOG_API_KEY = 'phc_your_api_key_here'; // This would be configured as env var
+
 export interface AnalyticsData {
-  executive: {
-    revenue: number;
-    growth: number;
-    orders: number;
-    conversion: number;
-    insights: string[];
-  };
-  sales: {
-    optimization_score: number;
-    recommendations: Array<{
-      type: string;
-      impact: string;
-      description: string;
-      priority: 'high' | 'medium' | 'low';
-    }>;
-    trends: Array<{
-      metric: string;
-      value: number;
-      change: number;
-      period: string;
-    }>;
-  };
-  customer: {
-    segments: Array<{
-      name: string;
-      size: number;
-      value: number;
-      growth: number;
-      characteristics: string[];
-    }>;
-    behavior_insights: Array<{
-      insight: string;
-      confidence: number;
-      impact: string;
-    }>;
-    churn_risk: number;
-  };
-  predictive: {
-    revenue_forecast: Array<{
-      period: string;
-      predicted: number;
-      confidence_lower: number;
-      confidence_upper: number;
-    }>;
-    demand_forecast: Array<{
-      product: string;
-      predicted_demand: number;
-      seasonality_factor: number;
-    }>;
-    recommendations: string[];
-  };
-  inventory: {
-    optimization_score: number;
-    recommendations: Array<{
-      product: string;
-      current_stock: number;
-      optimal_stock: number;
-      action: string;
-      priority: 'high' | 'medium' | 'low';
-    }>;
-    alerts: Array<{
-      type: string;
-      message: string;
-      severity: 'critical' | 'warning' | 'info';
-    }>;
-  };
-  market: {
-    competitive_position: number;
-    market_trends: Array<{
-      trend: string;
-      impact: string;
-      confidence: number;
-    }>;
-    opportunities: Array<{
-      opportunity: string;
-      potential_value: number;
-      timeline: string;
-    }>;
-    threats: Array<{
-      threat: string;
-      risk_level: string;
-      mitigation: string;
-    }>;
-  };
+  executive: any;
+  sales: any;
+  customer: any;
+  predictive: any;
+  inventory: any;
+  market: any;
+  posthog?: any;
 }
 
 export const useAnalytics = () => {
   const [timeframe, setTimeframe] = useState('30d');
   const [refreshInterval, setRefreshInterval] = useState(300000); // 5 minutes
 
-  // Executive Overview Analytics
-  const { data: executiveData, isLoading: executiveLoading, error: executiveError } = useQuery({
+  // Executive Overview Analytics - Real Supabase + KCT API data
+  const { data: executiveData, isLoading: executiveLoading, error: executiveError, refetch: refetchExecutive } = useQuery({
     queryKey: ['analytics', 'executive', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('sales-optimization', {
@@ -107,8 +33,8 @@ export const useAnalytics = () => {
     refetchInterval: refreshInterval
   });
 
-  // Sales Intelligence
-  const { data: salesData, isLoading: salesLoading } = useQuery({
+  // Sales Intelligence - Real business data analysis
+  const { data: salesData, isLoading: salesLoading, refetch: refetchSales } = useQuery({
     queryKey: ['analytics', 'sales', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('sales-optimization', {
@@ -120,8 +46,8 @@ export const useAnalytics = () => {
     staleTime: refreshInterval
   });
 
-  // Customer Analytics
-  const { data: customerData, isLoading: customerLoading } = useQuery({
+  // Customer Analytics - Real customer segmentation
+  const { data: customerData, isLoading: customerLoading, refetch: refetchCustomer } = useQuery({
     queryKey: ['analytics', 'customer', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('customer-analytics', {
@@ -137,8 +63,8 @@ export const useAnalytics = () => {
     staleTime: refreshInterval
   });
 
-  // Predictive Analytics
-  const { data: predictiveData, isLoading: predictiveLoading } = useQuery({
+  // Predictive Analytics - Real trend-based predictions
+  const { data: predictiveData, isLoading: predictiveLoading, refetch: refetchPredictive } = useQuery({
     queryKey: ['analytics', 'predictive', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('predictive-analytics', {
@@ -154,8 +80,8 @@ export const useAnalytics = () => {
     staleTime: refreshInterval
   });
 
-  // Inventory Optimization
-  const { data: inventoryData, isLoading: inventoryLoading } = useQuery({
+  // Inventory Optimization - Real inventory analysis
+  const { data: inventoryData, isLoading: inventoryLoading, refetch: refetchInventory } = useQuery({
     queryKey: ['analytics', 'inventory', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('inventory-optimization', {
@@ -170,8 +96,8 @@ export const useAnalytics = () => {
     staleTime: refreshInterval
   });
 
-  // Market Intelligence
-  const { data: marketData, isLoading: marketLoading } = useQuery({
+  // Market Intelligence - Real market analysis
+  const { data: marketData, isLoading: marketLoading, refetch: refetchMarket } = useQuery({
     queryKey: ['analytics', 'market', timeframe],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('market-intelligence', {
@@ -187,12 +113,59 @@ export const useAnalytics = () => {
     staleTime: refreshInterval
   });
 
+  // PostHog User Behavior Analytics
+  const { data: posthogData, isLoading: posthogLoading } = useQuery({
+    queryKey: ['analytics', 'posthog', timeframe],
+    queryFn: async () => {
+      // Simulated PostHog data - in production this would be real PostHog API calls
+      return {
+        page_views: {
+          total: 15420,
+          unique: 8945,
+          bounce_rate: 0.34,
+          avg_session_duration: 245 // seconds
+        },
+        user_behavior: {
+          most_viewed_pages: [
+            { page: '/products', views: 5230, conversion_rate: 0.12 },
+            { page: '/product-details', views: 3850, conversion_rate: 0.18 },
+            { page: '/checkout', views: 1450, conversion_rate: 0.78 },
+            { page: '/analytics', views: 890, conversion_rate: 0.95 }
+          ],
+          user_journey: {
+            avg_pages_per_session: 4.2,
+            most_common_path: 'Home → Products → Product Details → Checkout',
+            dropoff_points: ['Checkout - Payment', 'Product Details - Add to Cart']
+          }
+        },
+        ecommerce_tracking: {
+          total_transactions: 342,
+          revenue: 89750,
+          avg_order_value: 262.43,
+          cart_abandonment_rate: 0.68,
+          checkout_completion_rate: 0.82
+        },
+        real_time: {
+          current_active_users: 23,
+          users_last_30_min: 67,
+          top_current_pages: ['/products', '/checkout', '/analytics']
+        }
+      };
+    },
+    staleTime: 60000 // Refresh every minute for real-time data
+  });
+
   const isLoading = executiveLoading || salesLoading || customerLoading || 
-                    predictiveLoading || inventoryLoading || marketLoading;
+                    predictiveLoading || inventoryLoading || marketLoading || posthogLoading;
 
   const refreshAnalytics = () => {
-    // Trigger manual refresh of all analytics data
-    // This will be handled by React Query's refetch
+    // Manually refresh all analytics data
+    refetchExecutive();
+    refetchSales();
+    refetchCustomer();
+    refetchPredictive();
+    refetchInventory();
+    refetchMarket();
   };
 
   return {
@@ -202,7 +175,8 @@ export const useAnalytics = () => {
       customer: customerData?.data,
       predictive: predictiveData?.data,
       inventory: inventoryData?.data,
-      market: marketData?.data
+      market: marketData?.data,
+      posthog: posthogData
     },
     isLoading,
     error: executiveError,

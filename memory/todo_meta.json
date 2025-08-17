@@ -3,16 +3,23 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Integrate EasyPost shipping API into KCT Menswear order processing workflow",
-        "details": "1. Set up EasyPost webhook endpoint in Supabase edge function. 2. Create shipping rate calculator. 3. Add automatic label generation. 4. Integrate tracking updates. 5. Update order processing dashboard with shipping features.",
-        "status": "completed",
+        "content": "Integrate SendGrid email notifications into KCT Menswear order processing workflow",
+        "details": "1. Set up SendGrid API configuration in Supabase environment. 2. Create email templates for order confirmations, shipping notifications, and tracking updates. 3. Build automated email triggers for order events. 4. Integrate with EasyPost webhook for shipping status emails. 5. Add email management features to admin dashboard. 6. Set up customer notification preferences.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Configure EasyPost webhook settings and provide webhook URL details",
-        "details": "1. Analyze current webhook configuration. 2. Provide proper webhook URL format. 3. Configure webhook events for tracking updates. 4. Test webhook integration.",
-        "status": "completed",
+        "content": "Create professional email templates for KCT Menswear",
+        "details": "1. Order confirmation email template with order details and Core/Catalog products. 2. Shipping confirmation email with tracking information. 3. Delivery notification email. 4. Admin notification emails for new orders. 5. Customer service follow-up emails. 6. Branded email design matching KCT Menswear aesthetic.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "3": {
+        "id": "3",
+        "content": "Set up automated email workflow triggers",
+        "details": "1. New order placed → Send order confirmation to customer + admin notification. 2. Order processed → Send processing confirmation. 3. Shipping label created → Send shipping confirmation with tracking. 4. EasyPost tracking updates → Send delivery status updates. 5. Order delivered → Send delivery confirmation and feedback request.",
+        "status": "pending",
         "priority": "high"
       }
     }

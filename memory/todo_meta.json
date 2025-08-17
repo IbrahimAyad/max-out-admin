@@ -1,0 +1,90 @@
+{
+  "todos": {
+    "Coordinator": {
+      "1": {
+        "id": "1",
+        "content": "Research and analyze luxury fashion mobile app UI/UX patterns and React Native best practices",
+        "details": "Study the design patterns, navigation structures, and user experience flows of leading luxury fashion brands (SSENSE, Net-a-Porter, Mr Porter, Farfetch, End Clothing) to understand the sophistication level required. Also research React Native architecture patterns similar to Shopify's approach and modern state management with React Query/Zustand.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "2": {
+        "id": "2",
+        "content": "Set up React Native project foundation with TypeScript and luxury brand design system",
+        "details": "Initialize React Native project with TypeScript, configure navigation (React Navigation 6), set up the design system with the specified color palette (black, white, gold accents), typography hierarchy (SF Pro Display/Roboto), and component library matching luxury fashion brand standards.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "3": {
+        "id": "3",
+        "content": "Implement secure authentication system with biometric support",
+        "details": "Build authentication flow with Supabase integration, implement biometric authentication (Face ID/Touch ID), session management with auto-refresh, secure token storage in Keychain, and admin role verification. Include two-factor authentication support for enhanced security.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "4": {
+        "id": "4",
+        "content": "Develop real-time dashboard with business analytics (SSENSE-style)",
+        "details": "Create sophisticated dashboard showing today's revenue with trend indicators, order volume and conversion metrics, top-performing products, geographic sales distribution, inventory alerts, customer acquisition metrics, and average order value trends. Use real-time Supabase subscriptions for live updates.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "5": {
+        "id": "5",
+        "content": "Build comprehensive order management system (Net-a-Porter quality)",
+        "details": "Implement order management with real-time notifications, detailed order views, fulfillment workflow (pending → processing → shipped), refund processing with Stripe integration, order search and filtering, shipping label generation, customer communication templates, and order export capabilities.",
+        "status": "pending",
+        "priority": "high"
+      },
+      "6": {
+        "id": "6",
+        "content": "Create premium product catalog management (Mr Porter sophistication)",
+        "details": "Build product catalog with grid/list views, high-quality image galleries with zoom, search with autocomplete, category filtering (Suits, Tuxedos, Blazers, Accessories), inventory management, pricing updates, product variant management, and performance analytics.",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "7": {
+        "id": "7",
+        "content": "Implement customer relationship management (Farfetch-level CRM)",
+        "details": "Develop customer profiles with purchase history, lifetime value calculations, communication tracking, segmentation capabilities, VIP customer identification, service ticket management, and personalized marketing insights.",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "8": {
+        "id": "8",
+        "content": "Build inventory control system (End Clothing efficiency)",
+        "details": "Create inventory management with real-time stock monitoring, low stock alerts, barcode scanning for updates, bulk adjustments, supplier management, cost tracking, margin analysis, and seasonal planning features.",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "9": {
+        "id": "9",
+        "content": "Integrate real-time features and push notifications",
+        "details": "Implement Supabase real-time subscriptions for new orders, inventory changes, customer inquiries, payment confirmations. Set up push notifications for business-critical alerts including new orders, payment failures, low inventory warnings, and daily/weekly business reports.",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "10": {
+        "id": "10",
+        "content": "Add platform-specific enhancements and performance optimizations",
+        "details": "Implement iOS-specific features (haptic feedback, Dynamic Type, Siri Shortcuts, Apple Pay) and Android enhancements (Material Design 3, adaptive icons, Google Pay). Optimize performance with image caching, API response caching, list virtualization, and code splitting to meet Shopify-level standards (<2s cold start, 60fps animations).",
+        "status": "pending",
+        "priority": "low"
+      },
+      "11": {
+        "id": "11",
+        "content": "Implement security measures and compliance features",
+        "details": "Add enterprise-grade security with certificate pinning, encrypted local storage, secure authentication tokens, session timeout management, audit logging, GDPR compliance, and PCI DSS compliance. Include privacy features like data anonymization, export capabilities, and consent management.",
+        "status": "pending",
+        "priority": "low"
+      },
+      "12": {
+        "id": "12",
+        "content": "Conduct comprehensive testing and quality assurance",
+        "details": "Perform unit testing (>80% coverage), integration testing for API calls, E2E testing for critical flows, performance testing on low-end devices, accessibility testing (WCAG compliance), and security penetration testing to ensure luxury brand quality standards.",
+        "status": "pending",
+        "priority": "low"
+      }
+    }
+  }
+}

@@ -312,12 +312,30 @@ function ProductCard({ product }: { product: any }) {
                 <span className="text-neutral-400"> • {product.subcategory}</span>
               )}
             </p>
+            {product.style_code && (
+              <p className="text-xs text-neutral-500">
+                Style: {product.style_code}
+              </p>
+            )}
+            {product.season && product.collection && (
+              <p className="text-xs text-neutral-400">
+                {product.season} • {product.collection}
+              </p>
+            )}
             <p className="text-sm text-neutral-500">
               SKU: {product.sku}
             </p>
             {product.color_family && (
               <p className="text-xs text-neutral-400">
                 Color: {product.color_family}
+                {product.color_name && product.color_name !== product.color_family && (
+                  <span> ({product.color_name})</span>
+                )}
+              </p>
+            )}
+            {product.fit_type && (
+              <p className="text-xs text-neutral-400">
+                Fit: {product.fit_type}
               </p>
             )}
           </div>
@@ -332,12 +350,26 @@ function ProductCard({ product }: { product: any }) {
         
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-lg font-semibold text-neutral-900">
-              {formatCurrency(product.base_price)}
-            </p>
-            <p className="text-xs text-neutral-500">
-              {product.product_variants?.[0]?.count || 0} variants
-            </p>
+            <div className="flex items-center space-x-2">
+              <p className="text-lg font-semibold text-neutral-900">
+                {formatCurrency(product.base_price)}
+              </p>
+              {product.compare_at_price && product.compare_at_price > product.base_price && (
+                <p className="text-sm text-neutral-500 line-through">
+                  {formatCurrency(product.compare_at_price)}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center space-x-2 mt-1">
+              <p className="text-xs text-neutral-500">
+                {product.product_variants?.[0]?.count || 0} variants
+              </p>
+              {product.price_tier && (
+                <span className="text-xs px-2 py-1 bg-neutral-100 text-neutral-600 rounded">
+                  {product.price_tier.replace('tier_', '').replace('_', ' ').toUpperCase()}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <Link
@@ -401,15 +433,39 @@ function ProductRow({ product }: { product: any }) {
             </div>
             <div className="text-sm text-neutral-500">
               SKU: {product.sku}
+              {product.style_code && product.style_code !== product.sku && (
+                <span className="ml-2">Style: {product.style_code}</span>
+              )}
             </div>
+            {(product.season || product.collection) && (
+              <div className="text-xs text-neutral-400">
+                {product.season && product.collection ? (
+                  `${product.season} • ${product.collection}`
+                ) : (
+                  product.season || product.collection
+                )}
+              </div>
+            )}
           </div>
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-        {product.category}
+        <div>
+          <div>{product.category}</div>
+          {product.subcategory && (
+            <div className="text-xs text-neutral-500">{product.subcategory}</div>
+          )}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-        {formatCurrency(product.base_price)}
+        <div>
+          <div>{formatCurrency(product.base_price)}</div>
+          {product.compare_at_price && product.compare_at_price > product.base_price && (
+            <div className="text-xs text-neutral-500 line-through">
+              {formatCurrency(product.compare_at_price)}
+            </div>
+          )}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

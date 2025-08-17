@@ -15,6 +15,7 @@ import CustomerProfile from './pages/CustomerProfile'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import { AnalyticsPage } from './pages/AnalyticsPage'
+import OrderManagementDashboard from './pages/OrderManagementDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Create a client
@@ -49,6 +50,7 @@ function App() {
                 <Route path="customers/:customerId" element={<CustomerProfile />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="order-management" element={<OrderManagementDashboard />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
               

@@ -3,87 +3,31 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Research and analyze luxury fashion mobile app UI/UX patterns and React Native best practices",
-        "details": "Study the design patterns, navigation structures, and user experience flows of leading luxury fashion brands (SSENSE, Net-a-Porter, Mr Porter, Farfetch, End Clothing) to understand the sophistication level required. Also research React Native architecture patterns similar to Shopify's approach and modern state management with React Query/Zustand.",
-        "status": "completed",
+        "content": "Research KCT Knowledge API structure and capabilities",
+        "details": "1. Explore API endpoints at kct-knowledge-api-2-production.up.railway.app\n2. Document available endpoints and data structure\n3. Test API authentication with provided key\n4. Identify analytics-relevant endpoints (sales data, customer insights, AI analysis results)",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Build luxury responsive web admin dashboard with TypeScript and luxury brand design system",
-        "details": "Create responsive web admin dashboard with React, TypeScript, and TailwindCSS. Implement luxury design system with specified color palette (black, white, gold accents), typography hierarchy (SF Pro Display/Roboto), and component library matching luxury fashion brand standards. Make it fully responsive for mobile, tablet, and desktop with PWA capabilities.",
-        "status": "completed",
+        "content": "Design integrated analytics architecture",
+        "details": "1. Plan data flow between Supabase (products, orders) and KCT Knowledge API\n2. Identify key performance indicators (KPIs) to display\n3. Design dashboard layout with multiple data source integration\n4. Plan real-time data synchronization strategy",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement secure authentication system with biometric support",
-        "details": "Build authentication flow with Supabase integration, implement biometric authentication (Face ID/Touch ID), session management with auto-refresh, secure token storage in Keychain, and admin role verification. Include two-factor authentication support for enhanced security.",
-        "status": "completed",
+        "content": "Build Advanced Analytics Dashboard",
+        "details": "1. Create comprehensive dashboard UI with multiple data visualizations\n2. Integrate Supabase product/order data\n3. Connect KCT Knowledge API for AI insights\n4. Implement interactive charts, filters, and real-time updates\n5. Add voice analytics features using ElevenLabs integration\n6. Include Fashion CLIP analysis results if applicable",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Develop real-time dashboard with business analytics (SSENSE-style)",
-        "details": "Create sophisticated dashboard showing today's revenue with trend indicators, order volume and conversion metrics, top-performing products, geographic sales distribution, inventory alerts, customer acquisition metrics, and average order value trends. Use real-time Supabase subscriptions for live updates.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "5": {
-        "id": "5",
-        "content": "Build comprehensive order management system (Net-a-Porter quality)",
-        "details": "Implement order management with real-time notifications, detailed order views, fulfillment workflow (pending → processing → shipped), refund processing with Stripe integration, order search and filtering, shipping label generation, customer communication templates, and order export capabilities.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Create premium product catalog management (Mr Porter sophistication)",
-        "details": "Build product catalog with grid/list views, high-quality image galleries with zoom, search with autocomplete, category filtering (Suits, Tuxedos, Blazers, Accessories), inventory management, pricing updates, product variant management, and performance analytics.",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "7": {
-        "id": "7",
-        "content": "Implement customer relationship management (Farfetch-level CRM)",
-        "details": "Develop customer profiles with purchase history, lifetime value calculations, communication tracking, segmentation capabilities, VIP customer identification, service ticket management, and personalized marketing insights.",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "8": {
-        "id": "8",
-        "content": "Build inventory control system (End Clothing efficiency)",
-        "details": "Create inventory management with real-time stock monitoring, low stock alerts, barcode scanning for updates, bulk adjustments, supplier management, cost tracking, margin analysis, and seasonal planning features.",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "9": {
-        "id": "9",
-        "content": "Integrate real-time features and push notifications",
-        "details": "Implement Supabase real-time subscriptions for new orders, inventory changes, customer inquiries, payment confirmations. Set up push notifications for business-critical alerts including new orders, payment failures, low inventory warnings, and daily/weekly business reports.",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "10": {
-        "id": "10",
-        "content": "Add platform-specific enhancements and performance optimizations",
-        "details": "Implement iOS-specific features (haptic feedback, Dynamic Type, Siri Shortcuts, Apple Pay) and Android enhancements (Material Design 3, adaptive icons, Google Pay). Optimize performance with image caching, API response caching, list virtualization, and code splitting to meet Shopify-level standards (<2s cold start, 60fps animations).",
+        "content": "Deploy and test integrated analytics system",
+        "details": "1. Deploy final dashboard with all integrations\n2. Test data flow from both sources\n3. Verify real-time updates and performance\n4. Ensure mobile responsiveness for admin use",
         "status": "pending",
-        "priority": "low"
-      },
-      "11": {
-        "id": "11",
-        "content": "Implement security measures and compliance features",
-        "details": "Add enterprise-grade security with certificate pinning, encrypted local storage, secure authentication tokens, session timeout management, audit logging, GDPR compliance, and PCI DSS compliance. Include privacy features like data anonymization, export capabilities, and consent management.",
-        "status": "pending",
-        "priority": "low"
-      },
-      "12": {
-        "id": "12",
-        "content": "Conduct comprehensive testing and quality assurance",
-        "details": "Perform unit testing (>80% coverage), integration testing for API calls, E2E testing for critical flows, performance testing on low-end devices, accessibility testing (WCAG compliance), and security penetration testing to ensure luxury brand quality standards.",
-        "status": "completed",
-        "priority": "low"
+        "priority": "medium"
       }
     }
   }

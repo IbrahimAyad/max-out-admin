@@ -1,227 +1,249 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../../lib/supabase';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useAnalytics } from '../../hooks/useAnalytics';
+import { ExecutiveOverview } from './sections/ExecutiveOverview';
+import { SalesIntelligence } from './sections/SalesIntelligence';
+import { CustomerAnalytics } from './sections/CustomerAnalytics';
+import { PredictiveAnalytics } from './sections/PredictiveAnalytics';
+import { InventoryOptimization } from './sections/InventoryOptimization';
+import { MarketIntelligence } from './sections/MarketIntelligence';
 import { 
-  TrendingUp,
-  DollarSign,
-  Users,
-  BarChart3,
-  Banknote,
-  ArrowUp,
-  ArrowDown
+  BarChart3, 
+  Brain, 
+  Users, 
+  TrendingUp, 
+  Package, 
+  Globe, 
+  RefreshCw, 
+  Clock, 
+  Zap 
 } from 'lucide-react';
-import { ExecutiveOverview } from './ExecutiveOverview';
-import { SalesIntelligence } from './SalesIntelligence';
-import { CustomerInsights } from './CustomerInsights';
-import { PredictiveAnalytics } from './PredictiveAnalytics';
-import { InventoryOptimization } from './InventoryOptimization';
-import { MarketIntelligence } from './MarketIntelligence';
 
-type TabType = 'overview' | 'sales' | 'customers' | 'predictive' | 'inventory' | 'market';
+export const AnalyticsDashboard: React.FC = () => {
+  const {
+    data,
+    isLoading,
+    error,
+    timeframe,
+    setTimeframe,
+    refreshInterval,
+    setRefreshInterval,
+    refreshAnalytics
+  } = useAnalytics();
 
-interface AnalyticsMetrics {
-  totalRevenue: number;
-  revenueGrowth: number;
-  totalOrders: number;
-  ordersGrowth: number;
-  totalCustomers: number;
-  customersGrowth: number;
-  averageOrderValue: number;
-  aovGrowth: number;
-}
-
-const AnalyticsDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [timeframe, setTimeframe] = useState('30d');
-
-  // Fetch basic metrics from Supabase
-  const { data: metrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ['analytics-metrics', timeframe],
-    queryFn: async (): Promise<AnalyticsMetrics> => {
-      const { data: orders } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items(*),
-          payments(*)
-        `)
-        .order('created_at', { ascending: false });
-
-      const { data: customers } = await supabase
-        .from('customers')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      // Calculate metrics
-      const totalRevenue = orders?.reduce((sum, order) => {
-        const orderTotal = order.payments?.reduce((paySum: number, payment: any) => paySum + payment.amount, 0) || 0;
-        return sum + orderTotal;
-      }, 0) || 0;
-
-      const totalOrders = orders?.length || 0;
-      const totalCustomers = customers?.length || 0;
-      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-      // Mock growth calculations (would normally compare to previous period)
-      return {
-        totalRevenue,
-        revenueGrowth: 12.5,
-        totalOrders,
-        ordersGrowth: 8.3,
-        totalCustomers,
-        customersGrowth: 15.2,
-        averageOrderValue,
-        aovGrowth: 5.7
-      };
-    }
-  });
+  const [activeTab, setActiveTab] = useState('executive');
 
   const tabs = [
-    { id: 'overview', name: 'Executive Overview', icon: BarChart3 },
-    { id: 'sales', name: 'Sales Intelligence', icon: TrendingUp },
-    { id: 'customers', name: 'Customer Insights', icon: Users },
-    { id: 'predictive', name: 'Predictive Analytics', icon: Banknote },
-    { id: 'inventory', name: 'Inventory Optimization', icon: DollarSign },
-    { id: 'market', name: 'Market Intelligence', icon: BarChart3 }
+    {
+      id: 'executive',
+      label: 'Executive Overview',
+      icon: BarChart3,
+      component: ExecutiveOverview,
+      description: 'High-level KPIs and business insights'
+    },
+    {
+      id: 'sales',
+      label: 'Sales Intelligence',
+      icon: TrendingUp,
+      component: SalesIntelligence,
+      description: 'Sales optimization and performance analysis'
+    },
+    {
+      id: 'customer',
+      label: 'Customer Analytics',
+      icon: Users,
+      component: CustomerAnalytics,
+      description: 'Customer behavior and segmentation insights'
+    },
+    {
+      id: 'predictive',
+      label: 'Predictive Analytics',
+      icon: Brain,
+      component: PredictiveAnalytics,
+      description: 'AI-powered forecasting and predictions'
+    },
+    {
+      id: 'inventory',
+      label: 'Inventory Optimization',
+      icon: Package,
+      component: InventoryOptimization,
+      description: 'Stock level optimization and management'
+    },
+    {
+      id: 'market',
+      label: 'Market Intelligence',
+      icon: Globe,
+      component: MarketIntelligence,
+      description: 'Competitive analysis and market trends'
+    }
   ];
 
-  const renderMetricCard = (title: string, value: string, growth: number, icon: React.ComponentType<any>) => {
-    const Icon = icon;
-    const isPositive = growth >= 0;
-    
+  const getRefreshIntervalLabel = (interval: number) => {
+    const minutes = interval / 60000;
+    return minutes >= 60 ? `${minutes / 60}h` : `${minutes}m`;
+  };
+
+  if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-              <Icon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-            </div>
-          </div>
-          <div className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${
-            isPositive 
-              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400'
-              : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-          }`}>
-            {isPositive ? (
-              <ArrowUp className="h-4 w-4" />
-            ) : (
-              <ArrowDown className="h-4 w-4" />
-            )}
-            <span>{Math.abs(growth)}%</span>
-          </div>
-        </div>
+      <div className="space-y-6">
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-800">Analytics Dashboard Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-700 mb-4">
+              Failed to load analytics data. Please check your connection and try again.
+            </p>
+            <Button onClick={refreshAnalytics} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return <ExecutiveOverview timeframe={timeframe} />;
-      case 'sales':
-        return <SalesIntelligence timeframe={timeframe} />;
-      case 'customers':
-        return <CustomerInsights timeframe={timeframe} />;
-      case 'predictive':
-        return <PredictiveAnalytics timeframe={timeframe} />;
-      case 'inventory':
-        return <InventoryOptimization timeframe={timeframe} />;
-      case 'market':
-        return <MarketIntelligence timeframe={timeframe} />;
-      default:
-        return <ExecutiveOverview timeframe={timeframe} />;
-    }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">AI Analytics Dashboard</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">Advanced business intelligence powered by AI</p>
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
+                <Zap className="h-8 w-8 text-purple-600" />
+                <span>AI-Enhanced Analytics Dashboard</span>
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Advanced business intelligence powered by KCT Knowledge API
+              </p>
             </div>
+            
             <div className="flex items-center space-x-4">
-              <select
-                value={timeframe}
-                onChange={(e) => setTimeframe(e.target.value)}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              {/* Timeframe Selector */}
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <Select value={timeframe} onValueChange={setTimeframe}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7d">Last 7 days</SelectItem>
+                    <SelectItem value="30d">Last 30 days</SelectItem>
+                    <SelectItem value="90d">Last 90 days</SelectItem>
+                    <SelectItem value="6m">Last 6 months</SelectItem>
+                    <SelectItem value="1y">Last year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Refresh Interval */}
+              <div className="flex items-center space-x-2">
+                <RefreshCw className="h-4 w-4 text-gray-500" />
+                <Select 
+                  value={refreshInterval.toString()} 
+                  onValueChange={(value) => setRefreshInterval(parseInt(value))}
+                >
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="60000">1m</SelectItem>
+                    <SelectItem value="300000">5m</SelectItem>
+                    <SelectItem value="900000">15m</SelectItem>
+                    <SelectItem value="1800000">30m</SelectItem>
+                    <SelectItem value="3600000">1h</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Manual Refresh */}
+              <Button 
+                onClick={refreshAnalytics} 
+                variant="outline" 
+                size="sm"
+                disabled={isLoading}
               >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="90d">Last 3 months</option>
-                <option value="1y">Last year</option>
-              </select>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
             </div>
           </div>
-        </div>
-
-        {/* Quick Metrics */}
-        {metrics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {renderMetricCard(
-              'Total Revenue',
-              `$${metrics.totalRevenue.toLocaleString()}`,
-              metrics.revenueGrowth,
-              DollarSign
-            )}
-            {renderMetricCard(
-              'Total Orders',
-              metrics.totalOrders.toLocaleString(),
-              metrics.ordersGrowth,
-              BarChart3
-            )}
-            {renderMetricCard(
-              'Total Customers',
-              metrics.totalCustomers.toLocaleString(),
-              metrics.customersGrowth,
-              Users
-            )}
-            {renderMetricCard(
-              'Avg Order Value',
-              `$${metrics.averageOrderValue.toFixed(2)}`,
-              metrics.aovGrowth,
-              TrendingUp
-            )}
-          </div>
-        )}
-
-        {/* Navigation Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-          <div className="flex overflow-x-auto">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{tab.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="transition-all duration-300">
-          {renderContent()}
         </div>
       </div>
-    </div>
-  );
-};
 
-export default AnalyticsDashboard;
+      {/* Dashboard Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Tab Navigation */}
+          <div className="bg-white rounded-lg border border-gray-200 p-2">
+            <TabsList className="grid w-full grid-cols-6 gap-2 bg-transparent">
+              {tabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className="flex flex-col items-center space-y-2 p-4 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border border-transparent rounded-md transition-all"
+                  >
+                    <IconComponent className="h-5 w-5" />
+                    <div className="text-center">
+                      <div className="text-sm font-medium">{tab.label}</div>
+                      <div className="text-xs text-gray-500 hidden lg:block">
+                        {tab.description}
+                      </div>
+                    </div>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
+
+          {/* Tab Content */}
+          {tabs.map((tab) => {
+            const ComponentToRender = tab.component;
+            return (
+              <TabsContent key={tab.id} value={tab.id} className="space-y-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <tab.icon className="h-6 w-6 text-blue-600" />
+                      <div>
+                        <h2 className="text-xl font-semibold text-gray-900">
+                          {tab.label}
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                          {tab.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      {isLoading && (
+                        <Badge variant="secondary" className="animate-pulse">
+                          <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                          Loading...
+                        </Badge>
+                      )}
+                      <Badge variant="outline">
+                        Updated every {getRefreshIntervalLabel(refreshInterval)}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <ComponentToRender 
+                    data={data[tab.id as keyof typeof data]} 
+                    isLoading={isLoading}
+                  />
+                </div>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      </div>
+    );
+};

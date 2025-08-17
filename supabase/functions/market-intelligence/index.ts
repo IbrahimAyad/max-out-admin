@@ -52,6 +52,12 @@ Deno.serve(async (req) => {
             paymentsResponse.json()
         ]);
 
+        // Ensure we have arrays to work with
+        const productsArray = Array.isArray(products) ? products : [];
+        const ordersArray = Array.isArray(orders) ? orders : [];
+        const customersArray = Array.isArray(customers) ? customers : [];
+        const paymentsArray = Array.isArray(payments) ? payments : [];
+
         // Get real trending fashion data from KCT Knowledge API
         const [trendingResponse, colorsResponse] = await Promise.all([
             fetch(`${KCT_API_URL}/trending`, {
@@ -80,10 +86,10 @@ Deno.serve(async (req) => {
         }
 
         // Calculate real market metrics from business data
-        const totalRevenue = payments.reduce((sum: number, payment: any) => sum + (payment.amount || 0), 0);
+        const totalRevenue = paymentsArray.reduce((sum: number, payment: any) => sum + (payment.amount || 0), 0);
         const totalMarketSize = totalRevenue * 50; // Estimate based on market share
         const marketShare = 0.024; // 2.4% market share
-        const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+        const avgOrderValue = ordersArray.length > 0 ? totalRevenue / ordersArray.length : 0;
 
         // Extract trending segments from fashion API
         const trendingSegments = trendingData?.data?.trends || ['Sustainable Fashion', 'Custom Tailoring', 'Casual Professional'];
@@ -161,7 +167,7 @@ Deno.serve(async (req) => {
                 ],
                 weaknesses: [
                     'Limited brand recognition compared to established players',
-                    orders.length < 100 ? 'Limited order volume' : 'Smaller inventory compared to major competitors',
+                    ordersArray.length < 100 ? 'Limited order volume' : 'Smaller inventory compared to major competitors',
                     'Limited physical retail presence'
                 ],
                 opportunities: [
@@ -187,9 +193,9 @@ Deno.serve(async (req) => {
             data: marketData,
             metadata: {
                 data_points: {
-                    products: products.length,
-                    orders: orders.length,
-                    customers: customers.length
+                    products: productsArray.length,
+                    orders: ordersArray.length,
+                    customers: customersArray.length
                 },
                 fashion_api_data: {
                     trending_available: !!trendingData,

@@ -249,11 +249,6 @@ export default function ProductDetails() {
                   <p className="text-lg font-semibold text-neutral-900">
                     {formatCurrency(product.base_price)}
                   </p>
-                  {product.compare_at_price && product.compare_at_price > product.base_price && (
-                    <p className="text-sm text-neutral-500 line-through">
-                      {formatCurrency(product.compare_at_price)}
-                    </p>
-                  )}
                 </div>
               </div>
               
@@ -261,76 +256,8 @@ export default function ProductDetails() {
                 <label className="block text-sm font-medium text-neutral-500">Category</label>
                 <p className="text-sm text-neutral-900">
                   {product.category}
-                  {product.subcategory && (
-                    <span className="text-neutral-500"> • {product.subcategory}</span>
-                  )}
                 </p>
               </div>
-              
-              {product.color_family && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Color</label>
-                  <p className="text-sm text-neutral-900">{product.color_family}</p>
-                </div>
-              )}
-              
-              {product.fit_type && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Fit Type</label>
-                  <p className="text-sm text-neutral-900">{product.fit_type}</p>
-                </div>
-              )}
-              
-              {product.price_tier && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Price Tier</label>
-                  <p className="text-sm text-neutral-900">
-                    {product.price_tier.replace('tier_', '').replace('_', ' ').toUpperCase()}
-                  </p>
-                </div>
-              )}
-              
-              {product.style_code && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Style Code</label>
-                  <p className="text-sm text-neutral-900">{product.style_code}</p>
-                </div>
-              )}
-              
-              {(product.season || product.collection) && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Collection</label>
-                  <p className="text-sm text-neutral-900">
-                    {product.season && product.collection 
-                      ? `${product.season} - ${product.collection}`
-                      : product.season || product.collection
-                    }
-                  </p>
-                </div>
-              )}
-              
-              {product.materials && typeof product.materials === 'object' && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Materials</label>
-                  <p className="text-sm text-neutral-900">
-                    {Array.isArray(product.materials) 
-                      ? product.materials.join(', ')
-                      : typeof product.materials === 'string'
-                      ? product.materials
-                      : Object.values(product.materials).join(', ')
-                    }
-                  </p>
-                </div>
-              )}
-              
-              {product.available_sizes && Array.isArray(product.available_sizes) && product.available_sizes.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-500">Available Sizes</label>
-                  <p className="text-sm text-neutral-900">
-                    {product.available_sizes.join(', ')}
-                  </p>
-                </div>
-              )}
               
               <div>
                 <label className="block text-sm font-medium text-neutral-500">Handle</label>
@@ -400,42 +327,6 @@ export default function ProductDetails() {
                 </span>
               </div>
               
-              {product.view_count !== null && product.view_count !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-neutral-500">Views:</span>
-                  <span className="text-sm font-medium text-neutral-900">
-                    {product.view_count.toLocaleString()}
-                  </span>
-                </div>
-              )}
-              
-              {product.add_to_cart_count !== null && product.add_to_cart_count !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-neutral-500">Added to Cart:</span>
-                  <span className="text-sm font-medium text-neutral-900">
-                    {product.add_to_cart_count.toLocaleString()}
-                  </span>
-                </div>
-              )}
-              
-              {product.purchase_count !== null && product.purchase_count !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-neutral-500">Purchases:</span>
-                  <span className="text-sm font-medium text-neutral-900">
-                    {product.purchase_count.toLocaleString()}
-                  </span>
-                </div>
-              )}
-              
-              {product.return_rate !== null && product.return_rate !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-neutral-500">Return Rate:</span>
-                  <span className="text-sm font-medium text-neutral-900">
-                    {(product.return_rate * 100).toFixed(1)}%
-                  </span>
-                </div>
-              )}
-              
               <div className="flex justify-between">
                 <span className="text-sm text-neutral-500">Created:</span>
                 <span className="text-sm font-medium text-neutral-900">
@@ -453,56 +344,6 @@ export default function ProductDetails() {
               )}
             </div>
           </div>
-          
-          {/* SEO & Marketing */}
-          {(product.meta_title || product.meta_description || product.tags) && (
-            <div className="bg-white rounded-lg border border-neutral-200 p-6">
-              <h3 className="text-lg font-medium text-neutral-900 mb-4">SEO & Marketing</h3>
-              <div className="space-y-3">
-                {product.meta_title && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-neutral-500">Meta Title:</span>
-                    <span className="text-sm font-medium text-neutral-900 text-right max-w-xs truncate">
-                      {product.meta_title}
-                    </span>
-                  </div>
-                )}
-                
-                {product.meta_description && (
-                  <div>
-                    <span className="text-sm text-neutral-500">Meta Description:</span>
-                    <p className="text-sm text-neutral-900 mt-1">
-                      {product.meta_description}
-                    </p>
-                  </div>
-                )}
-                
-                {product.tags && Array.isArray(product.tags) && product.tags.length > 0 && (
-                  <div>
-                    <span className="text-sm text-neutral-500">Tags:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {product.tags.map((tag: string, index: number) => (
-                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {product.is_indexable !== null && product.is_indexable !== undefined && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-neutral-500">Search Indexable:</span>
-                    <span className={`text-sm font-medium ${
-                      product.is_indexable ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {product.is_indexable ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

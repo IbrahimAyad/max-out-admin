@@ -1,0 +1,99 @@
+
+> react_repo@0.0.0 build
+> yes | pnpm install && rm -rf node_modules/.vite-temp && tsc -b && vite build
+
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild.                                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 814ms using pnpm v10.12.4
+src/components/analytics/sections/CustomerAnalytics.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/CustomerAnalytics.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/ExecutiveOverview.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/ExecutiveOverview.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/InventoryOptimization.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/InventoryOptimization.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/InventoryOptimization.tsx:4:24 - error TS2307: Cannot find module '../ui/button' or its corresponding type declarations.
+
+4 import { Button } from '../ui/button';
+                         ~~~~~~~~~~~~~~
+
+src/components/analytics/sections/MarketIntelligence.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/MarketIntelligence.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/MarketIntelligence.tsx:4:24 - error TS2307: Cannot find module '../ui/button' or its corresponding type declarations.
+
+4 import { Button } from '../ui/button';
+                         ~~~~~~~~~~~~~~
+
+src/components/analytics/sections/PredictiveAnalytics.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/PredictiveAnalytics.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/PredictiveAnalytics.tsx:4:24 - error TS2307: Cannot find module '../ui/button' or its corresponding type declarations.
+
+4 import { Button } from '../ui/button';
+                         ~~~~~~~~~~~~~~
+
+src/components/analytics/sections/SalesIntelligence.tsx:2:58 - error TS2307: Cannot find module '../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+                                                           ~~~~~~~~~~~~
+
+src/components/analytics/sections/SalesIntelligence.tsx:3:23 - error TS2307: Cannot find module '../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../ui/badge';
+                        ~~~~~~~~~~~~~
+
+src/components/analytics/sections/SalesIntelligence.tsx:4:24 - error TS2307: Cannot find module '../ui/button' or its corresponding type declarations.
+
+4 import { Button } from '../ui/button';
+                         ~~~~~~~~~~~~~~
+
+
+Found 16 errors.
+

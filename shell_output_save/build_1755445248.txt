@@ -1,0 +1,215 @@
+
+> react_repo@0.0.0 build /workspace/order-management-dashboard
+> yes | pnpm install && rm -rf node_modules/.vite-temp && tsc -b && vite build
+
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild.                                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 808ms using pnpm v10.12.4
+src/components/sections/CustomerCommunications.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:3:24 - error TS2307: Cannot find module '../../ui/button' or its corresponding type declarations.
+
+3 import { Button } from '../../ui/button'
+                         ~~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:4:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+4 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:5:23 - error TS2307: Cannot find module '../../ui/input' or its corresponding type declarations.
+
+5 import { Input } from '../../ui/input'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:6:23 - error TS2307: Cannot find module '../../ui/label' or its corresponding type declarations.
+
+6 import { Label } from '../../ui/label'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:7:26 - error TS2307: Cannot find module '../../ui/textarea' or its corresponding type declarations.
+
+7 import { Textarea } from '../../ui/textarea'
+                           ~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:8:81 - error TS2307: Cannot find module '../../ui/dialog' or its corresponding type declarations.
+
+8 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../ui/dialog'
+                                                                                  ~~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:9:79 - error TS2307: Cannot find module '../../ui/select' or its corresponding type declarations.
+
+9 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
+                                                                                ~~~~~~~~~~~~~~~~~
+
+src/components/sections/CustomerCommunications.tsx:10:36 - error TS2307: Cannot find module '../../../hooks/useOrderManagement' or its corresponding type declarations.
+
+10 import { useOrderManagement } from '../../../hooks/useOrderManagement'
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:3:24 - error TS2307: Cannot find module '../../ui/button' or its corresponding type declarations.
+
+3 import { Button } from '../../ui/button'
+                         ~~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:4:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+4 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:5:23 - error TS2307: Cannot find module '../../ui/input' or its corresponding type declarations.
+
+5 import { Input } from '../../ui/input'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:6:23 - error TS2307: Cannot find module '../../ui/label' or its corresponding type declarations.
+
+6 import { Label } from '../../ui/label'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:7:26 - error TS2307: Cannot find module '../../ui/textarea' or its corresponding type declarations.
+
+7 import { Textarea } from '../../ui/textarea'
+                           ~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:8:81 - error TS2307: Cannot find module '../../ui/dialog' or its corresponding type declarations.
+
+8 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../ui/dialog'
+                                                                                  ~~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:9:79 - error TS2307: Cannot find module '../../ui/select' or its corresponding type declarations.
+
+9 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
+                                                                                ~~~~~~~~~~~~~~~~~
+
+src/components/sections/ExceptionManagement.tsx:10:36 - error TS2307: Cannot find module '../../../hooks/useOrderManagement' or its corresponding type declarations.
+
+10 import { useOrderManagement } from '../../../hooks/useOrderManagement'
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:3:24 - error TS2307: Cannot find module '../../ui/button' or its corresponding type declarations.
+
+3 import { Button } from '../../ui/button'
+                         ~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:4:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+4 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:5:23 - error TS2307: Cannot find module '../../ui/input' or its corresponding type declarations.
+
+5 import { Input } from '../../ui/input'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:6:23 - error TS2307: Cannot find module '../../ui/label' or its corresponding type declarations.
+
+6 import { Label } from '../../ui/label'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:7:81 - error TS2307: Cannot find module '../../ui/dialog' or its corresponding type declarations.
+
+7 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../ui/dialog'
+                                                                                  ~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:8:79 - error TS2307: Cannot find module '../../ui/select' or its corresponding type declarations.
+
+8 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
+                                                                                ~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:9:26 - error TS2307: Cannot find module '../../ui/textarea' or its corresponding type declarations.
+
+9 import { Textarea } from '../../ui/textarea'
+                           ~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:10:36 - error TS2307: Cannot find module '../../../hooks/useOrderManagement' or its corresponding type declarations.
+
+10 import { useOrderManagement } from '../../../hooks/useOrderManagement'
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/OrderQueue.tsx:11:104 - error TS2307: Cannot find module '../../../lib/supabase' or its corresponding type declarations.
+
+11 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, ORDER_PRIORITY_LABELS, ORDER_PRIORITY_COLORS } from '../../../lib/supabase'
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/PerformanceAnalytics.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/PerformanceAnalytics.tsx:3:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/ProcessingDashboard.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/ProcessingDashboard.tsx:3:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/ProcessingDashboard.tsx:4:26 - error TS2307: Cannot find module '../../ui/progress' or its corresponding type declarations.
+
+4 import { Progress } from '../../ui/progress'
+                           ~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/ProcessingDashboard.tsx:6:58 - error TS2307: Cannot find module '../../../lib/supabase' or its corresponding type declarations.
+
+6 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '../../../lib/supabase'
+                                                           ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/components/sections/RealTimeMonitoring.tsx:2:58 - error TS2307: Cannot find module '../../ui/card' or its corresponding type declarations.
+
+2 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+                                                           ~~~~~~~~~~~~~~~
+
+src/components/sections/RealTimeMonitoring.tsx:3:23 - error TS2307: Cannot find module '../../ui/badge' or its corresponding type declarations.
+
+3 import { Badge } from '../../ui/badge'
+                        ~~~~~~~~~~~~~~~~
+
+src/components/sections/RealTimeMonitoring.tsx:4:24 - error TS2307: Cannot find module '../../ui/button' or its corresponding type declarations.
+
+4 import { Button } from '../../ui/button'
+                         ~~~~~~~~~~~~~~~~~
+
+src/components/sections/RealTimeMonitoring.tsx:5:26 - error TS2307: Cannot find module '../../ui/progress' or its corresponding type declarations.
+
+5 import { Progress } from '../../ui/progress'
+                           ~~~~~~~~~~~~~~~~~~~
+
+src/hooks/useOrderManagement.ts:2:55 - error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+
+2 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+                                                        ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Found 39 errors.
+
+ ELIFECYCLE  Command failed with exit code 2.

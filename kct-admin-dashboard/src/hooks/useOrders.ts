@@ -1,22 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import {
-  Order,
-  OrderException,
-  CommunicationLog,
-  ProcessingAnalytics,
-  OrderPriorityQueue,
-  OrderStatus,
-  PriorityLevel,
-  DASHBOARD_CONFIG
-} from '../config/orders';
+import { Order, OrderStatus, OrderPriority } from '../config/orders';
 
 interface OrdersState {
   orders: Order[];
-  exceptions: OrderException[];
-  communications: CommunicationLog[];
-  analytics: ProcessingAnalytics[];
-  priorityQueue: OrderPriorityQueue[];
   loading: boolean;
   error: string | null;
 }
@@ -24,23 +11,15 @@ interface OrdersState {
 interface OrdersActions {
   refreshOrders: () => Promise<void>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
-  createException: (orderId: string, type: string, description: string) => Promise<void>;
-  resolveException: (exceptionId: string, notes: string) => Promise<void>;
-  addCommunication: (log: Omit<CommunicationLog, 'id'>) => Promise<void>;
-  updatePriority: (orderId: string, priority: PriorityLevel) => Promise<void>;
+  updatePriority: (orderId: string, priority: OrderPriority) => Promise<void>;
   getOrderById: (orderId: string) => Order | undefined;
   getOrdersByStatus: (status: OrderStatus) => Order[];
   getHighPriorityOrders: () => Order[];
-  getRecentAnalytics: () => ProcessingAnalytics[];
 }
 
 export function useOrders(): OrdersState & OrdersActions {
   const [state, setState] = useState<OrdersState>({
     orders: [],
-    exceptions: [],
-    communications: [],
-    analytics: [],
-    priorityQueue: [],
     loading: true,
     error: null
   });
@@ -59,58 +38,21 @@ export function useOrders(): OrdersState & OrdersActions {
       setLoading(true);
       setError(null);
 
-      // Fetch orders with customer and order items
+      // Fetch orders with order items
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select(`
           *,
-          customers (*),
           order_items (*)
         `)
         .order('created_at', { ascending: false })
-        .limit(DASHBOARD_CONFIG.MAX_RECENT_ORDERS);
+        .limit(100);
 
       if (ordersError) throw ordersError;
-
-      // Fetch exceptions
-      const { data: exceptions, error: exceptionsError } = await supabase
-        .from('order_exceptions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (exceptionsError) throw exceptionsError;
-
-      // Fetch communication logs
-      const { data: communications, error: communicationsError } = await supabase
-        .from('communication_logs')
-        .select('*')
-        .order('sent_at', { ascending: false });
-
-      if (communicationsError) throw communicationsError;
-
-      // Fetch analytics
-      const { data: analytics, error: analyticsError } = await supabase
-        .from('processing_analytics')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (analyticsError) throw analyticsError;
-
-      // Fetch priority queue
-      const { data: priorityQueue, error: queueError } = await supabase
-        .from('order_priority_queue')
-        .select('*')
-        .order('queue_position', { ascending: true });
-
-      if (queueError) throw queueError;
 
       setState(prev => ({
         ...prev,
         orders: orders || [],
-        exceptions: exceptions || [],
-        communications: communications || [],
-        analytics: analytics || [],
-        priorityQueue: priorityQueue || [],
         loading: false
       }));
     } catch (error) {
@@ -130,7 +72,7 @@ export function useOrders(): OrdersState & OrdersActions {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({ status: status, updated_at: new Date().toISOString() })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -140,7 +82,7 @@ export function useOrders(): OrdersState & OrdersActions {
         ...prev,
         orders: prev.orders.map(order => 
           order.id === orderId 
-            ? { ...order, status, updated_at: new Date().toISOString() }
+            ? { ...order, status: status, updated_at: new Date().toISOString() }
             : order
         )
       }));
@@ -150,96 +92,12 @@ export function useOrders(): OrdersState & OrdersActions {
     }
   }, []);
 
-  // Create new exception
-  const createException = useCallback(async (orderId: string, type: string, description: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('order_exceptions')
-        .insert({
-          order_id: orderId,
-          exception_type: type,
-          description,
-          status: 'open',
-          priority_level: 'medium'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        exceptions: [data, ...prev.exceptions]
-      }));
-    } catch (error) {
-      console.error('Error creating exception:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create exception');
-    }
-  }, []);
-
-  // Resolve exception
-  const resolveException = useCallback(async (exceptionId: string, notes: string) => {
-    try {
-      const { error } = await supabase
-        .from('order_exceptions')
-        .update({ 
-          status: 'resolved',
-          resolution_notes: notes,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', exceptionId);
-
-      if (error) throw error;
-
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        exceptions: prev.exceptions.map(exception => 
-          exception.id === exceptionId 
-            ? { 
-                ...exception, 
-                status: 'resolved' as any,
-                resolution_notes: notes,
-                updated_at: new Date().toISOString()
-              }
-            : exception
-        )
-      }));
-    } catch (error) {
-      console.error('Error resolving exception:', error);
-      setError(error instanceof Error ? error.message : 'Failed to resolve exception');
-    }
-  }, []);
-
-  // Add communication log
-  const addCommunication = useCallback(async (log: Omit<CommunicationLog, 'id'>) => {
-    try {
-      const { data, error } = await supabase
-        .from('communication_logs')
-        .insert(log)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        communications: [data, ...prev.communications]
-      }));
-    } catch (error) {
-      console.error('Error adding communication:', error);
-      setError(error instanceof Error ? error.message : 'Failed to add communication');
-    }
-  }, []);
-
   // Update order priority
-  const updatePriority = useCallback(async (orderId: string, priority: PriorityLevel) => {
+  const updatePriority = useCallback(async (orderId: string, priority: OrderPriority) => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ priority_level: priority })
+        .update({ order_priority: priority })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -249,7 +107,7 @@ export function useOrders(): OrdersState & OrdersActions {
         ...prev,
         orders: prev.orders.map(order => 
           order.id === orderId 
-            ? { ...order, priority_level: priority }
+            ? { ...order, order_priority: priority }
             : order
         )
       }));
@@ -270,14 +128,10 @@ export function useOrders(): OrdersState & OrdersActions {
 
   const getHighPriorityOrders = useCallback(() => {
     return state.orders.filter(order => 
-      order.priority_level && 
-      [PriorityLevel.HIGH, PriorityLevel.URGENT, PriorityLevel.WEDDING, PriorityLevel.RUSH].includes(order.priority_level)
+      order.order_priority && 
+      [OrderPriority.HIGH, OrderPriority.URGENT, OrderPriority.WEDDING_PARTY, OrderPriority.RUSH].includes(order.order_priority)
     );
   }, [state.orders]);
-
-  const getRecentAnalytics = useCallback(() => {
-    return state.analytics.slice(0, 10);
-  }, [state.analytics]);
 
   // Initial data fetch
   useEffect(() => {
@@ -296,19 +150,8 @@ export function useOrders(): OrdersState & OrdersActions {
       )
       .subscribe();
 
-    const exceptionsSubscription = supabase
-      .channel('exceptions_changes')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'order_exceptions' },
-        () => {
-          refreshOrders();
-        }
-      )
-      .subscribe();
-
     return () => {
       ordersSubscription.unsubscribe();
-      exceptionsSubscription.unsubscribe();
     };
   }, [refreshOrders]);
 
@@ -316,13 +159,9 @@ export function useOrders(): OrdersState & OrdersActions {
     ...state,
     refreshOrders,
     updateOrderStatus,
-    createException,
-    resolveException,
-    addCommunication,
     updatePriority,
     getOrderById,
     getOrdersByStatus,
-    getHighPriorityOrders,
-    getRecentAnalytics
+    getHighPriorityOrders
   };
 }

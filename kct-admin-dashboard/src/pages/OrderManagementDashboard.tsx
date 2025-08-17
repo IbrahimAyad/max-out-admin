@@ -1,37 +1,20 @@
 import React, { useState } from 'react';
 import { useOrders } from '../hooks/useOrders';
 import { Order, OrderStatus } from '../config/orders';
-import { OrderQueue } from '../components/orders/OrderQueue';
-import { ProcessingDashboard } from '../components/orders/ProcessingDashboard';
-import { ExceptionManagement } from '../components/orders/ExceptionManagement';
-import { OrderDetailsView } from '../components/orders/OrderDetailsView';
-import { PerformanceAnalytics } from '../components/orders/PerformanceAnalytics';
-import { CommunicationLogComponent } from '../components/orders/CommunicationLog';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
-
-type DashboardTab = 'queue' | 'processing' | 'exceptions' | 'analytics' | 'communications';
+import { RefreshCw, AlertTriangle, Package } from 'lucide-react';
 
 export default function OrderManagementDashboard() {
   const {
     orders,
-    exceptions,
-    communications,
-    analytics,
     loading,
     error,
     refreshOrders,
     updateOrderStatus,
-    createException,
-    resolveException,
-    addCommunication,
     updatePriority,
-    getOrderById,
     getOrdersByStatus,
     getHighPriorityOrders
   } = useOrders();
 
-  const [activeTab, setActiveTab] = useState<DashboardTab>('queue');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -40,57 +23,10 @@ export default function OrderManagementDashboard() {
     setRefreshing(false);
   };
 
-  const handleOrderSelect = (order: Order) => {
-    setSelectedOrder(order);
-  };
-
-  const handleCloseOrderDetails = () => {
-    setSelectedOrder(null);
-  };
-
   // Calculate dashboard stats
-  const pendingOrders = getOrdersByStatus(OrderStatus.PENDING);
+  const pendingOrders = getOrdersByStatus(OrderStatus.PENDING_PAYMENT);
   const processingOrders = getOrdersByStatus(OrderStatus.PROCESSING);
   const highPriorityOrders = getHighPriorityOrders();
-  const openExceptions = exceptions.filter(e => e.status === 'open' || e.status === 'in_progress');
-
-  const tabs = [
-    {
-      id: 'queue' as DashboardTab,
-      name: 'Order Queue',
-      count: pendingOrders.length,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      id: 'processing' as DashboardTab,
-      name: 'Processing',
-      count: processingOrders.length,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      id: 'exceptions' as DashboardTab,
-      name: 'Exceptions',
-      count: openExceptions.length,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
-    },
-    {
-      id: 'analytics' as DashboardTab,
-      name: 'Analytics',
-      count: null,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
-    },
-    {
-      id: 'communications' as DashboardTab,
-      name: 'Communications',
-      count: communications.length,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
-    }
-  ];
 
   if (loading) {
     return (
@@ -179,8 +115,8 @@ export default function OrderManagementDashboard() {
               </div>
               <div className="bg-red-50 rounded-lg p-4">
                 <div className="flex items-center">
-                  <div className="text-2xl font-bold text-red-600">{openExceptions.length}</div>
-                  <div className="ml-2 text-sm text-red-600">Exceptions</div>
+                  <div className="text-2xl font-bold text-red-600">{highPriorityOrders.length}</div>
+                  <div className="ml-2 text-sm text-red-600">High Priority</div>
                 </div>
               </div>
             </div>
@@ -188,89 +124,56 @@ export default function OrderManagementDashboard() {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
-                  activeTab === tab.id
-                    ? `border-blue-500 ${tab.color}`
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <span>{tab.name}</span>
-                  {tab.count !== null && (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      activeTab === tab.id ? tab.bgColor : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {tab.count}
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'queue' && (
-          <OrderQueue
-            orders={orders}
-            onOrderSelect={handleOrderSelect}
-            onStatusUpdate={updateOrderStatus}
-            onPriorityUpdate={updatePriority}
-          />
-        )}
-        
-        {activeTab === 'processing' && (
-          <ProcessingDashboard
-            orders={orders}
-            analytics={analytics}
-            onOrderSelect={handleOrderSelect}
-          />
-        )}
-        
-        {activeTab === 'exceptions' && (
-          <ExceptionManagement
-            exceptions={exceptions}
-            onResolveException={resolveException}
-            onCreateException={createException}
-          />
-        )}
-        
-        {activeTab === 'analytics' && (
-          <PerformanceAnalytics
-            orders={orders}
-            analytics={analytics}
-          />
-        )}
-        
-        {activeTab === 'communications' && (
-          <CommunicationLogComponent
-            communications={communications}
-            onAddCommunication={addCommunication}
-          />
-        )}
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+          </div>
+          <div className="p-6">
+            {orders.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Found</h3>
+                <p className="text-gray-600">Orders will appear here once customers start placing them.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders.slice(0, 10).map((order) => (
+                  <div key={order.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{order.order_number}</h4>
+                        <p className="text-sm text-gray-600">
+                          {order.customer_name} • {order.customer_email}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Created: {new Date(order.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-gray-900">
+                          ${order.total_amount?.toFixed(2) || '0.00'}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-600">
+                            Status: {order.status?.replace('_', ' ').toUpperCase()}
+                          </span>
+                          {order.is_rush_order && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              RUSH
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Order Details Modal */}
-      {selectedOrder && (
-        <OrderDetailsView
-          order={selectedOrder}
-          orderItems={selectedOrder.order_items || []}
-          communications={communications.filter(c => c.order_id === selectedOrder.id)}
-          onClose={handleCloseOrderDetails}
-          onStatusUpdate={updateOrderStatus}
-          onAddCommunication={addCommunication}
-        />
-      )}
     </div>
   );
 }

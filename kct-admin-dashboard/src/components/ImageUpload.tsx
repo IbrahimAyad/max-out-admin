@@ -111,6 +111,7 @@ export default function ImageUpload({
                 resolve()
               },
               onError: (error) => {
+                console.error('Upload error for file:', file.name, error)
                 reject(error)
               }
             }
@@ -123,6 +124,7 @@ export default function ImageUpload({
       setPreviews([])
     } catch (error) {
       console.error('Upload failed:', error)
+      // Error handling is done in the mutation's onError callback
     }
   }, [selectedFiles, uploadImage, productId, onUploadComplete])
 

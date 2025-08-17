@@ -1,43 +1,69 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+Deno.serve(async (req) => {
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE, PATCH',
+        'Access-Control-Max-Age': '86400',
+        'Access-Control-Allow-Credentials': 'false'
+    };
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 200, headers: corsHeaders });
+    }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE, PATCH',
-  'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'false'
-}
-
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders })
-  }
-
-  try {
-    // Initialize Supabase client with service role for storage access
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
+    try {
+        console.log('Image upload function called');
+        
+        // Get Supabase credentials
+        const supabaseUrl = Deno.env.get('SUPABASE_URL');
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!supabaseUrl || !supabaseKey) {
+            throw new Error('Missing Supabase environment variables');
+        }
 
     // Extract request data
     const requestData = await req.json()
+    console.log('Request data received:', { 
+      fileName: requestData.fileName, 
+      productId: requestData.productId, 
+      imageType: requestData.imageType,
+      hasImageData: !!requestData.imageData
+    })
+    
     const { imageData, fileName, productId, imageType = 'gallery' } = requestData
 
     if (!imageData || !fileName) {
       throw new Error('Missing image data or file name')
     }
 
+    // Validate base64 data format
+    if (!imageData.startsWith('data:image/')) {
+      throw new Error('Invalid image data format')
+    }
+
     // Extract base64 data (remove data:image/...;base64, prefix)
-    const base64Data = imageData.split(',')[1]
-    const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))
+    const base64Parts = imageData.split(',')
+    if (base64Parts.length !== 2) {
+      throw new Error('Invalid base64 format')
+    }
+    
+    const base64Data = base64Parts[1]
+    
+    // Validate base64 string
+    if (!base64Data || base64Data.length === 0) {
+      throw new Error('Empty base64 data')
+    }
+    
+    console.log('Base64 data length:', base64Data.length)
+    
+    let binaryData
+    try {
+      binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))
+      console.log('Binary data created, length:', binaryData.length)
+    } catch (error) {
+      throw new Error(`Failed to decode base64: ${error.message}`)
+    }
     
     // Generate unique filename with timestamp
     const timestamp = Date.now()
@@ -45,61 +71,89 @@ serve(async (req) => {
     const uniqueFileName = `${timestamp}-${sanitizedFileName}`
     const filePath = productId ? `products/${productId}/${uniqueFileName}` : `temp/${uniqueFileName}`
 
-    // Upload to storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, binaryData, {
-        contentType: 'image/jpeg',
-        cacheControl: '3600',
-        upsert: false
-      })
+    console.log('Uploading to path:', filePath)
+    
+    // Determine content type from original data
+    const mimeMatch = imageData.match(/data:([^;]+);/)
+    const contentType = mimeMatch ? mimeMatch[1] : 'image/jpeg'
+    
+        // Upload to storage using REST API
+        const storageUrl = `${supabaseUrl}/storage/v1/object/product-images/${filePath}`;
+        
+        const uploadResponse = await fetch(storageUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': contentType,
+                'Cache-Control': '3600'
+            },
+            body: binaryData
+        });
 
-    if (uploadError) {
-      throw new Error(`Upload failed: ${uploadError.message}`)
-    }
+        if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error('Storage upload error:', errorText);
+            throw new Error(`Upload failed: ${uploadResponse.status} ${errorText}`);
+        }
+        
+        console.log('Upload successful');
 
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath)
-
-    if (!urlData?.publicUrl) {
-      throw new Error('Failed to get public URL')
-    }
+        // Get public URL
+        const publicUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${filePath}`;
+        
+        console.log('Public URL generated:', publicUrl);
 
     // If productId is provided, also update the product_images table
     if (productId) {
+      console.log('Inserting into product_images table')
+      
       // Get image dimensions (approximate based on file size)
       const approximateWidth = Math.floor(Math.sqrt(binaryData.length / 3 * 4))
       const approximateHeight = Math.floor(approximateWidth * 0.75) // Assume 4:3 ratio
       
-      const { error: dbError } = await supabase
-        .from('product_images')
-        .insert({
-          product_id: productId,
-          image_url: urlData.publicUrl,
-          image_type: imageType,
-          alt_text: `${fileName} - Product Image`,
-          width: approximateWidth,
-          height: approximateHeight,
-          position: 0 // Will be updated by client if needed
-        })
+      const dbPayload = {
+                product_id: productId,
+                image_url: publicUrl,
+                image_type: imageType,
+                alt_text: `${fileName} - Product Image`,
+                width: approximateWidth,
+                height: approximateHeight,
+                position: 0
+            };
+            
+            const dbResponse = await fetch(`${supabaseUrl}/rest/v1/product_images`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'apikey': supabaseKey,
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(dbPayload)
+            });
 
-      if (dbError) {
-        console.warn('Failed to insert into product_images table:', dbError)
-        // Don't throw error - the upload was successful
-      }
+            if (!dbResponse.ok) {
+                const errorText = await dbResponse.text();
+                console.warn('Failed to insert into product_images table:', errorText);
+                // Don't throw error - the upload was successful
+            } else {
+                console.log('Database insert successful');
+            }
     }
 
     // Return success response
-    return new Response(JSON.stringify({
+    const result = {
       success: true,
       data: {
-        publicUrl: urlData.publicUrl,
-        filePath: filePath,
-        fileName: uniqueFileName
-      }
-    }), {
+                publicUrl: publicUrl,
+                filePath: filePath,
+                fileName: uniqueFileName
+            }
+    }
+    
+    console.log('Returning success response:', result)
+    
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 

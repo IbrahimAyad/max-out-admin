@@ -16,12 +16,14 @@ import {
 } from 'lucide-react'
 import { CDN_BASE_URL, getImageUrl, getPrimaryImageFromProduct } from '../lib/supabase'
 import ImageManager from '../components/ImageManager'
+import ProductEditModal from '../components/ProductEditModal'
 
 export default function ProductDetails() {
   const { productId } = useParams()
   const { data: product, isLoading, error } = useProduct(productId!)
   const { productImages, productGallery } = useProductImages(productId!)
   const [activeTab, setActiveTab] = useState<'details' | 'images'>('details')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -131,7 +133,10 @@ export default function ProductDetails() {
               {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
             </span>
           </div>
-          <button className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50">
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
+          >
             <Edit className="h-4 w-4 mr-2" />
             Edit Product
           </button>
@@ -333,7 +338,10 @@ export default function ProductDetails() {
             <div className="bg-white rounded-lg border border-neutral-200 p-6">
               <h3 className="text-lg font-medium text-neutral-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50">
+                <button 
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50"
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Product
                 </button>
@@ -385,6 +393,15 @@ export default function ProductDetails() {
         <div className="space-y-6">
           <ImageManager productId={productId!} />
         </div>
+      )}
+
+      {/* Product Edit Modal */}
+      {product && (
+        <ProductEditModal
+          product={product}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+        />
       )}
     </div>
   )

@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://gvcswimqaxvylgxbklbz.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2Y3N3aW1xYXh2eWxneGJrbGJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1MTU1NzMsImV4cCI6MjA1MzA5MTU3M30.OVBNtP8k_qfwBXXiEGKMcOXVWtudBJlcGJeXOJgJr0I'
 
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase configuration:', {
+    url: supabaseUrl ? 'Present' : 'Missing',
+    key: supabaseAnonKey ? 'Present' : 'Missing'
+  })
   throw new Error(
     'Missing Supabase environment variables. Please check your .env.local file.'
   )
@@ -14,17 +18,31 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
     autoRefreshToken: true,
+    storage: window.localStorage,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'apikey': supabaseAnonKey
+    }
   }
 })
 
 // Helper function to get current user
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error) {
-    console.error('Error getting user:', error)
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('Error getting user:', error)
+      // Try to get session as fallback
+      const { data: { session } } = await supabase.auth.getSession()
+      return session?.user || null
+    }
+    return user
+  } catch (error) {
+    console.error('Critical auth error:', error)
     return null
   }
-  return user
 }
 
 // Order status mappings

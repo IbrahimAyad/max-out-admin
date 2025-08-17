@@ -6,41 +6,93 @@ import toast from 'react-hot-toast'
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: ''
   })
 
+  // Quick admin account for testing
+  const createTestAdmin = async () => {
+    setIsLoading(true)
+    try {
+      const testEmail = 'admin@kctmenswear.com'
+      const testPassword = 'KCTAdmin2025!'
+      
+      const { error } = await supabase.auth.signUp({
+        email: testEmail,
+        password: testPassword,
+      })
+
+      if (error) {
+        // If user already exists, try to sign in
+        if (error.message.includes('already registered')) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: testEmail,
+            password: testPassword,
+          })
+          
+          if (signInError) throw signInError
+          toast.success('Successfully signed in with admin account!')
+        } else {
+          throw error
+        }
+      } else {
+        toast.success('Admin account created! Please check email to confirm.')
+      }
+    } catch (error: any) {
+      console.error('Test admin creation error:', error)
+      toast.error(error.message || 'Failed to create test admin')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      console.log('Attempting authentication...', { email: formData.email, isSignUp })
+      
       if (isSignUp) {
         if (formData.password !== formData.confirmPassword) {
           toast.error('Passwords do not match')
           return
         }
 
-        const { error } = await supabase.auth.signUp({
+        if (formData.password.length < 6) {
+          toast.error('Password must be at least 6 characters')
+          return
+        }
+
+        const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
         })
 
         if (error) throw error
-        toast.success('Please check your email to confirm your account')
+        
+        if (data.user && !data.user.email_confirmed_at) {
+          toast.success('Please check your email to confirm your account')
+        } else {
+          toast.success('Account created and signed in!')
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         })
 
         if (error) throw error
+        
+        console.log('Sign in successful:', data.user?.email)
         toast.success('Successfully signed in!')
       }
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+      console.error('Authentication error:', error)
+      toast.error(error.message || 'An error occurred during authentication')
     } finally {
       setIsLoading(false)
     }
@@ -135,6 +187,35 @@ export function AuthForm() {
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
+          </div>
+          
+          <div className="text-center border-t pt-4">
+            <button
+              type="button"
+              onClick={createTestAdmin}
+              disabled={isLoading}
+              className="w-full text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 py-2 px-4 rounded-md transition-colors"
+            >
+              Quick Admin Access (Testing)
+            </button>
+          </div>
+          
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowDebug(!showDebug)}
+              className="text-xs text-gray-400 hover:text-gray-600"
+            >
+              Debug Info
+            </button>
+            
+            {showDebug && (
+              <div className="mt-2 p-3 bg-gray-50 rounded text-xs text-left">
+                <p><strong>Supabase URL:</strong> {import.meta.env.VITE_SUPABASE_URL || 'Not loaded'}</p>
+                <p><strong>Environment:</strong> {import.meta.env.MODE}</p>
+                <p><strong>Build Time:</strong> {new Date().toISOString()}</p>
+              </div>
+            )}
           </div>
         </form>
       </div>

@@ -5,14 +5,14 @@
         "id": "1",
         "content": "Integrate EasyPost shipping API into KCT Menswear order processing workflow",
         "details": "1. Set up EasyPost webhook endpoint in Supabase edge function. 2. Create shipping rate calculator. 3. Add automatic label generation. 4. Integrate tracking updates. 5. Update order processing dashboard with shipping features.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Configure EasyPost webhook settings and provide webhook URL details",
         "details": "1. Analyze current webhook configuration. 2. Provide proper webhook URL format. 3. Configure webhook events for tracking updates. 4. Test webhook integration.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       }
     }

@@ -48,7 +48,10 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           stripe_payment_intent_id,
           payment_method,
           payment_status,
+          shipping_first_name,
+          shipping_last_name,
           shipping_address_line1,
+          shipping_address_line2,
           shipping_city,
           shipping_state,
           shipping_postal_code,
@@ -57,6 +60,15 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           actual_delivery_date,
           tracking_number,
           shipping_carrier,
+          shipping_rate_id,
+          shipping_label_url,
+          tracking_status,
+          carrier,
+          service_type,
+          shipping_cost,
+          easypost_shipment_id,
+          shipping_address,
+          from_address,
           is_rush_order,
           is_group_order,
           special_instructions,
@@ -128,6 +140,20 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
   const handleRefresh = () => {
     setRefreshing(true)
     fetchOrders()
+  }
+
+  // Update order with shipping information from shipping manager
+  const handleOrderUpdate = (orderId: string, updates: Partial<Order>) => {
+    setOrders(prevOrders => 
+      prevOrders.map(order => 
+        order.id === orderId ? { ...order, ...updates } : order
+      )
+    )
+    
+    // Update selected order if it's the one being updated
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder(prev => prev ? { ...prev, ...updates } : null)
+    }
   }
 
   // Update order status
@@ -225,6 +251,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
             order={selectedOrder}
             onBack={() => setSelectedOrder(null)}
             onStatusUpdate={updateOrderStatus}
+            onOrderUpdate={handleOrderUpdate}
           />
         ) : (
           <>

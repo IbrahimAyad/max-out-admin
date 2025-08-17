@@ -17,6 +17,8 @@ export interface Order {
   payment_status?: string
   shipping_address_line1?: string
   shipping_address_line2?: string
+  shipping_first_name?: string
+  shipping_last_name?: string
   shipping_city?: string
   shipping_state?: string
   shipping_postal_code?: string
@@ -31,6 +33,16 @@ export interface Order {
   actual_delivery_date?: string
   tracking_number?: string
   shipping_carrier?: string
+  // New EasyPost shipping fields
+  shipping_rate_id?: string
+  shipping_label_url?: string
+  tracking_status?: string
+  carrier?: string
+  service_type?: string
+  shipping_cost?: number
+  easypost_shipment_id?: string
+  shipping_address?: any
+  from_address?: any
   is_rush_order: boolean
   is_group_order: boolean
   special_instructions?: string
@@ -115,4 +127,41 @@ export interface DashboardStatsType {
   totalRevenue: number
   averageOrderValue: number
   rushOrders: number
+}
+
+// Shipping related interfaces
+export interface ShippingRate {
+  id: string
+  carrier: string
+  service: string
+  rate: string
+  delivery_days?: number
+  delivery_date?: string
+}
+
+export interface ShippingEvent {
+  id: string
+  status: string
+  message: string
+  location?: string
+  datetime: string
+  source: 'easypost' | 'database'
+}
+
+export interface TrackingInfo {
+  trackingNumber: string
+  status: string
+  estimatedDeliveryDate?: string
+  carrier?: string
+  events: ShippingEvent[]
+  lastUpdated: string
+}
+
+export interface ShippingLabel {
+  shipmentId: string
+  labelUrl: string
+  trackingNumber: string
+  carrier: string
+  service: string
+  cost: string
 }

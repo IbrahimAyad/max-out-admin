@@ -1,0 +1,30 @@
+📄 Extracted from page: KCT Admin Hub
+URL: https://81i3mxg9zkmm.space.minimax.io/
+
+Extracted content:
+```json
+{
+  "title": "KCT Admin Hub",
+  "url": "https://81i3mxg9zkmm.space.minimax.io/",
+  "summary": "The KCT Admin Hub serves as the central command center for KCT Menswear's administrative operations. It provides a comprehensive overview of daily and weekly business performance metrics, direct access to key operational and analytical dashboards, quick action links for common administrative tasks, and a real-time feed of recent activities and urgent alerts.",
+  "key_points": [
+    "Purpose: Central command center for all administrative operations for KCT Menswear.",
+    "Navigation Elements: The hub is structured into sections including 'Today's Overview', 'Weekly Performance', 'Main Dashboards', 'Quick Actions', and 'Recent Activity'.",
+    "Dashboard Metrics - Today's Overview: Displays Today's Revenue ($0.00), Today's Orders (1), Pending Orders (1), and Urgent Alerts (1).",
+    "Dashboard Metrics - Weekly Performance: Shows Weekly Revenue ($0.00), Weekly Orders (1), Total Customers (1000), and Processing Queue (0). Data last updated at 6:03:07 PM.",
+    "Main Dashboards: Includes a link to the 'Analytics Dashboard' (focused on business intelligence and reporting) and an 'Order Processing Dashboard' (for operational workflows and fulfillment).",
+    "Quick Actions: Provides direct navigation links for 'View All Orders', 'Inventory Management', 'Customer Analytics', and 'Revenue Reports'.",
+    "Recent Activity Feed: Features a chronological list of events and notifications, including test notifications, order status changes (e.g., pending payment, new order, completed), payment confirmations/failures, and low stock alerts. Each entry includes a description, urgency level (NORMAL, URGENT, HIGH), and a timestamp.",
+    "System Architecture Details: No explicit system architecture details are provided on the page, beyond a footer indicating 'Created by MiniMax Agent'."
+  ],
+  "relevant_links": [
+    "https://kei4wjdty1ey.space.minimax.io",
+    "https://i55ibre0zen6.space.minimax.io",
+    "https://i55ibre0zen6.space.minimax.io/orders",
+    "https://i55ibre0zen6.space.minimax.io/inventory",
+    "https://kei4wjdty1ey.space.minimax.io/customers",
+    "https://kei4wjdty1ey.space.minimax.io/revenue"
+  ],
+  "file_name": "kct_admin_hub_details.json"
+}
+```

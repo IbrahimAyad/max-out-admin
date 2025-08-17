@@ -1,0 +1,43 @@
+📄 Extracted from page: Order Management Dashboard
+URL: https://i55ibre0zen6.space.minimax.io/
+
+Extracted content:
+```json
+{
+    "title": "Order Management Dashboard",
+    "url": "https://i55ibre0zen6.space.minimax.io/",
+    "summary": "The Order Management Dashboard for KCT Menswear Admin provides a comprehensive overview of order processing. It features a main dashboard displaying key order statistics such as total, pending, processing, shipped, and completed orders, along with revenue metrics. Additionally, it includes robust filtering capabilities for orders based on status, priority, and date range, alongside a search function. User session management features like Refresh and Sign Out are also available.",
+    "key_points": [
+        "**User Interface & Layout:**",
+        "- Application Title: 'Order Management'",
+        "- Brand/Product Title: 'KCT Menswear Admin Dashboard'",
+        "- User Session Display: 'Welcome, qaxplqth@minimax.com'",
+        "- Main sections: 'Dashboard Overview', 'Filter Orders'",
+        "- Attribution: 'Created by MiniMax Agent'",
+        "**Navigation & User Actions:**",
+        "- 'Refresh' action/button for data reload",
+        "- 'Sign Out' action/button for session termination",
+        "**Dashboard Overview Data Fields (Metrics):**",
+        "- Total Orders: Numeric count (icon: clipboard 📋)",
+        "- Pending: Numeric count (icon: hourglass ⏳)",
+        "- Processing: Numeric count (icon: gear ⚙️)",
+        "- Shipped: Numeric count (icon: delivery truck 🚚)",
+        "- Completed: Numeric count (icon: checkmark ✅)",
+        "- Total Revenue: Currency value (icon: money bag 💰)",
+        "- Avg Order Value: Currency value (icon: bar chart 📊)",
+        "- Rush Orders: Numeric count (icon: fire 🔥)",
+        "**Order Filtering & Search Components:**",
+        "- Search input field for general order lookup.",
+        "- Status filter dropdown with options: 'All Statuses', 'Pending Payment', 'Payment Confirmed', 'Processing', 'In Production', 'Quality Check', 'Packaging', 'Shipped', 'Out for Delivery', 'Delivered', 'Completed', 'Cancelled', 'Refunded', 'On Hold', 'Exception'.",
+        "- Priority filter dropdown with options: 'All Priorities', 'Low', 'Normal', 'High', 'Urgent', 'Rush', 'Wedding Party', 'Prom Group', 'VIP Customer'.",
+        "- Date Range filter dropdown with options: 'All Time', 'Today', 'Last 7 Days', 'Last 30 Days'.",
+        "- Order count display: 'Showing 0 orders' (dynamically updates based on filters).",
+        "- No results message: 'No orders found', 'No orders match your current filters.' (displayed when no orders meet criteria)."
+    ],
+    "relevant_links": [
+        "Refresh",
+        "Sign Out"
+    ],
+    "file_name": "order_management_dashboard_details.json"
+}
+```

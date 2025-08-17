@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCT Menswear - Order Notification Sound</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Preload recommended sound for instant playback -->
+    <link rel="preload" as="audio" href="sounds/luxury-bell.mp3">
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <h1 class="page-title">Order Notification Sound</h1>
+            <p class="page-subtitle">Select a sound to be played for new sales order alerts.</p>
+        </header>
+
+        <section class="sound-options" role="radiogroup" aria-labelledby="page-title">
+            <div class="sound-item" data-sound-id="elegant-chime">
+                <button class="play-button" aria-label="Play Elegant Chime sound" data-sound="sounds/elegant-chime.mp3">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="sound-content">
+                    <div class="sound-header">
+                        <h3 class="sound-title">Elegant Chime</h3>
+                        <input type="radio" name="notification-sound" value="elegant-chime" class="sound-radio" id="chime-radio">
+                        <label for="chime-radio" class="sound-label"></label>
+                    </div>
+                    <p class="sound-description">Sophisticated, subtle notification that conveys elegance without being intrusive. Perfect for maintaining a refined atmosphere.</p>
+                </div>
+            </div>
+
+            <div class="sound-item" data-sound-id="luxury-bell">
+                <button class="play-button" aria-label="Play Luxury Bell sound" data-sound="sounds/luxury-bell.mp3">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="sound-content">
+                    <div class="sound-header">
+                        <h3 class="sound-title">Luxury Bell</h3>
+                        <span class="recommended-badge">RECOMMENDED</span>
+                        <input type="radio" name="notification-sound" value="luxury-bell" class="sound-radio" id="bell-radio" checked>
+                        <label for="bell-radio" class="sound-label"></label>
+                    </div>
+                    <p class="sound-description">Premium, refined sound that captures the essence of high-end retail. Distinctive yet tasteful, ideal for important order notifications.</p>
+                </div>
+            </div>
+
+            <div class="sound-item" data-sound-id="modern-ping">
+                <button class="play-button" aria-label="Play Modern Ping sound" data-sound="sounds/modern-ping.mp3">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="sound-content">
+                    <div class="sound-header">
+                        <h3 class="sound-title">Modern Ping</h3>
+                        <input type="radio" name="notification-sound" value="modern-ping" class="sound-radio" id="ping-radio">
+                        <label for="ping-radio" class="sound-label"></label>
+                    </div>
+                    <p class="sound-description">Clean, professional alert with contemporary appeal. Crisp and clear, ensuring notifications are noticed without disruption.</p>
+                </div>
+            </div>
+
+            <div class="sound-item" data-sound-id="boutique-alert">
+                <button class="play-button" aria-label="Play Boutique Alert sound" data-sound="sounds/boutique-alert.mp3">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="sound-content">
+                    <div class="sound-header">
+                        <h3 class="sound-title">Boutique Alert</h3>
+                        <input type="radio" name="notification-sound" value="boutique-alert" class="sound-radio" id="boutique-radio">
+                        <label for="boutique-radio" class="sound-label"></label>
+                    </div>
+                    <p class="sound-description">High-end retail inspired notification that evokes the atmosphere of exclusive shopping experiences. Warm and inviting tone.</p>
+                </div>
+            </div>
+
+            <div class="sound-item" data-sound-id="executive-notification">
+                <button class="play-button" aria-label="Play Executive Notification sound" data-sound="sounds/executive-notification.mp3">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="sound-content">
+                    <div class="sound-header">
+                        <h3 class="sound-title">Executive Notification</h3>
+                        <input type="radio" name="notification-sound" value="executive-notification" class="sound-radio" id="executive-radio">
+                        <label for="executive-radio" class="sound-label"></label>
+                    </div>
+                    <p class="sound-description">Confident, important-sounding alert that commands attention. Authoritative tone suitable for high-value transactions.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="action-section">
+            <button class="save-button" id="saveSelection">Save Selection</button>
+            <div class="feedback-message" id="feedbackMessage" aria-live="polite"></div>
+        </div>
+
+        <!-- Audio status announcements for screen readers -->
+        <div class="sr-only" aria-live="polite" id="audioStatus"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

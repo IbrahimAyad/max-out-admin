@@ -1,0 +1,235 @@
+{
+  "_source_id": 32,
+  "sources": {
+    "Mobile Admin Interface Design Patterns Research": {
+      "https://medium.com/@CarlosSmith24/admin-dashboard-ui-ux-best-practices-for-2025-8bdc6090c57d": {
+        "id": 1,
+        "publisher": "Medium",
+        "url": "https://medium.com/@CarlosSmith24/admin-dashboard-ui-ux-best-practices-for-2025-8bdc6090c57d",
+        "title": "Admin Dashboard UI/UX: Best Practices for 2025",
+        "info": "Comprehensive guidelines for admin dashboard UI/UX best practices for 2025, including mobile-first approaches, AI integration, personalization, responsive design, and accessibility standards"
+      },
+      "https://www.justinmind.com/ui-design/dashboard-design-best-practices-ux": {
+        "id": 2,
+        "publisher": "Justinmind",
+        "url": "https://www.justinmind.com/ui-design/dashboard-design-best-practices-ux",
+        "title": "Dashboard Design: Best Practices and Examples",
+        "info": "Detailed dashboard design best practices covering UX principles, design patterns, components, and mobile-specific considerations for admin interfaces"
+      },
+      "https://www.uxpin.com/studio/blog/inventory-app-design/": {
+        "id": 3,
+        "publisher": "UXPin",
+        "url": "https://www.uxpin.com/studio/blog/inventory-app-design/",
+        "title": "Inventory App Design – A Comprehensive Guide",
+        "info": "Comprehensive guide to inventory app design including UI patterns, user experience considerations, mobile interface elements, and design process steps"
+      },
+      "https://espeo.eu/content/making-data-visualization-a-major-feature-of-your-next-app/": {
+        "id": 4,
+        "publisher": "Espeo",
+        "url": "https://espeo.eu/content/making-data-visualization-a-major-feature-of-your-next-app/",
+        "title": "Data Visualization in Mobile Apps: The Best Examples",
+        "info": "Best practices for data visualization in mobile apps with emphasis on mobile device capabilities, touch interactions, and user experience considerations"
+      },
+      "https://medium.com/@rosalie24/the-role-of-gestures-in-modern-mobile-app-design-2bc2ec003581": {
+        "id": 5,
+        "publisher": "Medium",
+        "url": "https://medium.com/@rosalie24/the-role-of-gestures-in-modern-mobile-app-design-2bc2ec003581",
+        "title": "The Role of Gestures in Modern Mobile App Design",
+        "info": "Role of gestures in modern mobile app design covering various gesture types, best practices, and future trends in gesture-based interactions"
+      },
+      "https://www.suprsend.com/post/top-6-design-patterns-for-building-effective-notification-systems-for-developers": {
+        "id": 6,
+        "publisher": "SuprSend",
+        "url": "https://www.suprsend.com/post/top-6-design-patterns-for-building-effective-notification-systems-for-developers",
+        "title": "Top 6 Design Patterns for Building Effective Notification Systems for Developers",
+        "info": "Design patterns for building effective notification systems including Observer, Strategy, Template, Factory Method, Chain of Responsibility, and Mediator patterns"
+      },
+      "https://moldstud.com/articles/p-best-practices-for-consistent-ui-across-desktop-and-mobile-in-cross-platform-design": {
+        "id": 7,
+        "publisher": "Moldstud",
+        "url": "https://moldstud.com/articles/p-best-practices-for-consistent-ui-across-desktop-and-mobile-in-cross-platform-design",
+        "title": "Best Practices for Consistent UI Across Desktop and Mobile in Cross-Platform Design",
+        "info": "Best practices for consistent UI design across desktop and mobile platforms including responsive design principles, grid systems, typography, and touch targets"
+      },
+      "https://www.browserstack.com/guide/how-to-implement-mobile-first-design": {
+        "id": 8,
+        "publisher": "BrowserStack",
+        "url": "https://www.browserstack.com/guide/how-to-implement-mobile-first-design",
+        "title": "Mobile First Design: What it is & How to implement it",
+        "info": "Comprehensive guide to mobile-first design implementation strategies, principles, advantages, and comparison with responsive web design"
+      },
+      "https://medium.com/@adam.fard/crm-design-best-practices-966bbb1d60c5": {
+        "id": 9,
+        "publisher": "Medium",
+        "url": "https://medium.com/@adam.fard/crm-design-best-practices-966bbb1d60c5",
+        "title": "CRM Design Best Practices",
+        "info": "CRM design best practices covering user-friendly design principles, mobile compatibility, integration considerations, and common challenges"
+      },
+      "https://pinta.com.ua/en/blog/mobile-admin-panel-store-management": {
+        "id": 10,
+        "publisher": "Pinta",
+        "url": "https://pinta.com.ua/en/blog/mobile-admin-panel-store-management",
+        "title": "Mobile Admin Panel: Manage E-commerce Anywhere",
+        "info": "Mobile admin panel capabilities for e-commerce store management including order management, inventory control, security considerations, and UX patterns"
+      }
+    },
+    "React Native Architecture Research": {
+      "https://shopify.engineering/five-years-of-react-native-at-shopify": {
+        "id": 11,
+        "publisher": "Shopify Engineering",
+        "url": "https://shopify.engineering/five-years-of-react-native-at-shopify",
+        "title": "Five years of React Native at Shopify (2025)",
+        "info": "Comprehensive insights from Shopify's 5-year React Native journey including productivity gains, hybrid architecture approach, performance metrics (sub-500ms screen loads, >99.9% crash-free sessions), challenges with debugging and updates, and their shared foundations strategy for scalability"
+      },
+      "https://reactnative.dev/architecture/landing-page": {
+        "id": 12,
+        "publisher": "React Native",
+        "url": "https://reactnative.dev/architecture/landing-page",
+        "title": "About the New Architecture",
+        "info": "Official documentation on React Native's New Architecture featuring JSI, TurboModules, and Fabric, which addresses legacy limitations and enables synchronous layout, concurrent rendering, and faster JavaScript/native communication, now default from React Native 0.76+"
+      },
+      "https://the-expert-developer.medium.com/modular-react-native-architecture-how-to-scale-without-losing-your-sanity-in-2025-66c864b4e29f": {
+        "id": 13,
+        "publisher": "Medium",
+        "url": "https://the-expert-developer.medium.com/modular-react-native-architecture-how-to-scale-without-losing-your-sanity-in-2025-66c864b4e29f",
+        "title": "Modular React Native Architecture: How to Scale Without Losing Your Sanity in 2025",
+        "info": "Guide to modular architecture patterns for scalable React Native applications, emphasizing feature-based organization and avoiding global components for better maintainability in 2025"
+      },
+      "https://reactnative.dev/docs/typescript": {
+        "id": 14,
+        "publisher": "React Native",
+        "url": "https://reactnative.dev/docs/typescript",
+        "title": "Using TypeScript - React Native",
+        "info": "Official documentation on TypeScript integration with React Native, covering configuration patterns, type definitions for components, custom path aliases, and best practices for type-safe development"
+      },
+      "https://reactnavigation.org/docs/typescript/": {
+        "id": 15,
+        "publisher": "React Navigation",
+        "url": "https://reactnavigation.org/docs/typescript/",
+        "title": "Type checking with TypeScript - React Navigation",
+        "info": "Comprehensive guide to type-checking React Navigation with TypeScript including navigation props, param lists, nested navigators, hooks annotation, and deep linking type safety"
+      },
+      "https://medium.com/@arsathcomeng/zustand-in-react-native-c53381796bf7": {
+        "id": 16,
+        "publisher": "Medium",
+        "url": "https://medium.com/@arsathcomeng/zustand-in-react-native-c53381796bf7",
+        "title": "Zustand in React Native",
+        "info": "Complete guide to implementing Zustand state management in React Native applications, covering store creation, global state patterns, persistent state with middleware, and best practices for performance optimization"
+      },
+      "https://www.callstack.com/ebooks/the-ultimate-guide-to-react-native-optimization": {
+        "id": 17,
+        "publisher": "Callstack",
+        "url": "https://www.callstack.com/ebooks/the-ultimate-guide-to-react-native-optimization",
+        "title": "Master React Native Performance Optimization",
+        "info": "Updated industry reference guide for React Native performance optimization in 2025, covering New Architecture optimizations, Hermes engine, React Compiler, profiling techniques, bundle size analysis, and memory management strategies"
+      },
+      "https://www.netguru.com/blog/design-systems-in-react-native": {
+        "id": 18,
+        "publisher": "Netguru",
+        "url": "https://www.netguru.com/blog/design-systems-in-react-native",
+        "title": "Design Systems in React Native",
+        "info": "Implementation guide for design systems in React Native using Styled-components, Storybook for component development, tools like Zeplin and IcoMoon, and strategies for managing typography, color themes, layouts, and reusable components"
+      },
+      "https://supabase.com/blog/react-native-offline-first-watermelon-db": {
+        "id": 19,
+        "publisher": "Supabase",
+        "url": "https://supabase.com/blog/react-native-offline-first-watermelon-db",
+        "title": "Offline-first React Native Apps with Expo, WatermelonDB, and Supabase",
+        "info": "Technical implementation of offline-first React Native applications using WatermelonDB for local storage, Supabase for backend synchronization via RPC functions, real-time data patterns, and trade-offs of offline-first architecture"
+      },
+      "https://blog.logrocket.com/atomic-design-react-native/": {
+        "id": 20,
+        "publisher": "LogRocket",
+        "url": "https://blog.logrocket.com/atomic-design-react-native/",
+        "title": "Understanding how Atomic Design is used in React Native",
+        "info": "Application of Atomic Design methodology in React Native, detailing the five-level component hierarchy (Atoms, Molecules, Organisms, Templates, Pages) with practical code examples and implementation strategies for modular UI construction"
+      },
+      "https://reactnative.dev/docs/accessibility": {
+        "id": 21,
+        "publisher": "React Native",
+        "url": "https://reactnative.dev/docs/accessibility",
+        "title": "Accessibility - React Native",
+        "info": "Official documentation on React Native accessibility APIs for integrating with mobile assistive technologies like VoiceOver (iOS) and TalkBack (Android), covering accessibility properties, ARIA support, platform-specific considerations, and testing methods"
+      }
+    },
+    "Luxury Fashion Mobile App UI/UX Analysis": {
+      "https://medium.com/@bernelieluvandu/net-a-porter-redesign-ux-ui-case-study-151e4de214ef": {
+        "id": 22,
+        "publisher": "Medium",
+        "url": "https://medium.com/@bernelieluvandu/net-a-porter-redesign-ux-ui-case-study-151e4de214ef",
+        "title": "Net A Porter Redesign- UX/UI Case Study",
+        "info": "Comprehensive analysis of Net-a-Porter mobile app UX issues including overwhelming content, confusing layout, and high bounce rate. Details redesign process using double diamond methodology, user research findings, and proposed solutions including minimalistic design, improved navigation, and enhanced accessibility."
+      },
+      "https://www.smashingmagazine.com/2017/02/realities-ux-design-luxury-industry/": {
+        "id": 23,
+        "publisher": "Smashing Magazine",
+        "url": "https://www.smashingmagazine.com/2017/02/realities-ux-design-luxury-industry/",
+        "title": "The Realities Of User Experience Design Within The Luxury Industry",
+        "info": "In-depth analysis of luxury industry UX design patterns, user behavior insights showing luxury consumers value efficiency and personalized human interaction, design challenges, and solutions including concierge chat features, simplified service discovery, and visual design elements for exclusivity."
+      },
+      "https://www.designrush.com/best-designs/apps/farfetch": {
+        "id": 24,
+        "publisher": "DesignRush",
+        "url": "https://www.designrush.com/best-designs/apps/farfetch",
+        "title": "Best App Design Inspiration: Farfetch",
+        "info": "Analysis of Farfetch app design emphasizing luxury and fashionability through muted color palette offset by colorful product imagery, bright blue accent for calls-to-action, white product backgrounds, homescreen browsing encouragement, and navigation patterns."
+      },
+      "https://www.heady.io/blog/luxury-brands-digital-product-design-mobile-apps-websites": {
+        "id": 25,
+        "publisher": "Heady",
+        "url": "https://www.heady.io/blog/luxury-brands-digital-product-design-mobile-apps-websites",
+        "title": "Designing Digital Products for Luxury Brands",
+        "info": "Four essential keys for luxury digital experiences: clean & elegant UI with refined typography and minimal color palettes, smooth & intuitive UX with seamless navigation, personalized interactions for VIP treatment, and thoughtful brand storytelling. Emphasizes design systems for brand integrity."
+      },
+      "https://www.shijie.im/SSENSE.html": {
+        "id": 26,
+        "publisher": "Shijie Portfolio",
+        "url": "https://www.shijie.im/SSENSE.html",
+        "title": "SSENSE App Redesign",
+        "info": "Detailed SSENSE mobile app redesign case study from 2022 focusing on intuitive navigation, user experience improvements, addressing disorganized home screen, lost editorial content, and poor search/filter UI. Includes specific typography choices (Marope for headings, Jakarta Sans for body), navigation patterns, and visual design improvements."
+      },
+      "https://www.mobiloud.com/use-cases/luxury-designer-mobile-apps": {
+        "id": 27,
+        "publisher": "MobiLoud",
+        "url": "https://www.mobiloud.com/use-cases/luxury-designer-mobile-apps",
+        "title": "How to Build a Mobile App for Luxury & Designer Brands",
+        "info": "Comprehensive guide on luxury mobile app development approaches, essential features for premium user experience including high-resolution visual storytelling, push notifications for VIP engagement, seamless one-tap checkout, loyalty integration, and personalized collections. Includes statistics showing 70% mobile traffic in luxury retail."
+      },
+      "https://medium.com/@garance.berliet/wireframing-farfetchs-app-94ee7315893": {
+        "id": 28,
+        "publisher": "Medium",
+        "url": "https://medium.com/@garance.berliet/wireframing-farfetchs-app-94ee7315893",
+        "title": "Wireframing Farfetch App",
+        "info": "Wireframing analysis of Farfetch app's 'add to bag' user flow highlighting key UI patterns including bottom navigation bar, pop-in components for product listings, Instagram-inspired story templates, and user interaction patterns for maintaining context during shopping experience."
+      },
+      "https://thisisglance.com/blog/luxury-brand-app-development-essential-strategies-and-best-practices": {
+        "id": 29,
+        "publisher": "Glance",
+        "url": "https://thisisglance.com/blog/luxury-brand-app-development-essential-strategies-and-best-practices",
+        "title": "Luxury Brand App Development: Essential Strategies and Best Practices",
+        "info": "Comprehensive strategy guide for luxury app development focusing on digital extension of brand heritage, user experience patterns emphasizing 'digital white glove service', design principles of refined simplicity with generous white space and high-resolution imagery, and technical excellence requirements."
+      },
+      "https://www.mrporter.com/en-us/content/app/": {
+        "id": 30,
+        "publisher": "MR PORTER",
+        "url": "https://www.mrporter.com/en-us/content/app/",
+        "title": "Our Apps | MR PORTER",
+        "info": "Official MR PORTER app information detailing features including shopping from 600+ menswear brands, wish list management, content integration with 'The Journal' for style advice, push notifications for exclusives, and payment card scan functionality for streamlined luxury menswear shopping experience."
+      },
+      "https://www.endclothing.com/us/end-apps": {
+        "id": 31,
+        "publisher": "END Clothing",
+        "url": "https://www.endclothing.com/us/end-apps",
+        "title": "Our apps | END",
+        "info": "END mobile app targeting streetwear luxury market with features including notifications for new arrivals/events, limited edition 'Drops' registration for sneakers/clothing, wishlist functionality, powerful search capabilities, expedited checkout via Apple Pay/Google Pay, and Live Chat support for expert assistance."
+      },
+      "https://medium.com/design-bootcamp/wireframe-exploration-decoding-the-farfetch-apps-search-flow-9a20d876bf73": {
+        "id": 32,
+        "publisher": "Medium",
+        "url": "https://medium.com/design-bootcamp/wireframe-exploration-decoding-the-farfetch-apps-search-flow-9a20d876bf73",
+        "title": "Wireframe exploration: decoding the Farfetch app's search flow",
+        "info": "Wireframing analysis of Farfetch app's search flow covering user journey from home screen through search, product details, cart, and login. Highlights intuitive, minimalist, user-centric design with search bar placement at bottom, personalized recommendations, comprehensive product details, and minimalist black/white aesthetic suitable for luxury fashion e-commerce."
+      }
+    }
+  }
+}

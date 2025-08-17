@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { ShippingRateCalculator } from './ShippingRateCalculator'
 import { ShippingLabelGenerator } from './ShippingLabelGenerator'
 import { TrackingDisplay } from './TrackingDisplay'
+import PackageTemplateSelector from './PackageTemplateSelector'
+import { supabase } from '../lib/supabase'
 import type { Order, ShippingRate, ShippingLabel, TrackingInfo } from '../types/order'
 import toast from 'react-hot-toast'
 
@@ -14,7 +16,28 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
   const [selectedRate, setSelectedRate] = useState<ShippingRate | null>(null)
   const [shippingLabel, setShippingLabel] = useState<ShippingLabel | null>(null)
   const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null)
-  const [activeTab, setActiveTab] = useState<'rates' | 'label' | 'tracking'>('rates')
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null)
+  const [orderItems, setOrderItems] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<'templates' | 'rates' | 'label' | 'tracking'>('templates')
+
+  // Fetch order items for template recommendations
+  useEffect(() => {
+    const fetchOrderItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('order_items')
+          .select('*')
+          .eq('order_id', order.id)
+        
+        if (error) throw error
+        setOrderItems(data || [])
+      } catch (error) {
+        console.error('Error fetching order items:', error)
+      }
+    }
+
+    fetchOrderItems()
+  }, [order.id])
 
   // Check if order has shipping address
   const hasShippingAddress = order.shipping_address_line_1 && 
@@ -38,10 +61,18 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
       setActiveTab('tracking')
     } else if (order.shipping_label_url) {
       setActiveTab('label')
-    } else {
+    } else if (selectedTemplate) {
       setActiveTab('rates')
+    } else {
+      setActiveTab('templates')
     }
-  }, [order])
+  }, [order, selectedTemplate])
+
+  const handleTemplateSelected = (template: any) => {
+    setSelectedTemplate(template)
+    setSelectedRate(null) // Reset rate selection when template changes
+    toast.success(`Selected package: ${template.name}`)
+  }
 
   const handleRatesCalculated = (rates: ShippingRate[]) => {
     // Rates are calculated and displayed
@@ -92,7 +123,8 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
       : `${baseClass} text-gray-600 hover:text-gray-800 hover:bg-gray-100`
   }
 
-  const canCalculateRates = hasShippingAddress && !order.tracking_number
+  const canSelectTemplate = orderItems.length > 0 && !order.tracking_number
+  const canCalculateRates = hasShippingAddress && selectedTemplate && !order.tracking_number
   const canGenerateLabel = selectedRate && !order.shipping_label_url
   const canShowTracking = order.tracking_number
 
@@ -121,12 +153,26 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
         {/* Progress Indicators */}
         <div className="flex items-center space-x-4 mb-6">
           <div className={`flex items-center space-x-2 ${
-            canCalculateRates ? 'text-blue-600' : 'text-green-600'
+            canSelectTemplate ? 'text-blue-600' : 'text-green-600'
           }`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              canCalculateRates ? 'bg-blue-100' : 'bg-green-100'
+              canSelectTemplate ? 'bg-blue-100' : 'bg-green-100'
             }`}>
-              {canCalculateRates ? '1' : '✓'}
+              {canSelectTemplate ? '1' : '✓'}
+            </div>
+            <span className="text-sm font-medium">Select Package</span>
+          </div>
+          
+          <div className="flex-1 h-px bg-gray-200"></div>
+          
+          <div className={`flex items-center space-x-2 ${
+            canCalculateRates ? 'text-blue-600' : selectedTemplate && !canCalculateRates ? 'text-green-600' : 'text-gray-400'
+          }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              canCalculateRates ? 'bg-blue-100' : 
+              selectedTemplate && !canCalculateRates ? 'bg-green-100' : 'bg-gray-100'
+            }`}>
+              {selectedTemplate && !canCalculateRates ? '✓' : '2'}
             </div>
             <span className="text-sm font-medium">Calculate Rates</span>
           </div>
@@ -140,7 +186,7 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
               canGenerateLabel ? 'bg-blue-100' : 
               order.shipping_label_url ? 'bg-green-100' : 'bg-gray-100'
             }`}>
-              {order.shipping_label_url ? '✓' : '2'}
+              {order.shipping_label_url ? '✓' : '3'}
             </div>
             <span className="text-sm font-medium">Generate Label</span>
           </div>
@@ -153,7 +199,7 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
               canShowTracking ? 'bg-green-100' : 'bg-gray-100'
             }`}>
-              {canShowTracking ? '✓' : '3'}
+              {canShowTracking ? '✓' : '4'}
             </div>
             <span className="text-sm font-medium">Track Package</span>
           </div>
@@ -167,16 +213,24 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
               <p className="text-lg text-gray-900">
                 {order.tracking_status ? 
                   order.tracking_status.replace('_', ' ').toUpperCase() : 
-                  'Ready for Shipping'
+                  'Ready for Packaging'
                 }
               </p>
             </div>
-            {order.tracking_number && (
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Tracking Number</p>
-                <p className="font-mono text-sm text-gray-900">{order.tracking_number}</p>
-              </div>
-            )}
+            <div className="text-right space-y-1">
+              {selectedTemplate && (
+                <div>
+                  <p className="text-sm text-gray-600">Selected Package</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedTemplate.name}</p>
+                </div>
+              )}
+              {order.tracking_number && (
+                <div>
+                  <p className="text-sm text-gray-600">Tracking Number</p>
+                  <p className="font-mono text-sm text-gray-900">{order.tracking_number}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -184,6 +238,13 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
         <nav className="flex space-x-1">
+          <button
+            onClick={() => setActiveTab('templates')}
+            className={getTabClass('templates')}
+            disabled={!canSelectTemplate && activeTab !== 'templates'}
+          >
+            Package Templates
+          </button>
           <button
             onClick={() => setActiveTab('rates')}
             className={getTabClass('rates')}
@@ -210,7 +271,16 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'rates' && (
+        {activeTab === 'templates' && (
+          <PackageTemplateSelector
+            orderItems={orderItems}
+            selectedTemplate={selectedTemplate}
+            onTemplateSelected={handleTemplateSelected}
+            estimatedWeight={1}
+          />
+        )}
+        
+        {activeTab === 'rates' && selectedTemplate && (
           <ShippingRateCalculator
             orderId={order.id}
             shippingAddress={shippingAddress!}

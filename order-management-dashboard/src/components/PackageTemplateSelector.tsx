@@ -56,22 +56,65 @@ const PackageTemplateSelector: React.FC<PackageTemplateSelectorProps> = ({
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(`API Error: ${error.message || 'Unknown error'}`);
+      }
 
-      setRecommendations(data.recommendations || []);
-      setTemplates(data.allTemplates || []);
+      // Enhanced response structure handling with detailed logging
+      console.log('Raw API response:', data);
+      
+      // Try multiple possible response structures
+      let responseData;
+      if (data?.data) {
+        responseData = data.data;
+        console.log('Using nested data structure');
+      } else if (data?.recommendations || data?.allTemplates) {
+        responseData = data;
+        console.log('Using direct data structure');
+      } else {
+        console.error('Unexpected API response structure:', data);
+        throw new Error('Invalid API response structure - missing recommendations and templates data');
+      }
+
+      // Validate essential data with detailed logging
+      const recommendations = responseData.recommendations || [];
+      const allTemplates = responseData.allTemplates || [];
+      
+      console.log(`Loaded ${recommendations.length} recommendations and ${allTemplates.length} templates`);
+      
+      if (allTemplates.length === 0) {
+        console.warn('No package templates found in database. This may indicate a data seeding issue.');
+        toast.error('No package templates available. Please contact support.');
+      }
+      
+      setRecommendations(recommendations);
+      setTemplates(allTemplates);
       
       // Auto-select the top recommendation if none selected
-      if (!selectedTemplate && data.recommendations && data.recommendations.length > 0) {
-        const topRecommendation = data.recommendations[0];
+      if (!selectedTemplate && recommendations.length > 0) {
+        const topRecommendation = recommendations[0];
         if (topRecommendation.recommendation_level === 'highly_recommended') {
+          console.log('Auto-selecting top recommendation:', topRecommendation.name);
           onTemplateSelected(topRecommendation);
         }
       }
       
     } catch (error) {
-      console.error('Error fetching template recommendations:', error);
-      toast.error('Failed to load package recommendations');
+      console.error('Template recommendation fetch failed:', {
+        error: error.message,
+        orderItems: orderItems.length,
+        estimatedWeight
+      });
+      
+      // More specific error messages
+      if (error.message?.includes('API Error')) {
+        toast.error('Server error loading templates. Please try again.');
+      } else if (error.message?.includes('response structure')) {
+        toast.error('Data format error. Please contact support.');
+      } else {
+        toast.error('Failed to load package recommendations. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { OrderDetails } from './OrderDetails'
 import { DashboardStats } from './DashboardStats'
 import { OrderFilters } from './OrderFilters'
 import { LoadingSpinner } from './LoadingSpinner'
+import { SystemHealthChecker } from './SystemHealthChecker'
 import toast from 'react-hot-toast'
 import type { Order, OrderFilters as OrderFiltersType } from '../types/order'
 
@@ -17,6 +18,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [showHealthChecker, setShowHealthChecker] = useState(false)
   const [filters, setFilters] = useState<OrderFiltersType>({
     status: '',
     priority: '',
@@ -220,6 +222,19 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
             </div>
             <div className="flex items-center gap-4">
               <button
+                onClick={() => setShowHealthChecker(!showHealthChecker)}
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  showHealthChecker 
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                    : 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Health Check
+              </button>
+              <button
                 onClick={handleRefresh}
                 disabled={refreshing}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
@@ -255,6 +270,13 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           />
         ) : (
           <>
+            {/* System Health Checker */}
+            {showHealthChecker && (
+              <div className="mb-6">
+                <SystemHealthChecker autoRun={true} showDetails={true} />
+              </div>
+            )}
+            
             {/* Dashboard Stats */}
             <DashboardStats orders={orders} />
             

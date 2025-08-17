@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
         }
 
         // Fetch all shipping templates
-        const templatesResponse = await fetch(`${supabaseUrl}/rest/v1/shipping_templates?select=*&is_active=eq.true`, {
+        const templatesResponse = await fetch(`${supabaseUrl}/rest/v1/shipping_package_templates?select=*`, {
             headers: {
                 'Authorization': `Bearer ${serviceRoleKey}`,
                 'apikey': serviceRoleKey

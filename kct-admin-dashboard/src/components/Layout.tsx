@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import NotificationBell from './NotificationBell'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -94,40 +95,43 @@ export default function Layout() {
               <Menu className="h-6 w-6" />
             </button>
             <div className="text-lg font-semibold text-black">KCT Menswear</div>
-            <div className="relative">
-              <button
-                type="button"
-                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-              >
-                <div className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center">
-                  <span className="text-sm font-medium text-neutral-700">
-                    {user?.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <ChevronDown className="ml-1 h-4 w-4 text-neutral-500" />
-              </button>
-              
-              <AnimatePresence>
-                {userMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                  >
-                    <div className="py-1">
-                      <button
-                        onClick={handleSignOut}
-                        className="group flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 w-full text-left"
-                      >
-                        <LogOut className="mr-3 h-4 w-4 text-neutral-400 group-hover:text-neutral-500" />
-                        Sign out
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="flex items-center space-x-2">
+              <NotificationBell />
+              <div className="relative">
+                <button
+                  type="button"
+                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                >
+                  <div className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center">
+                    <span className="text-sm font-medium text-neutral-700">
+                      {user?.email?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <ChevronDown className="ml-1 h-4 w-4 text-neutral-500" />
+                </button>
+                
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                    >
+                      <div className="py-1">
+                        <button
+                          onClick={handleSignOut}
+                          className="group flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 w-full text-left"
+                        >
+                          <LogOut className="mr-3 h-4 w-4 text-neutral-400 group-hover:text-neutral-500" />
+                          Sign out
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
@@ -162,11 +166,14 @@ function DesktopSidebar({ navigation, currentPath }: { navigation: any[], curren
     <div className="flex flex-col h-full bg-white border-r border-neutral-200">
       {/* Logo */}
       <div className="flex items-center h-16 flex-shrink-0 px-6 border-b border-neutral-200">
-        <div className="flex items-center">
-          <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center">
-            <span className="text-white font-bold text-sm">KCT</span>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center">
+            <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center">
+              <span className="text-white font-bold text-sm">KCT</span>
+            </div>
+            <span className="ml-3 text-xl font-semibold text-black">Menswear</span>
           </div>
-          <span className="ml-3 text-xl font-semibold text-black">Menswear</span>
+          <NotificationBell />
         </div>
       </div>
 

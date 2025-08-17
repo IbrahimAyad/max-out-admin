@@ -29,53 +29,8 @@ const CustomerInsights: React.FC<CustomerInsightsProps> = ({ timeframe }) => {
         if (error) throw error;
         return data;
       } catch (error) {
-        // Return mock data if API is not available
-        return {
-          customer_segments: [
-            {
-              name: 'VIP Customers',
-              count: 23,
-              avg_order_value: 485,
-              lifetime_value: 2340,
-              retention_rate: 0.89,
-              characteristics: ['High spending', 'Frequent purchases', 'Luxury preferences']
-            },
-            {
-              name: 'Regular Customers',
-              count: 87,
-              avg_order_value: 245,
-              lifetime_value: 980,
-              retention_rate: 0.67,
-              characteristics: ['Consistent purchases', 'Quality conscious', 'Price sensitive']
-            },
-            {
-              name: 'New Customers',
-              count: 156,
-              avg_order_value: 180,
-              lifetime_value: 180,
-              retention_rate: 0.34,
-              characteristics: ['First-time buyers', 'Research-oriented', 'Promotion-driven']
-            }
-          ],
-          behavior_insights: {
-            peak_shopping_times: ['Lunch hours (12-2PM)', 'Evening (6-8PM)'],
-            preferred_categories: ['Business suits', 'Casual wear', 'Accessories'],
-            seasonal_preferences: 'Winter formal wear sales peak in November-December',
-            device_usage: { mobile: 0.62, desktop: 0.28, tablet: 0.10 }
-          },
-          churn_risk: {
-            high_risk: 12,
-            medium_risk: 28,
-            low_risk: 185
-          },
-          satisfaction_metrics: {
-            overall_score: 4.3,
-            product_quality: 4.5,
-            customer_service: 4.2,
-            delivery_speed: 4.1,
-            return_process: 3.9
-          }
-        };
+        console.error('Customer Insights API Error:', error);
+        throw error;
       }
     }
   });

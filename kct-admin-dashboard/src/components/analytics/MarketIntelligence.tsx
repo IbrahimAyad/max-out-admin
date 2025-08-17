@@ -30,82 +30,8 @@ const MarketIntelligence: React.FC<MarketIntelligenceProps> = ({ timeframe }) =>
         if (error) throw error;
         return data;
       } catch (error) {
-        // Return mock data if API is not available
-        return {
-          market_overview: {
-            total_market_size: 125000000,
-            growth_rate: 0.078,
-            our_market_share: 0.024,
-            competitive_position: 'Strong challenger'
-          },
-          competitive_analysis: [
-            {
-              competitor: 'Premium Menswear Co.',
-              market_share: 0.18,
-              strengths: ['Brand recognition', 'Retail presence', 'Product quality'],
-              weaknesses: ['Higher prices', 'Limited online presence'],
-              threat_level: 'high'
-            },
-            {
-              competitor: 'Modern Suit Solutions',
-              market_share: 0.12,
-              strengths: ['Digital-first approach', 'Competitive pricing'],
-              weaknesses: ['Quality concerns', 'Limited product range'],
-              threat_level: 'medium'
-            },
-            {
-              competitor: 'Classic Menswear',
-              market_share: 0.09,
-              strengths: ['Traditional craftsmanship', 'Customer loyalty'],
-              weaknesses: ['Aging customer base', 'Slow digital adoption'],
-              threat_level: 'low'
-            }
-          ],
-          market_trends: {
-            growing_segments: [
-              { segment: 'Sustainable Fashion', growth_rate: 0.25, opportunity_size: 8500000 },
-              { segment: 'Custom Tailoring', growth_rate: 0.19, opportunity_size: 12000000 },
-              { segment: 'Casual Professional', growth_rate: 0.15, opportunity_size: 18500000 }
-            ],
-            declining_segments: [
-              { segment: 'Traditional Formal', decline_rate: -0.08, risk_level: 'medium' }
-            ]
-          },
-          pricing_intelligence: {
-            our_avg_price: 285,
-            market_avg_price: 325,
-            price_positioning: 'Competitive',
-            premium_opportunities: [
-              { category: 'Luxury Suits', current_price: 450, market_ceiling: 650, potential_uplift: 0.44 },
-              { category: 'Designer Accessories', current_price: 85, market_ceiling: 120, potential_uplift: 0.41 }
-            ]
-          },
-          swot_analysis: {
-            strengths: [
-              'Strong online presence and user experience',
-              'Competitive pricing strategy',
-              'High customer satisfaction ratings',
-              'Agile business model'
-            ],
-            weaknesses: [
-              'Limited brand recognition compared to established players',
-              'Smaller inventory compared to major competitors',
-              'Limited physical retail presence'
-            ],
-            opportunities: [
-              'Growing demand for sustainable fashion',
-              'Expansion into custom tailoring services',
-              'Partnership opportunities with fashion influencers',
-              'International market expansion'
-            ],
-            threats: [
-              'Economic downturn affecting luxury spending',
-              'Increased competition from fast fashion',
-              'Supply chain disruptions',
-              'Changing consumer preferences'
-            ]
-          }
-        };
+        console.error('Market Intelligence API Error:', error);
+        throw error;
       }
     }
   });

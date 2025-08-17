@@ -15,60 +15,22 @@ interface ExecutiveOverviewProps {
 }
 
 const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({ timeframe }) => {
-  // Fetch AI-powered insights
-  const { data: insights, isLoading } = useQuery({
+  // Fetch AI-powered insights from real API
+  const { data: insights, isLoading, error } = useQuery({
     queryKey: ['executive-insights', timeframe],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('analytics-proxy', {
-          body: {
-            endpoint: '/executive/overview',
-            params: { timeframe }
-          }
-        });
-        
-        if (error) throw error;
-        return data;
-      } catch (error) {
-        // Return mock data if API is not available
-        return {
-          kpi_summary: {
-            revenue: { current: 125000, growth: 12.5, trend: 'up' },
-            orders: { current: 342, growth: 8.3, trend: 'up' },
-            customers: { current: 156, growth: 15.2, trend: 'up' },
-            profit_margin: { current: 0.28, growth: 3.1, trend: 'up' }
-          },
-          alerts: [
-            {
-              type: 'opportunity',
-              title: 'High-Value Customer Segment Growing',
-              description: 'Premium customers increased by 22% this month',
-              impact: 'high'
-            },
-            {
-              type: 'warning',
-              title: 'Inventory Alert',
-              description: '3 products are running low on stock',
-              impact: 'medium'
-            }
-          ],
-          recommendations: [
-            {
-              title: 'Expand Premium Collection',
-              description: 'High-end suits show 45% higher margins',
-              priority: 'high',
-              estimated_impact: '$15,000 monthly revenue increase'
-            },
-            {
-              title: 'Optimize Email Campaigns',
-              description: 'Personalized campaigns show 2.3x better conversion',
-              priority: 'medium',
-              estimated_impact: '$8,500 monthly revenue increase'
-            }
-          ]
-        };
-      }
-    }
+      const { data, error } = await supabase.functions.invoke('analytics-proxy', {
+        body: {
+          endpoint: '/executive/overview',
+          params: { timeframe }
+        }
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   if (isLoading) {
@@ -88,9 +50,41 @@ const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({ timeframe }) => {
     );
   }
 
-  const kpis = insights?.data?.kpi_summary || insights?.kpi_summary;
-  const alerts = insights?.data?.alerts || insights?.alerts || [];
-  const recommendations = insights?.data?.recommendations || insights?.recommendations || [];
+  if (error) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6">
+        <div className="flex items-center">
+          <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" />
+          <div>
+            <h3 className="text-lg font-semibold text-red-900 dark:text-red-300">Failed to Load Executive Overview</h3>
+            <p className="text-red-700 dark:text-red-400 mt-1">
+              Unable to connect to analytics service. Please check your connection and try again.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!insights?.data) {
+    return (
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+        <div className="flex items-center">
+          <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400 mr-3" />
+          <div>
+            <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-300">No Analytics Data Available</h3>
+            <p className="text-amber-700 dark:text-amber-400 mt-1">
+              Analytics service is available but no data was returned. This may be normal for new businesses.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const kpis = insights.data.kpi_summary;
+  const alerts = insights.data.alerts || [];
+  const recommendations = insights.data.recommendations || [];
 
   return (
     <div className="space-y-8">
@@ -173,36 +167,40 @@ const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({ timeframe }) => {
             <AlertTriangle className="h-6 w-6 text-amber-500 mr-2" />
             Business Alerts
           </h3>
-          <div className="space-y-4">
-            {alerts.map((alert: any, index: number) => (
-              <div key={index} className={`p-4 rounded-xl border-l-4 ${
-                alert.type === 'opportunity'
-                  ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500'
-                  : alert.type === 'warning'
-                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
-                  : 'bg-red-50 dark:bg-red-900/20 border-red-500'
-              }`}>
-                <h4 className={`font-semibold ${
+          {alerts.length > 0 ? (
+            <div className="space-y-4">
+              {alerts.map((alert: any, index: number) => (
+                <div key={index} className={`p-4 rounded-xl border-l-4 ${
                   alert.type === 'opportunity'
-                    ? 'text-emerald-800 dark:text-emerald-300'
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500'
                     : alert.type === 'warning'
-                    ? 'text-amber-800 dark:text-amber-300'
-                    : 'text-red-800 dark:text-red-300'
+                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
+                    : 'bg-red-50 dark:bg-red-900/20 border-red-500'
                 }`}>
-                  {alert.title}
-                </h4>
-                <p className={`text-sm mt-1 ${
-                  alert.type === 'opportunity'
-                    ? 'text-emerald-700 dark:text-emerald-400'
-                    : alert.type === 'warning'
-                    ? 'text-amber-700 dark:text-amber-400'
-                    : 'text-red-700 dark:text-red-400'
-                }`}>
-                  {alert.description}
-                </p>
-              </div>
-            ))}
-          </div>
+                  <h4 className={`font-semibold ${
+                    alert.type === 'opportunity'
+                      ? 'text-emerald-800 dark:text-emerald-300'
+                      : alert.type === 'warning'
+                      ? 'text-amber-800 dark:text-amber-300'
+                      : 'text-red-800 dark:text-red-300'
+                  }`}>
+                    {alert.title}
+                  </h4>
+                  <p className={`text-sm mt-1 ${
+                    alert.type === 'opportunity'
+                      ? 'text-emerald-700 dark:text-emerald-400'
+                      : alert.type === 'warning'
+                      ? 'text-amber-700 dark:text-amber-400'
+                      : 'text-red-700 dark:text-red-400'
+                  }`}>
+                    {alert.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No active alerts at this time.</p>
+          )}
         </div>
 
         {/* AI Recommendations */}
@@ -211,28 +209,32 @@ const ExecutiveOverview: React.FC<ExecutiveOverviewProps> = ({ timeframe }) => {
             <BarChart3 className="h-6 w-6 text-blue-500 mr-2" />
             AI Recommendations
           </h3>
-          <div className="space-y-4">
-            {recommendations.map((rec: any, index: number) => (
-              <div key={index} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-blue-900 dark:text-blue-300">{rec.title}</h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">{rec.description}</p>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
-                      {rec.estimated_impact}
-                    </p>
+          {recommendations.length > 0 ? (
+            <div className="space-y-4">
+              {recommendations.map((rec: any, index: number) => (
+                <div key={index} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-300">{rec.title}</h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">{rec.description}</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
+                        {rec.estimated_impact}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      rec.priority === 'high'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                    }`}>
+                      {rec.priority} priority
+                    </span>
                   </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    rec.priority === 'high'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                  }`}>
-                    {rec.priority} priority
-                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No recommendations available.</p>
+          )}
         </div>
       </div>
     </div>

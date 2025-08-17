@@ -29,67 +29,8 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({ timeframe }) 
         if (error) throw error;
         return data;
       } catch (error) {
-        // Return mock data if API is not available
-        return {
-          revenue_forecast: {
-            next_30_days: 145000,
-            next_60_days: 285000,
-            next_90_days: 425000,
-            confidence_interval: { lower: 380000, upper: 470000 },
-            growth_rate: 0.158
-          },
-          demand_predictions: [
-            {
-              product_category: 'Premium Suits',
-              predicted_demand: 85,
-              confidence: 0.92,
-              trend: 'increasing',
-              seasonality_factor: 1.15
-            },
-            {
-              product_category: 'Business Casual',
-              predicted_demand: 120,
-              confidence: 0.89,
-              trend: 'stable',
-              seasonality_factor: 1.05
-            },
-            {
-              product_category: 'Accessories',
-              predicted_demand: 200,
-              confidence: 0.85,
-              trend: 'increasing',
-              seasonality_factor: 1.25
-            }
-          ],
-          risk_factors: [
-            {
-              factor: 'Economic Uncertainty',
-              impact_probability: 0.35,
-              potential_revenue_impact: -0.12,
-              mitigation_strategy: 'Diversify product range, focus on value propositions'
-            },
-            {
-              factor: 'Supply Chain Disruptions',
-              impact_probability: 0.28,
-              potential_revenue_impact: -0.08,
-              mitigation_strategy: 'Build buffer inventory, establish backup suppliers'
-            }
-          ],
-          opportunities: [
-            {
-              opportunity: 'Holiday Season Boost',
-              probability: 0.87,
-              potential_uplift: 0.35,
-              recommendation: 'Increase marketing spend by 40% in Q4'
-            },
-            {
-              opportunity: 'Premium Market Expansion',
-              probability: 0.72,
-              potential_uplift: 0.22,
-              recommendation: 'Launch luxury line targeting high-income demographics'
-            }
-          ]
-        };
+        console.error('Predictive Analytics API Error:', error);
+        throw error;
       }
     }
   });

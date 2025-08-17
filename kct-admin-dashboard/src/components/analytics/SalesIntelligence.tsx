@@ -27,43 +27,8 @@ const SalesIntelligence: React.FC<SalesIntelligenceProps> = ({ timeframe }) => {
         if (error) throw error;
         return data;
       } catch (error) {
-        // Return mock data if API is not available
-        return {
-          revenue_analysis: {
-            total_revenue: 125000,
-            growth_rate: 12.5,
-            top_products: [
-              { name: 'Premium Suit Collection', revenue: 45000, growth: 18.2 },
-              { name: 'Business Casual Line', revenue: 32000, growth: 8.7 },
-              { name: 'Accessories', revenue: 28000, growth: 22.1 }
-            ]
-          },
-          conversion_metrics: {
-            overall_rate: 0.034,
-            email_campaigns: 0.056,
-            organic_traffic: 0.028,
-            paid_ads: 0.041
-          },
-          sales_trends: {
-            peak_hours: ['11:00-13:00', '15:00-17:00'],
-            best_days: ['Tuesday', 'Wednesday', 'Thursday'],
-            seasonal_patterns: 'Q4 shows 35% higher sales'
-          },
-          optimization_opportunities: [
-            {
-              area: 'Email Marketing',
-              current_performance: '2.3% conversion',
-              potential_improvement: '4.1% conversion',
-              estimated_revenue_impact: '$8,500/month'
-            },
-            {
-              area: 'Product Bundling',
-              current_performance: '$142 AOV',
-              potential_improvement: '$187 AOV',
-              estimated_revenue_impact: '$12,300/month'
-            }
-          ]
-        };
+        console.error('Sales Intelligence API Error:', error);
+        throw error;
       }
     }
   });

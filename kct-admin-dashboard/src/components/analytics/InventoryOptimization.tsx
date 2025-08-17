@@ -33,74 +33,8 @@ const InventoryOptimization: React.FC<InventoryOptimizationProps> = ({ timeframe
         if (error) throw error;
         return data;
       } catch (error) {
-        // Return mock data if API is not available
-        return {
-          inventory_health: {
-            total_value: 125000,
-            turnover_rate: 4.2,
-            stockout_risk: 0.15,
-            overstock_value: 18500
-          },
-          abc_analysis: {
-            a_items: {
-              count: 12,
-              value_percentage: 0.68,
-              products: ['Premium Wool Suits', 'Italian Leather Shoes', 'Silk Ties Collection']
-            },
-            b_items: {
-              count: 28,
-              value_percentage: 0.22,
-              products: ['Business Shirts', 'Casual Blazers', 'Dress Pants']
-            },
-            c_items: {
-              count: 85,
-              value_percentage: 0.10,
-              products: ['Belts', 'Pocket Squares', 'Cufflinks']
-            }
-          },
-          reorder_recommendations: [
-            {
-              product_name: 'Navy Business Suit',
-              current_stock: 5,
-              optimal_stock: 18,
-              reorder_quantity: 25,
-              eoq: 30,
-              safety_stock: 8,
-              urgency: 'high',
-              estimated_stockout_date: '2025-08-25'
-            },
-            {
-              product_name: 'White Dress Shirts',
-              current_stock: 12,
-              optimal_stock: 35,
-              reorder_quantity: 40,
-              eoq: 45,
-              safety_stock: 15,
-              urgency: 'medium',
-              estimated_stockout_date: '2025-09-02'
-            },
-            {
-              product_name: 'Leather Dress Shoes',
-              current_stock: 8,
-              optimal_stock: 22,
-              reorder_quantity: 30,
-              eoq: 25,
-              safety_stock: 10,
-              urgency: 'high',
-              estimated_stockout_date: '2025-08-28'
-            }
-          ],
-          optimization_insights: {
-            potential_savings: 8500,
-            inventory_reduction: 0.12,
-            service_level_improvement: 0.08,
-            recommended_actions: [
-              'Reduce slow-moving inventory by 25%',
-              'Increase safety stock for A-class items',
-              'Implement just-in-time ordering for C-class items'
-            ]
-          }
-        };
+        console.error('Inventory Optimization API Error:', error);
+        throw error;
       }
     }
   });

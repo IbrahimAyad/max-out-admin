@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ShippingManager } from './ShippingManager'
+import EmailManager from './EmailManager'
 import type { Order, OrderItem } from '../types/order'
 import { formatDate, formatCurrency, getStatusColor, getPriorityColor, getStatusLabel, getPriorityLabel } from '../utils/formatting'
 import toast from 'react-hot-toast'
@@ -20,7 +21,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
   const [notes, setNotes] = useState(order.internal_notes || '')
   const [savingNotes, setSavingNotes] = useState(false)
   const [currentOrder, setCurrentOrder] = useState<Order>(order)
-  const [activeTab, setActiveTab] = useState<'details' | 'shipping'>('details')
+  const [activeTab, setActiveTab] = useState<'details' | 'shipping' | 'email'>('details')
 
   // Update current order when prop changes
   useEffect(() => {
@@ -192,6 +193,19 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
                 Tracking Available
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab('email')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'email'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Email Management
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              SendGrid
+            </span>
           </button>
         </nav>
       </div>
@@ -425,11 +439,20 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
           </div>
         </div>
       </div>
-      ) : (
+      ) : activeTab === 'shipping' ? (
         /* Shipping Management Tab */
         <ShippingManager
           order={currentOrder}
           onOrderUpdate={handleOrderUpdate}
+        />
+      ) : (
+        /* Email Management Tab */
+        <EmailManager
+          orderData={currentOrder}
+          onEmailSent={() => {
+            // Refresh email logs or any other necessary updates
+            toast.success('Email operation completed')
+          }}
         />
       )}
     </div>

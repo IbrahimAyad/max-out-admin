@@ -138,6 +138,29 @@ async function handleTrackerUpdate(tracker: any, serviceRoleKey: string, supabas
         console.error('Failed to create shipping event:', await eventResponse.text());
     }
 
+    // Trigger email notifications via new webhook email function
+    try {
+        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/easypost-webhook-email`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                object: tracker,
+                description: 'tracker.updated'
+            })
+        });
+
+        if (!emailResponse.ok) {
+            console.error('Failed to trigger email notification:', await emailResponse.text());
+        } else {
+            console.log('Email notification triggered successfully');
+        }
+    } catch (emailError) {
+        console.error('Error triggering email notification:', emailError);
+    }
+
     console.log('Tracker update processed successfully');
 }
 
@@ -160,28 +183,61 @@ async function handleShipmentPurchased(shipment: any, serviceRoleKey: string, su
         return;
     }
 
-    // Update order with shipment details
+    // Update order with shipment details and set status to shipped
+    const updateData = {
+        easypost_shipment_id: easypostShipmentId,
+        tracking_number: trackingNumber,
+        tracking_status: 'label_created',
+        carrier: shipment.selected_rate?.carrier,
+        service_type: shipment.selected_rate?.service,
+        shipping_cost: parseFloat(shipment.selected_rate?.rate || '0'),
+        status: 'shipped',
+        updated_at: new Date().toISOString()
+    };
+
     const updateResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
         method: 'PATCH',
         headers: {
             'Authorization': `Bearer ${serviceRoleKey}`,
             'apikey': serviceRoleKey,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'return=representation'
         },
-        body: JSON.stringify({
-            easypost_shipment_id: easypostShipmentId,
-            tracking_number: trackingNumber,
-            tracking_status: 'label_created',
-            carrier: shipment.selected_rate?.carrier,
-            service_type: shipment.selected_rate?.service,
-            shipping_cost: parseFloat(shipment.selected_rate?.rate || '0'),
-            updated_at: new Date().toISOString()
-        })
+        body: JSON.stringify(updateData)
     });
 
     if (!updateResponse.ok) {
         console.error('Failed to update order with shipment details:', await updateResponse.text());
+        return;
+    }
+
+    // Get the updated order data for email
+    const orderData = await updateResponse.json();
+    const order = orderData[0];
+
+    if (order) {
+        // Trigger order automation for shipping label created
+        try {
+            const automationResponse = await fetch(`${supabaseUrl}/functions/v1/order-automation`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${serviceRoleKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'shipping_label_created',
+                    orderData: order
+                })
+            });
+
+            if (!automationResponse.ok) {
+                console.error('Failed to trigger shipping email automation:', await automationResponse.text());
+            } else {
+                console.log('Shipping email automation triggered successfully');
+            }
+        } catch (emailError) {
+            console.error('Error triggering shipping email automation:', emailError);
+        }
     }
 
     console.log('Shipment purchased processed successfully');

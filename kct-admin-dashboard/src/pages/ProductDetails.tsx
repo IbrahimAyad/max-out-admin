@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   BarChart3
 } from 'lucide-react'
-import { CDN_BASE_URL } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
 
 export default function ProductDetails() {
   const { productId } = useParams()
@@ -141,7 +141,7 @@ export default function ProductDetails() {
             <div className="aspect-w-16 aspect-h-9">
               {product.primary_image ? (
                 <img
-                  src={`${CDN_BASE_URL}${product.primary_image}`}
+                  src={getImageUrl(product.primary_image) || ''}
                   alt={product.name}
                   className="w-full h-96 object-cover"
                 />

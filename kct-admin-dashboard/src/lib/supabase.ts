@@ -9,7 +9,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    detectSessionInUrl: true,
+    autoRefreshToken: true,
+  }
+})
 
 // Helper function to get current user
 export async function getCurrentUser() {
@@ -22,4 +28,28 @@ export async function getCurrentUser() {
 }
 
 // Helper constants
-export const CDN_BASE_URL = import.meta.env.VITE_CDN_BASE_URL
+export const CDN_BASE_URL = 'https://cdn.kctmenswear.com/'
+
+// Helper function to construct proper image URLs
+export function getImageUrl(imagePath: string | null | undefined): string | null {
+  if (!imagePath) return null
+  
+  // If imagePath is already a complete URL (starts with http/https), return as is
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+  
+  // If imagePath already contains the CDN domain, it means it's malformed - extract the actual path
+  if (imagePath.includes('cdn.kctmenswear.com')) {
+    // Extract everything after the last occurrence of the domain
+    const parts = imagePath.split('cdn.kctmenswear.com/')
+    const actualPath = parts[parts.length - 1]
+    return `${CDN_BASE_URL}${actualPath}`
+  }
+  
+  // Remove leading slash to avoid double slashes
+  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath
+  
+  // Construct full URL
+  return `${CDN_BASE_URL}${cleanPath}`
+}

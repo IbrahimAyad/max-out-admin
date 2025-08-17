@@ -38,12 +38,32 @@ export function useDashboardStats() {
 
       if (ordersError) throw ordersError
 
-      // Get total customers count
-      const { count: totalCustomers, error: customersError } = await supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
+      // Get total customers count - handle potential table issues gracefully
+      let totalCustomers = 0
+      try {
+        const { count: customersCount, error: customersError } = await supabase
+          .from('customers')
+          .select('*', { count: 'exact', head: true })
 
-      if (customersError) throw customersError
+        if (customersError) {
+          console.warn('Customers table query failed, trying alternative approach:', customersError)
+          // Try counting distinct customer emails from orders as fallback
+          const { data: distinctCustomers, error: alternativeError } = await supabase
+            .from('orders')
+            .select('customer_email')
+            .not('customer_email', 'is', null)
+
+          if (!alternativeError && distinctCustomers) {
+            const uniqueEmails = new Set(distinctCustomers.map(order => order.customer_email))
+            totalCustomers = uniqueEmails.size
+          }
+        } else {
+          totalCustomers = customersCount || 0
+        }
+      } catch (error) {
+        console.warn('Error getting customer count:', error)
+        totalCustomers = 0
+      }
 
       // Get total products count
       const { count: totalProducts, error: productsError } = await supabase
@@ -80,7 +100,7 @@ export function useDashboardStats() {
         todayRevenue,
         revenueChange,
         totalOrders: totalOrders || 0,
-        totalCustomers: totalCustomers || 0,
+        totalCustomers: totalCustomers,
         totalProducts: totalProducts || 0,
         recentOrders: recentOrders || [],
         lowStockProducts: lowStockProducts || []
@@ -219,10 +239,40 @@ export function useCustomers(page = 1, limit = 20, search = '') {
 
       if (error) throw error
 
+      // Get total count using the same resilient approach as dashboard
+      let totalCount = count || 0
+      
+      // If the customers table count failed or returned 0, use fallback method
+      if (!totalCount) {
+        try {
+          const { count: customersCount, error: customersError } = await supabase
+            .from('customers')
+            .select('*', { count: 'exact', head: true })
+
+          if (customersError || !customersCount) {
+            // Use fallback: count distinct customer emails from orders
+            const { data: distinctCustomers, error: alternativeError } = await supabase
+              .from('orders')
+              .select('customer_email')
+              .not('customer_email', 'is', null)
+
+            if (!alternativeError && distinctCustomers) {
+              const uniqueEmails = new Set(distinctCustomers.map(order => order.customer_email))
+              totalCount = uniqueEmails.size
+            }
+          } else {
+            totalCount = customersCount
+          }
+        } catch (error) {
+          console.warn('Error getting customer count:', error)
+          totalCount = 0
+        }
+      }
+
       return {
         customers: data || [],
-        total: count || 0,
-        hasMore: (count || 0) > page * limit
+        total: totalCount,
+        hasMore: totalCount > page * limit
       }
     },
   })

@@ -22,15 +22,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function loadUser() {
       setLoading(true)
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) {
-          console.error('Error loading user:', error)
+        // Get current session first
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        if (sessionError) {
+          console.warn('Session error (may be normal on first load):', sessionError)
+        }
+        setSession(session)
+        
+        // Get user data
+        if (session?.user) {
+          setUser(session.user)
         } else {
+          // Fallback to getUser if session doesn't have user
+          const { data: { user }, error: userError } = await supabase.auth.getUser()
+          if (userError && userError.message !== 'Auth session missing!') {
+            console.error('Error loading user:', userError)
+          }
           setUser(user)
         }
-        
-        const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
+      } catch (error) {
+        console.warn('Auth initialization error:', error)
       } finally {
         setLoading(false)
       }
@@ -39,10 +50,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Set up auth listener - KEEP SIMPLE, avoid any async operations in callback
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         // NEVER use any async operations in callback
-        setUser(session?.user || null)
-        setSession(session)
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setSession(null)
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setUser(session?.user || null)
+          setSession(session)
+        } else {
+          setUser(session?.user || null)
+          setSession(session)
+        }
       }
     )
 

@@ -13,7 +13,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react'
-import { CDN_BASE_URL } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
 
 export default function OrderDetails() {
   const { orderId } = useParams()
@@ -164,7 +164,7 @@ export default function OrderDetails() {
                   <div className="flex-shrink-0">
                     {item.product_image_url ? (
                       <img
-                        src={`${CDN_BASE_URL}${item.product_image_url}`}
+                        src={getImageUrl(item.product_image_url) || ''}
                         alt={item.product_name}
                         className="h-16 w-16 rounded-md object-cover"
                       />

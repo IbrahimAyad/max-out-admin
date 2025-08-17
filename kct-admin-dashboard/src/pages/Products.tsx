@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { CDN_BASE_URL } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
 
 export default function Products() {
   const [page, setPage] = useState(1)
@@ -290,7 +290,7 @@ function ProductCard({ product }: { product: any }) {
       <div className="aspect-w-1 aspect-h-1 bg-neutral-100">
         {product.primary_image ? (
           <img
-            src={`${CDN_BASE_URL}${product.primary_image}`}
+            src={getImageUrl(product.primary_image) || ''}
             alt={product.name}
             className="w-full h-48 object-cover"
           />
@@ -377,7 +377,7 @@ function ProductRow({ product }: { product: any }) {
           <div className="flex-shrink-0 h-12 w-12">
             {product.primary_image ? (
               <img
-                src={`${CDN_BASE_URL}${product.primary_image}`}
+                src={getImageUrl(product.primary_image) || ''}
                 alt={product.name}
                 className="h-12 w-12 rounded-md object-cover"
               />

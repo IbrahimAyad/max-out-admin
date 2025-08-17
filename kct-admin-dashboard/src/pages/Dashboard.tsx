@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   Clock
 } from 'lucide-react'
-import { CDN_BASE_URL } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
 
 export default function Dashboard() {
   const { data: stats, isLoading, error } = useDashboardStats()

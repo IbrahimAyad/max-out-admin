@@ -67,7 +67,7 @@ export function useDashboardStats() {
 
       // Get total products count
       const { count: totalProducts, error: productsError } = await supabase
-        .from('products')
+        .from('products_enhanced')
         .select('*', { count: 'exact', head: true })
 
       if (productsError) throw productsError
@@ -116,7 +116,7 @@ export function useProducts(page = 1, limit = 20, search = '', category = '') {
     queryKey: ['products', page, limit, search, category],
     queryFn: async () => {
       let query = supabase
-        .from('products')
+        .from('products_enhanced')
         .select('*, product_variants(count)')
         .range((page - 1) * limit, page * limit - 1)
         .order('created_at', { ascending: false })
@@ -147,7 +147,7 @@ export function useProduct(productId: string) {
     queryKey: ['product', productId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('products')
+        .from('products_enhanced')
         .select('*, product_variants(*)')
         .eq('id', productId)
         .maybeSingle()

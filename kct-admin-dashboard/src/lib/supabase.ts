@@ -53,3 +53,28 @@ export function getImageUrl(imagePath: string | null | undefined): string | null
   // Construct full URL
   return `${CDN_BASE_URL}${cleanPath}`
 }
+
+// Helper function to extract primary image from enhanced products JSON structure
+export function getPrimaryImageFromProduct(product: any): string | null {
+  if (!product) return null
+  
+  // For enhanced products table with JSON images structure
+  if (product.images && typeof product.images === 'object') {
+    // Try hero image first
+    if (product.images.hero?.url) {
+      return product.images.hero.url
+    }
+    
+    // Fallback to first gallery image
+    if (product.images.gallery && Array.isArray(product.images.gallery) && product.images.gallery.length > 0) {
+      return product.images.gallery[0]?.url || null
+    }
+  }
+  
+  // Fallback for basic products table (backward compatibility)
+  if (product.primary_image) {
+    return getImageUrl(product.primary_image)
+  }
+  
+  return null
+}

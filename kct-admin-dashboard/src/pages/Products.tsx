@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl, getPrimaryImageFromProduct } from '../lib/supabase'
 
 export default function Products() {
   const [page, setPage] = useState(1)
@@ -47,11 +47,11 @@ export default function Products() {
 
   const categories = [
     'Suits',
-    'Tuxedos', 
+    'Tuxedos',
     'Blazers',
-    'Dress Shirts',
-    'Casual Shirts',
-    'Trousers',
+    'Double-Breasted Suits',
+    'Stretch Suits',
+    'Mens Shirts',
     'Accessories'
   ]
 
@@ -288,9 +288,9 @@ function ProductCard({ product }: { product: any }) {
   return (
     <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <div className="aspect-w-1 aspect-h-1 bg-neutral-100">
-        {product.primary_image ? (
+        {getPrimaryImageFromProduct(product) ? (
           <img
-            src={getImageUrl(product.primary_image) || ''}
+            src={getPrimaryImageFromProduct(product) || ''}
             alt={product.name}
             className="w-full h-48 object-cover"
           />
@@ -308,10 +308,18 @@ function ProductCard({ product }: { product: any }) {
             </h3>
             <p className="text-sm text-neutral-500 mt-1">
               {product.category}
+              {product.subcategory && (
+                <span className="text-neutral-400"> • {product.subcategory}</span>
+              )}
             </p>
             <p className="text-sm text-neutral-500">
               SKU: {product.sku}
             </p>
+            {product.color_family && (
+              <p className="text-xs text-neutral-400">
+                Color: {product.color_family}
+              </p>
+            )}
           </div>
           <div className="ml-2 flex-shrink-0">
             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -375,9 +383,9 @@ function ProductRow({ product }: { product: any }) {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <div className="flex-shrink-0 h-12 w-12">
-            {product.primary_image ? (
+            {getPrimaryImageFromProduct(product) ? (
               <img
-                src={getImageUrl(product.primary_image) || ''}
+                src={getPrimaryImageFromProduct(product) || ''}
                 alt={product.name}
                 className="h-12 w-12 rounded-md object-cover"
               />

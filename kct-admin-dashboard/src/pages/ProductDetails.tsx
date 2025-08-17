@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   BarChart3
 } from 'lucide-react'
-import { CDN_BASE_URL, getImageUrl } from '../lib/supabase'
+import { CDN_BASE_URL, getImageUrl, getPrimaryImageFromProduct } from '../lib/supabase'
 
 export default function ProductDetails() {
   const { productId } = useParams()
@@ -139,9 +139,9 @@ export default function ProductDetails() {
           {/* Product Image */}
           <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
             <div className="aspect-w-16 aspect-h-9">
-              {product.primary_image ? (
+              {getPrimaryImageFromProduct(product) ? (
                 <img
-                  src={getImageUrl(product.primary_image) || ''}
+                  src={getPrimaryImageFromProduct(product) || ''}
                   alt={product.name}
                   className="w-full h-96 object-cover"
                 />
@@ -252,8 +252,36 @@ export default function ProductDetails() {
               
               <div>
                 <label className="block text-sm font-medium text-neutral-500">Category</label>
-                <p className="text-sm text-neutral-900">{product.category}</p>
+                <p className="text-sm text-neutral-900">
+                  {product.category}
+                  {product.subcategory && (
+                    <span className="text-neutral-500"> • {product.subcategory}</span>
+                  )}
+                </p>
               </div>
+              
+              {product.color_family && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-500">Color</label>
+                  <p className="text-sm text-neutral-900">{product.color_family}</p>
+                </div>
+              )}
+              
+              {product.fit_type && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-500">Fit Type</label>
+                  <p className="text-sm text-neutral-900">{product.fit_type}</p>
+                </div>
+              )}
+              
+              {product.price_tier && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-500">Price Tier</label>
+                  <p className="text-sm text-neutral-900">
+                    {product.price_tier.replace('tier_', '').replace('_', ' ').toUpperCase()}
+                  </p>
+                </div>
+              )}
               
               <div>
                 <label className="block text-sm font-medium text-neutral-500">Handle</label>

@@ -17,33 +17,24 @@ export function AuthForm() {
   const createTestAdmin = async () => {
     setIsLoading(true)
     try {
-      const testEmail = 'admin@kctmenswear.com'
-      const testPassword = 'KCTAdmin2025!'
+      const testEmail = 'kct.admin@business.com'
+      const testPassword = 'SecureKCT2025!'
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: testEmail,
         password: testPassword,
       })
-
+      
       if (error) {
-        // If user already exists, try to sign in
-        if (error.message.includes('already registered')) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: testEmail,
-            password: testPassword,
-          })
-          
-          if (signInError) throw signInError
-          toast.success('Successfully signed in with admin account!')
-        } else {
-          throw error
-        }
-      } else {
-        toast.success('Admin account created! Please check email to confirm.')
+        console.error('Quick admin login error:', error)
+        throw error
       }
+      
+      console.log('Quick admin login successful:', data.user?.email)
+      toast.success('Successfully signed in with admin account!')
     } catch (error: any) {
-      console.error('Test admin creation error:', error)
-      toast.error(error.message || 'Failed to create test admin')
+      console.error('Test admin login error:', error)
+      toast.error(error.message || 'Failed to login with admin account')
     } finally {
       setIsLoading(false)
     }

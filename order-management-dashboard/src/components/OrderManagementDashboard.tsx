@@ -37,9 +37,9 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           customer_email,
           customer_name,
           customer_phone,
-          order_status,
+          status,
           order_priority,
-          subtotal_amount,
+          subtotal,
           tax_amount,
           shipping_amount,
           discount_amount,
@@ -50,8 +50,8 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           payment_status,
           shipping_first_name,
           shipping_last_name,
-          shipping_address_line1,
-          shipping_address_line2,
+          shipping_address_line_1,
+          shipping_address_line_2,
           shipping_city,
           shipping_state,
           shipping_postal_code,
@@ -72,7 +72,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
           is_rush_order,
           is_group_order,
           special_instructions,
-          processing_notes,
+          internal_notes,
           created_at,
           updated_at,
           processed_at,
@@ -83,7 +83,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
       
       // Apply filters
       if (filters.status) {
-        query = query.eq('order_status', filters.status)
+        query = query.eq('status', filters.status)
       }
       
       if (filters.priority) {
@@ -162,7 +162,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
       const { error } = await supabase
         .from('orders')
         .update({ 
-          order_status: newStatus,
+          status: newStatus,
           updated_at: new Date().toISOString()
         })
         .eq('id', orderId)
@@ -178,7 +178,7 @@ export function OrderManagementDashboard({ user }: OrderManagementDashboardProps
       
       // Update selected order if it's the one being updated
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder(prev => prev ? { ...prev, order_status: newStatus as any } : null)
+        setSelectedOrder(prev => prev ? { ...prev, status: newStatus as any } : null)
       }
     } catch (error) {
       console.error('Error:', error)

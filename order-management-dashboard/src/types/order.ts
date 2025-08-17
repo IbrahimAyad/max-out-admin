@@ -4,9 +4,9 @@ export interface Order {
   customer_email: string
   customer_name: string
   customer_phone?: string
-  order_status: OrderStatus
+  status: OrderStatus
   order_priority: OrderPriority
-  subtotal_amount: number
+  subtotal: number
   tax_amount?: number
   shipping_amount?: number
   discount_amount?: number
@@ -15,16 +15,16 @@ export interface Order {
   stripe_payment_intent_id?: string
   payment_method?: string
   payment_status?: string
-  shipping_address_line1?: string
-  shipping_address_line2?: string
+  shipping_address_line_1?: string
+  shipping_address_line_2?: string
   shipping_first_name?: string
   shipping_last_name?: string
   shipping_city?: string
   shipping_state?: string
   shipping_postal_code?: string
   shipping_country?: string
-  billing_address_line1?: string
-  billing_address_line2?: string
+  billing_address_line_1?: string
+  billing_address_line_2?: string
   billing_city?: string
   billing_state?: string
   billing_postal_code?: string
@@ -46,7 +46,7 @@ export interface Order {
   is_rush_order: boolean
   is_group_order: boolean
   special_instructions?: string
-  processing_notes?: string
+  internal_notes?: string
   created_at: string
   updated_at: string
   processed_at?: string

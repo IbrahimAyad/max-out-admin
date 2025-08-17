@@ -8,10 +8,10 @@ interface DashboardStatsProps {
 export function DashboardStats({ orders }: DashboardStatsProps) {
   const stats: DashboardStatsType = React.useMemo(() => {
     const totalOrders = orders.length
-    const pendingOrders = orders.filter(o => o.order_status === 'pending_payment' || o.order_status === 'payment_confirmed').length
-    const processingOrders = orders.filter(o => ['processing', 'in_production', 'quality_check', 'packaging'].includes(o.order_status)).length
-    const shippedOrders = orders.filter(o => ['shipped', 'out_for_delivery'].includes(o.order_status)).length
-    const completedOrders = orders.filter(o => ['delivered', 'completed'].includes(o.order_status)).length
+    const pendingOrders = orders.filter(o => o.status === 'pending_payment' || o.status === 'payment_confirmed').length
+    const processingOrders = orders.filter(o => ['processing', 'in_production', 'quality_check', 'packaging'].includes(o.status)).length
+    const shippedOrders = orders.filter(o => ['shipped', 'out_for_delivery'].includes(o.status)).length
+    const completedOrders = orders.filter(o => ['delivered', 'completed'].includes(o.status)).length
     const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0)
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
     const rushOrders = orders.filter(o => o.is_rush_order || ['urgent', 'rush', 'wedding_party', 'prom_group'].includes(o.order_priority)).length

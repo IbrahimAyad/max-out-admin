@@ -95,8 +95,8 @@ export function OrdersTable({ orders, onOrderSelect, onStatusUpdate }: OrdersTab
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.order_status)}`}>
-                    {getStatusLabel(order.order_status)}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                    {getStatusLabel(order.status)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -145,7 +145,7 @@ export function OrdersTable({ orders, onOrderSelect, onStatusUpdate }: OrdersTab
                       View
                     </button>
                     <select
-                      value={order.order_status}
+                      value={order.status}
                       onChange={(e) => onStatusUpdate(order.id, e.target.value)}
                       className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                     >

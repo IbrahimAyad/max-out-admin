@@ -17,15 +17,15 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
   const [activeTab, setActiveTab] = useState<'rates' | 'label' | 'tracking'>('rates')
 
   // Check if order has shipping address
-  const hasShippingAddress = order.shipping_address_line1 && 
+  const hasShippingAddress = order.shipping_address_line_1 && 
                             order.shipping_city && 
                             order.shipping_state && 
                             order.shipping_postal_code
 
   const shippingAddress = hasShippingAddress ? {
     name: `${order.shipping_first_name || ''} ${order.shipping_last_name || ''}`.trim() || order.customer_name,
-    street1: order.shipping_address_line1!,
-    street2: order.shipping_address_line2,
+    street1: order.shipping_address_line_1!,
+    street2: order.shipping_address_line_2,
     city: order.shipping_city!,
     state: order.shipping_state!,
     zip: order.shipping_postal_code!,
@@ -64,7 +64,7 @@ export function ShippingManager({ order, onOrderUpdate }: ShippingManagerProps) 
       shipping_cost: parseFloat(label.cost.replace('$', '')),
       easypost_shipment_id: label.shipmentId,
       tracking_status: 'label_created',
-      order_status: 'processing' as const,
+      status: 'processing' as const,
       shipped_at: new Date().toISOString()
     }
     

@@ -17,7 +17,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingStatus, setUpdatingStatus] = useState(false)
-  const [notes, setNotes] = useState(order.processing_notes || '')
+  const [notes, setNotes] = useState(order.internal_notes || '')
   const [savingNotes, setSavingNotes] = useState(false)
   const [currentOrder, setCurrentOrder] = useState<Order>(order)
   const [activeTab, setActiveTab] = useState<'details' | 'shipping'>('details')
@@ -92,7 +92,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
     setUpdatingStatus(true)
     try {
       await onStatusUpdate(currentOrder.id, newStatus)
-      setCurrentOrder(prev => ({ ...prev, order_status: newStatus as any }))
+      setCurrentOrder(prev => ({ ...prev, status: newStatus as any }))
     } finally {
       setUpdatingStatus(false)
     }
@@ -105,7 +105,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
       const { error } = await supabase
         .from('orders')
         .update({ 
-          processing_notes: notes,
+          internal_notes: notes,
           updated_at: new Date().toISOString()
         })
         .eq('id', currentOrder.id)
@@ -150,8 +150,8 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
           </div>
           
           <div className="mt-4 lg:mt-0 flex items-center gap-4">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentOrder.order_status)}`}>
-              {getStatusLabel(currentOrder.order_status)}
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentOrder.status)}`}>
+              {getStatusLabel(currentOrder.status)}
             </span>
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(currentOrder.order_priority)}`}>
               {getPriorityLabel(currentOrder.order_priority)}
@@ -293,7 +293,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
                   Order Status
                 </label>
                 <select
-                  value={currentOrder.order_status}
+                  value={currentOrder.status}
                   onChange={(e) => handleStatusUpdate(e.target.value)}
                   disabled={updatingStatus}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -339,16 +339,16 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
           </div>
 
           {/* Shipping Information */}
-          {(currentOrder.shipping_address_line1 || currentOrder.tracking_number) && (
+          {(currentOrder.shipping_address_line_1 || currentOrder.tracking_number) && (
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Shipping Information</h2>
               <div className="space-y-3">
-                {currentOrder.shipping_address_line1 && (
+                {currentOrder.shipping_address_line_1 && (
                   <div>
                     <p className="text-sm font-medium text-gray-700">Shipping Address</p>
                     <div className="text-sm text-gray-900">
-                      <p>{currentOrder.shipping_address_line1}</p>
-                      {currentOrder.shipping_address_line2 && <p>{currentOrder.shipping_address_line2}</p>}
+                      <p>{currentOrder.shipping_address_line_1}</p>
+                      {currentOrder.shipping_address_line_2 && <p>{currentOrder.shipping_address_line_2}</p>}
                       <p>
                         {currentOrder.shipping_city}, {currentOrder.shipping_state} {currentOrder.shipping_postal_code}
                       </p>
@@ -381,7 +381,7 @@ export function OrderDetails({ order, onBack, onStatusUpdate, onOrderUpdate }: O
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-900">{formatCurrency(currentOrder.subtotal_amount, currentOrder.currency)}</span>
+                <span className="text-gray-900">{formatCurrency(currentOrder.subtotal, currentOrder.currency)}</span>
               </div>
               {currentOrder.tax_amount && currentOrder.tax_amount > 0 && (
                 <div className="flex justify-between">

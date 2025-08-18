@@ -149,10 +149,18 @@ export interface MenswearMeasurement {
 // API Functions
 export const profileApi = {
   async getProfile() {
+    // Get current session to ensure we have a valid token
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('profile-management', {
-      body: {},
+      body: { action: 'get' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -161,10 +169,17 @@ export const profileApi = {
   },
 
   async updateProfile(profileData: Partial<UserProfile>) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('profile-management', {
-      body: { profile_data: profileData },
+      body: { profile_data: profileData, action: 'update' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -173,12 +188,17 @@ export const profileApi = {
   },
 
   async getMeasurements() {
-    const url = new URL('https://gvcswimqaxvylgxbklbz.supabase.co/functions/v1/profile-management?action=get_measurements')
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('profile-management', {
-      body: {},
+      body: { action: 'get_measurements' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -187,10 +207,17 @@ export const profileApi = {
   },
 
   async saveMeasurements(measurements: Partial<MenswearMeasurement>) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('profile-management', {
       body: { measurements, action: 'create_measurements' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -201,10 +228,17 @@ export const profileApi = {
 
 export const styleApi = {
   async getStyleProfile() {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('style-recommendations', {
       body: { action: 'get_style_profile' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -213,10 +247,17 @@ export const styleApi = {
   },
 
   async saveStyleProfile(styleData: Partial<StyleProfile>) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('style-recommendations', {
       body: { style_data: styleData, action: 'create_style_profile' },
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       }
     })
     
@@ -225,14 +266,71 @@ export const styleApi = {
   },
 
   async getRecommendations() {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      throw new Error('Authentication required')
+    }
+
     const { data, error } = await supabase.functions.invoke('style-recommendations', {
-      body: {},
+      body: { action: 'recommend' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    })
+    
+    if (error) throw error
+    return data.data
+  }
+}
+
+// Email Notifications API
+export const emailApi = {
+  async sendNotification(emailType: string, recipientEmail: string, data?: any) {
+    const { data: response, error } = await supabase.functions.invoke('email-notifications', {
+      body: {
+        email_type: emailType,
+        recipient_email: recipientEmail,
+        data: data || {}
+      },
       headers: {
         'Content-Type': 'application/json'
       }
     })
     
     if (error) throw error
-    return data.data
+    return response
+  },
+
+  async sendProfileCompletionReminder(userProfile: UserProfile, completionPercentage: number) {
+    return this.sendNotification('profile_completion_reminder', userProfile.email, {
+      first_name: userProfile.first_name,
+      completion_percentage: completionPercentage,
+      profile_url: 'https://r7l04rp7iyef.space.minimax.io'
+    })
+  },
+
+  async sendStyleRecommendationsUpdate(userProfile: UserProfile, recommendations: any[]) {
+    return this.sendNotification('style_recommendations_update', userProfile.email, {
+      first_name: userProfile.first_name,
+      style_personality: userProfile.style_preferences?.style_personality,
+      recommendations: recommendations,
+      recommendations_url: 'https://r7l04rp7iyef.space.minimax.io'
+    })
+  },
+
+  async sendMeasurementReminder(userProfile: UserProfile) {
+    return this.sendNotification('measurement_reminder', userProfile.email, {
+      first_name: userProfile.first_name,
+      measurements_url: 'https://r7l04rp7iyef.space.minimax.io'
+    })
+  },
+
+  async sendWelcomeEmail(userProfile: UserProfile) {
+    return this.sendNotification('welcome', userProfile.email, {
+      first_name: userProfile.first_name,
+      profile_url: 'https://r7l04rp7iyef.space.minimax.io'
+    })
   }
 }

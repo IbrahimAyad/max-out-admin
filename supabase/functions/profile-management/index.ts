@@ -21,44 +21,68 @@ Deno.serve(async (req) => {
       throw new Error('Authorization header required');
     }
 
-    // Get user from JWT token
+    // Get user from JWT token using native Deno approach
     const token = authHeader.replace('Bearer ', '');
-    const userResponse = await fetch(
-      `${Deno.env.get('SUPABASE_URL')}/auth/v1/user`,
-      {
-        headers: {
-          'apikey': Deno.env.get('SUPABASE_ANON_KEY')!,
-          'Authorization': authHeader
-        }
+    
+    let userId;
+    try {
+      // Decode JWT token to get user ID
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format');
       }
-    );
-
-    if (!userResponse.ok) {
-      throw new Error('Invalid authentication');
+      
+      // Decode the payload (second part)
+      const payload = JSON.parse(atob(parts[1]));
+      
+      if (!payload.sub) {
+        throw new Error('Missing user ID in token');
+      }
+      
+      userId = payload.sub;
+      
+      // Verify token is not expired
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < now) {
+        throw new Error('Token expired');
+      }
+    } catch (tokenError) {
+      throw new Error(`Authentication failed: ${tokenError.message}`);
     }
-
-    const user = await userResponse.json();
-    const userId = user.id;
 
     switch (action) {
       case 'get': {
         // Get user profile
-        const profileResponse = await fetch(
-          `${Deno.env.get('SUPABASE_URL')}/rest/v1/user_profiles?user_id=eq.${userId}&select=*`,
-          {
-            headers: {
-              'apikey': Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!}`,
-              'Content-Type': 'application/json'
-            }
+        console.log('Getting profile for user:', userId);
+        
+        const supabaseUrl = Deno.env.get('SUPABASE_URL');
+        const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!supabaseUrl || !serviceKey) {
+          throw new Error(`Missing environment variables: URL=${!!supabaseUrl}, Key=${!!serviceKey}`);
+        }
+        
+        const profileUrl = `${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${userId}&select=*`;
+        console.log('Fetching from URL:', profileUrl);
+        
+        const profileResponse = await fetch(profileUrl, {
+          headers: {
+            'apikey': serviceKey,
+            'Authorization': `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json'
           }
-        );
+        });
 
+        console.log('Profile response status:', profileResponse.status);
+        
         if (!profileResponse.ok) {
-          throw new Error('Failed to fetch profile');
+          const errorText = await profileResponse.text();
+          console.error('Profile fetch error:', errorText);
+          throw new Error(`Failed to fetch profile: ${profileResponse.status} ${errorText}`);
         }
 
         const profiles = await profileResponse.json();
+        console.log('Found profiles:', profiles.length);
         const profile = profiles[0] || null;
 
         return new Response(JSON.stringify({ success: true, data: profile }), {

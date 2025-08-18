@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ProfileDashboard } from './components/ProfileDashboard'
-import { profileApi, UserProfile } from './lib/supabase'
+import { profileApi, emailApi, UserProfile } from './lib/supabase'
 import { Card, CardContent } from './components/ui/card'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
@@ -151,6 +151,15 @@ function AppContent() {
     try {
       const profileData = await profileApi.getProfile()
       setProfile(profileData)
+      
+      // Send welcome email for new users without completed profiles
+      if (profileData && !profileData.onboarding_completed && profileData.email) {
+        try {
+          await emailApi.sendWelcomeEmail(profileData)
+        } catch (emailError) {
+          console.log('Welcome email already sent or failed:', emailError)
+        }
+      }
     } catch (error) {
       console.error('Error loading profile:', error)
     } finally {

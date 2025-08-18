@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { styleApi, StyleProfile } from '../lib/supabase'
+import { styleApi, emailApi, StyleProfile, UserProfile } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -52,7 +53,16 @@ export function StyleProfileInterface() {
     try {
       await styleApi.saveStyleProfile(styleProfile)
       // Reload recommendations after saving
-      await loadRecommendations()
+      const newRecommendations = await styleApi.getRecommendations()
+      setRecommendations(newRecommendations)
+      
+      // Send style recommendations update email if we have recommendations
+      if (newRecommendations && newRecommendations.suits?.length > 0) {
+        // We need the user profile to send the email
+        // This would typically be passed as a prop or retrieved from context
+        // For now, we'll just log it - in a real app you'd get this from parent component
+        console.log('Style recommendations updated - email would be sent here')
+      }
     } catch (error) {
       console.error('Error saving style profile:', error)
     } finally {

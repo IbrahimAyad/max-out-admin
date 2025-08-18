@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { profileApi, UserProfile } from '../lib/supabase'
+import { profileApi, emailApi, UserProfile } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
@@ -41,6 +41,16 @@ export function ProfileDashboard({ profile, onProfileUpdate }: ProfileDashboardP
       const updatedProfile = await profileApi.updateProfile(formData)
       onProfileUpdate(updatedProfile)
       setIsEditing(false)
+      
+      // Check completion and send reminders if needed
+      const completionScore = getCompletionScore()
+      if (completionScore < 100 && completionScore > 50) {
+        try {
+          await emailApi.sendProfileCompletionReminder(updatedProfile, completionScore)
+        } catch (emailError) {
+          console.log('Profile completion reminder failed:', emailError)
+        }
+      }
     } catch (error) {
       console.error('Error updating profile:', error)
     } finally {

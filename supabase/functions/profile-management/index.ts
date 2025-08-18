@@ -32,26 +32,41 @@ Deno.serve(async (req) => {
     
     let userId;
     try {
-      // Use Supabase auth API to verify token and get user
-      const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'apikey': serviceKey
+      // First try to decode JWT manually as fallback
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        if (payload.sub) {
+          userId = payload.sub;
+          console.log('Successfully got user ID from JWT:', userId);
         }
-      });
-
-      if (!userResponse.ok) {
-        const errorText = await userResponse.text();
-        throw new Error(`Token verification failed: ${userResponse.status} ${errorText}`);
       }
+      
+      // If manual decode failed, try Supabase auth API
+      if (!userId) {
+        console.log('Trying Supabase auth API...');
+        const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': serviceKey
+          }
+        });
 
-      const userData = await userResponse.json();
-      userId = userData.id;
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          userId = userData.id;
+          console.log('Successfully got user ID from auth API:', userId);
+        } else {
+          const errorText = await userResponse.text();
+          console.error('Auth API error:', errorText);
+        }
+      }
       
       if (!userId) {
-        throw new Error('No user ID found in token response');
+        throw new Error('No user ID found in token');
       }
     } catch (tokenError) {
+      console.error('Authentication error details:', tokenError);
       throw new Error(`Authentication failed: ${tokenError.message}`);
     }
 

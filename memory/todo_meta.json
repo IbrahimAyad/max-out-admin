@@ -3,38 +3,52 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Create Cloudflare Worker for R2 Image Management",
-        "details": "Build a Cloudflare Worker that:\n1. Scans the R2 bucket for product images\n2. Automatically generates CDN URLs\n3. Updates Supabase database with image URLs\n4. Handles bulk imports and real-time syncing\n5. Matches images to products using naming convention",
+        "content": "Analyze current Supabase product table structure and identify duplicate issues",
+        "details": "1. Connect to Supabase and examine the products table schema 2. Identify duplicate product entries and their patterns 3. Document the current state of image URL fields 4. Create a baseline report of existing data quality",
         "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Set up R2 bucket integration",
-        "details": "1. Configure R2 API access in Worker\n2. Implement bucket scanning functionality\n3. Handle image file detection and categorization\n4. Process naming convention: [category]/[subcategory]/[product-slug]/[view].webp",
+        "content": "Build CDN image discovery system",
+        "details": "1. Create a system to scan cdn.kctmenswear.com directory structure 2. Extract all available image URLs and organize by product categories 3. Identify image naming patterns (like 'back.webp', 'front.webp', etc.) 4. Create a comprehensive inventory of available product images",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement Supabase integration",
-        "details": "1. Set up Supabase client in Worker\n2. Create database update functions\n3. Handle product matching and URL storage\n4. Implement upsert logic for existing products",
+        "content": "Develop intelligent image-to-product matching algorithm",
+        "details": "1. Parse image URLs to extract product identifiers 2. Match CDN folder structures to product names/SKUs in database 3. Handle variations in naming conventions 4. Create confidence scoring for matches 5. Build automated suggestion system for uncertain matches",
         "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Create automation endpoints",
-        "details": "1. /sync-all - Full R2 to Supabase sync\n2. /sync-new - Import only new images\n3. /verify-links - Check all URLs are working\n4. /webhook - Real-time sync on R2 uploads",
+        "content": "Create duplicate product resolution system",
+        "details": "1. Identify and group duplicate products 2. Merge duplicate entries while preserving all image URLs 3. Create a master product record with all associated images 4. Clean up orphaned or redundant records 5. Implement safeguards to prevent future duplicates",
         "status": "pending",
-        "priority": "medium"
+        "priority": "high"
       },
       "5": {
         "id": "5",
-        "content": "Deploy and test the Worker",
-        "details": "1. Deploy Worker to Cloudflare\n2. Test with sample products\n3. Run bulk import on existing images\n4. Verify admin panel integration",
+        "content": "Build automated image URL update system",
+        "details": "1. Create Supabase functions to batch update product image URLs 2. Implement rollback capabilities for safety 3. Add validation to ensure image URLs are accessible 4. Create progress tracking and reporting 5. Handle edge cases and error scenarios",
         "status": "pending",
         "priority": "medium"
+      },
+      "6": {
+        "id": "6",
+        "content": "Identify and flag missing products",
+        "details": "1. Compare CDN product folders with database entries 2. Identify products that exist in CDN but not in database 3. Create a report of potentially missing products 4. Provide recommendations for adding missing products 5. Create templates for bulk product addition",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "7": {
+        "id": "7",
+        "content": "Create comprehensive reporting and monitoring dashboard",
+        "details": "1. Build a dashboard showing image-to-product matching status 2. Display duplicate resolution progress 3. Show missing product identification results 4. Create ongoing monitoring for data quality 5. Implement alerts for new matching issues",
+        "status": "pending",
+        "priority": "low"
       }
     }
   }

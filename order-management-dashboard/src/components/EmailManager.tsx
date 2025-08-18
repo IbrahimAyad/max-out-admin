@@ -86,7 +86,13 @@ const EmailManager: React.FC<EmailManagerProps> = ({ orderData, onEmailSent }) =
 
       alert(`Email sent successfully to ${recipient || orderData.customer_email}`);
       if (onEmailSent) onEmailSent();
-      if (showLogs) fetchEmailLogs();
+      
+      // Improved real-time feedback: refresh logs with a delay to ensure database update
+      if (showLogs) {
+        setTimeout(() => {
+          fetchEmailLogs();
+        }, 2000); // Wait 2 seconds for email processing
+      }
       
     } catch (error) {
       console.error('Error sending email:', error);
@@ -114,7 +120,13 @@ const EmailManager: React.FC<EmailManagerProps> = ({ orderData, onEmailSent }) =
 
       alert(`Order automation "${action}" completed successfully`);
       if (onEmailSent) onEmailSent();
-      if (showLogs) fetchEmailLogs();
+      
+      // Improved real-time feedback: refresh logs with a delay to ensure database update
+      if (showLogs) {
+        setTimeout(() => {
+          fetchEmailLogs();
+        }, 2000); // Wait 2 seconds for automation processing
+      }
       
     } catch (error) {
       console.error('Error triggering automation:', error);

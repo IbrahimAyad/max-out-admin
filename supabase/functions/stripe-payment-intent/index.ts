@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
             product_source: item.product_source || (item.stripe_product_id ? 'core_stripe' : 'catalog_supabase'),
             stripe_product_id: item.stripe_product_id,
             product_name: item.product_name,
-            product_sku: item.sku,
+            product_sku: item.sku || item.product_id || `SKU-${Date.now()}`,
             size: item.size,
             color: item.color,
             quantity: item.quantity,

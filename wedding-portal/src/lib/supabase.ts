@@ -63,7 +63,7 @@ export const weddingPortalAPI = {
     return data
   },
 
-  // Timeline Management  
+  // Advanced Timeline Management
   getTasks: async (weddingId: string, filters?: any) => {
     const { data, error } = await supabase.functions.invoke('wedding-timeline-management', {
       method: 'POST',
@@ -91,7 +91,44 @@ export const weddingPortalAPI = {
     return data
   },
 
-  // Communication
+  // NEW: Automated Timeline Management
+  generateTimeline: async (weddingId: string, customTimeline?: any) => {
+    const { data, error } = await supabase.functions.invoke('automated-timeline-management', {
+      method: 'POST',
+      body: { action: 'generate', weddingId, customTimeline }
+    })
+    if (error) throw error
+    return data
+  },
+
+  updateTimelineProgress: async (weddingId: string, partyMemberId?: string) => {
+    const { data, error } = await supabase.functions.invoke('automated-timeline-management', {
+      method: 'POST',
+      body: { action: 'update', weddingId, partyMemberId }
+    })
+    if (error) throw error
+    return data
+  },
+
+  checkUpcomingDeadlines: async (weddingId: string) => {
+    const { data, error } = await supabase.functions.invoke('automated-timeline-management', {
+      method: 'POST',
+      body: { action: 'check_deadlines', weddingId }
+    })
+    if (error) throw error
+    return data
+  },
+
+  scheduleReminders: async (weddingId: string) => {
+    const { data, error } = await supabase.functions.invoke('automated-timeline-management', {
+      method: 'POST',
+      body: { action: 'schedule_reminders', weddingId }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // Communication & Email Automation
   sendMessage: async (weddingId: string, messageData: any) => {
     const { data, error } = await supabase.functions.invoke('wedding-communications', {
       method: 'POST',
@@ -110,7 +147,17 @@ export const weddingPortalAPI = {
     return data
   },
 
-  // Outfit Coordination
+  // NEW: SendGrid Email Automation
+  sendAutomatedEmail: async (weddingId: string, emailType: string, partyMemberIds?: string[], customData?: any, scheduleDate?: string) => {
+    const { data, error } = await supabase.functions.invoke('sendgrid-wedding-automation', {
+      method: 'POST',
+      body: { emailType, weddingId, partyMemberIds, customData, scheduleDate }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // Outfit Coordination & AI Styling
   getOutfitSelections: async (memberId: string, filters?: any) => {
     const { data, error } = await supabase.functions.invoke('wedding-outfit-coordination', {
       method: 'POST',
@@ -134,6 +181,123 @@ export const weddingPortalAPI = {
     })
     if (error) throw error
     return data
+  },
+
+  // NEW: AI-Powered Outfit Coordination
+  analyzeOutfitCoordination: async (weddingId: string, preferences?: any, budgetConstraints?: any) => {
+    const { data, error } = await supabase.functions.invoke('ai-outfit-coordination', {
+      method: 'POST',
+      body: { action: 'analyze', weddingId, preferences, budgetConstraints }
+    })
+    if (error) throw error
+    return data
+  },
+
+  getOutfitRecommendations: async (weddingId: string, preferences?: any, budgetConstraints?: any) => {
+    const { data, error } = await supabase.functions.invoke('ai-outfit-coordination', {
+      method: 'POST',
+      body: { action: 'recommend', weddingId, preferences, budgetConstraints }
+    })
+    if (error) throw error
+    return data
+  },
+
+  validateOutfitCoordination: async (weddingId: string, preferences?: any) => {
+    const { data, error } = await supabase.functions.invoke('ai-outfit-coordination', {
+      method: 'POST',
+      body: { action: 'validate', weddingId, preferences }
+    })
+    if (error) throw error
+    return data
+  },
+
+  optimizeForBudget: async (weddingId: string, budgetConstraints: any) => {
+    const { data, error } = await supabase.functions.invoke('ai-outfit-coordination', {
+      method: 'POST',
+      body: { action: 'optimize', weddingId, budgetConstraints }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // NEW: Smart Measurement System
+  validateMeasurements: async (partyMemberId: string, measurements: any, preferences?: any) => {
+    const { data, error } = await supabase.functions.invoke('smart-measurement-system', {
+      method: 'POST',
+      body: { action: 'validate', partyMemberId, measurements, preferences }
+    })
+    if (error) throw error
+    return data
+  },
+
+  getSizeRecommendations: async (partyMemberId: string, measurements: any) => {
+    const { data, error } = await supabase.functions.invoke('smart-measurement-system', {
+      method: 'POST',
+      body: { action: 'recommend', partyMemberId, measurements }
+    })
+    if (error) throw error
+    return data
+  },
+
+  analyzePhotoMeasurements: async (partyMemberId: string, photoData: any) => {
+    const { data, error } = await supabase.functions.invoke('smart-measurement-system', {
+      method: 'POST',
+      body: { action: 'analyze_photo', partyMemberId, photoData }
+    })
+    if (error) throw error
+    return data
+  },
+
+  getMeasurementTips: async (partyMemberId: string, preferences?: any) => {
+    const { data, error } = await supabase.functions.invoke('smart-measurement-system', {
+      method: 'POST',
+      body: { action: 'generate_tips', partyMemberId, preferences }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // NEW: Wedding-Specific Payment Processing
+  createWeddingPayment: async (weddingId: string, paymentType: string, partyMemberIds: string[], customerEmail: string) => {
+    const { data, error } = await supabase.functions.invoke('stripe-wedding-payment', {
+      method: 'POST',
+      body: { weddingId, paymentType, partyMemberIds, customerEmail }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // NEW: Coordinated Shipping
+  createWeddingShipment: async (weddingOrderId: string, deliveryMode?: string, targetDeliveryDate?: string) => {
+    const { data, error } = await supabase.functions.invoke('easypost-wedding-shipping', {
+      method: 'POST',
+      body: { weddingOrderId, deliveryMode, targetDeliveryDate }
+    })
+    if (error) throw error
+    return data
+  },
+
+  // Analytics & Insights
+  getWeddingAnalytics: async (weddingId: string, analysisType?: string) => {
+    const { data, error } = await supabase
+      .from('wedding_analytics')
+      .select('*')
+      .eq('wedding_id', weddingId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return { data }
+  },
+
+  getAdvancedAnalytics: async (weddingId: string, analysisType?: string) => {
+    const { data, error } = await supabase
+      .from('wedding_analytics_enhanced')
+      .select('*')
+      .eq('wedding_id', weddingId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return { data }
   }
 }
 

@@ -13,9 +13,9 @@ Deno.serve(async (req) => {
 
     try {
         const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-        if (!supabaseUrl || !supabaseAnonKey) {
+        if (!supabaseUrl || !supabaseServiceKey) {
             throw new Error('Supabase configuration missing');
         }
 
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
         const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'apikey': supabaseAnonKey
+                'apikey': supabaseServiceKey
             }
         });
 
@@ -41,17 +41,20 @@ Deno.serve(async (req) => {
 
         const userData = await userResponse.json();
         const userEmail = userData.email;
+        const userId = userData.id;
 
-        // Get party member data
-        const memberResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?email=eq.${userEmail}&select=*,weddings(*)`, {
+        // Get party member data using service role key
+        const memberResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?user_id=eq.${userId}`, {
             headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${token}`,
+                'apikey': supabaseServiceKey,
+                'Authorization': `Bearer ${supabaseServiceKey}`,
                 'Content-Type': 'application/json'
             }
         });
 
         if (!memberResponse.ok) {
+            const errorText = await memberResponse.text();
+            console.error('Failed to fetch party member data:', errorText);
             throw new Error('Failed to fetch party member data');
         }
 
@@ -70,57 +73,114 @@ Deno.serve(async (req) => {
         }
 
         const member = members[0];
-        const wedding = member.weddings;
+        
+        // Get wedding data separately
+        const weddingResponse = await fetch(`${supabaseUrl}/rest/v1/weddings?id=eq.${member.wedding_id}`, {
+            headers: {
+                'apikey': supabaseServiceKey,
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let wedding = null;
+        if (weddingResponse.ok) {
+            const weddings = await weddingResponse.json();
+            wedding = weddings.length > 0 ? weddings[0] : null;
+        }
+
+        if (!wedding) {
+            return new Response(JSON.stringify({
+                error: {
+                    code: 'WEDDING_NOT_FOUND',
+                    message: 'Wedding data not found for this party member'
+                }
+            }), {
+                status: 404,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
 
         // Calculate days until wedding
         const weddingDate = new Date(wedding.wedding_date);
         const today = new Date();
         const daysUntilWedding = Math.ceil((weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Get pending tasks for this member
-        const tasksResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_timeline_tasks?wedding_id=eq.${member.wedding_id}&assigned_member_id=eq.${member.id}&status=neq.completed&select=*&order=due_date.asc&limit=5`, {
-            headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+        // Get tasks, communications, measurements, and outfits with proper error handling
+        let tasks = [];
+        let communications = [];
+        let measurements = [];
+        let outfits = [];
+
+        try {
+            // Get pending tasks for this member
+            const tasksResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_timeline_tasks?wedding_id=eq.${member.wedding_id}&assigned_member_id=eq.${member.id}&status=neq.completed&order=due_date.asc&limit=5`, {
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (tasksResponse.ok) {
+                tasks = await tasksResponse.json();
             }
-        });
+        } catch (error) {
+            console.warn('Failed to fetch tasks:', error);
+        }
 
-        const tasks = tasksResponse.ok ? await tasksResponse.json() : [];
+        try {
+            // Get recent communications
+            const communicationsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_communications?wedding_id=eq.${member.wedding_id}&order=created_at.desc&limit=3`, {
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        // Get recent communications
-        const communicationsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_communications?wedding_id=eq.${member.wedding_id}&or=(recipient_ids.cs.["${member.id}"],recipient_types.cs.["all_party"],recipient_types.cs.["${member.role}"])&select=*&order=created_at.desc&limit=3`, {
-            headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+            if (communicationsResponse.ok) {
+                communications = await communicationsResponse.json();
             }
-        });
+        } catch (error) {
+            console.warn('Failed to fetch communications:', error);
+        }
 
-        const communications = communicationsResponse.ok ? await communicationsResponse.json() : [];
+        try {
+            // Get measurement status
+            const measurementsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_measurements?party_member_id=eq.${member.id}&is_current=eq.true`, {
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        // Get measurement status
-        const measurementsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_measurements?party_member_id=eq.${member.id}&is_current=eq.true&select=*`, {
-            headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+            if (measurementsResponse.ok) {
+                measurements = await measurementsResponse.json();
             }
-        });
+        } catch (error) {
+            console.warn('Failed to fetch measurements:', error);
+        }
 
-        const measurements = measurementsResponse.ok ? await measurementsResponse.json() : [];
+        try {
+            // Get outfit status
+            const outfitResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_outfits?party_member_id=eq.${member.id}`, {
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (outfitResponse.ok) {
+                outfits = await outfitResponse.json();
+            }
+        } catch (error) {
+            console.warn('Failed to fetch outfits:', error);
+        }
+
         const hasCurrentMeasurements = measurements.length > 0;
-
-        // Get outfit status
-        const outfitResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_outfits?party_member_id=eq.${member.id}&select=*`, {
-            headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const outfits = outfitResponse.ok ? await outfitResponse.json() : [];
         const hasOutfitAssigned = outfits.length > 0;
 
         // Calculate completion status
@@ -169,9 +229,9 @@ Deno.serve(async (req) => {
             progress: {
                 completionPercentage,
                 completionItems,
-                measurementsStatus: member.measurements_status,
-                outfitStatus: member.outfit_status,
-                paymentStatus: member.payment_status
+                measurementsStatus: member.measurements_status || 'pending',
+                outfitStatus: member.outfit_status || 'pending',
+                paymentStatus: member.payment_status || 'pending'
             },
             tasks: {
                 pending: tasks,
@@ -198,6 +258,7 @@ Deno.serve(async (req) => {
         };
 
         return new Response(JSON.stringify({
+            success: true,
             data: dashboardData
         }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -207,9 +268,10 @@ Deno.serve(async (req) => {
         console.error('Groomsmen dashboard error:', error);
 
         const errorResponse = {
+            success: false,
             error: {
                 code: 'DASHBOARD_ERROR',
-                message: error.message
+                message: error.message || 'An unexpected error occurred'
             }
         };
 

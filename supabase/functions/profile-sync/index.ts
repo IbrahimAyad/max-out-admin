@@ -35,16 +35,11 @@ Deno.serve(async (req) => {
                 
                 const profiles = await profileResponse.json();
                 
+                let profile;
                 if (profiles.length === 0) {
-                    throw new Error('User profile not found');
-                }
-                
-                let profile = profiles[0];
-                
-                // Update profile with new data if provided
-                if (profile_data) {
-                    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}`, {
-                        method: 'PATCH',
+                    // Create new profile if it doesn't exist
+                    const createResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles`, {
+                        method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${supabaseKey}`,
                             'apikey': supabaseKey,
@@ -52,17 +47,47 @@ Deno.serve(async (req) => {
                             'Prefer': 'return=representation'
                         },
                         body: JSON.stringify({
+                            user_id,
                             ...profile_data,
+                            created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
                         })
                     });
                     
-                    if (!updateResponse.ok) {
-                        throw new Error('Failed to update profile');
+                    if (!createResponse.ok) {
+                        const errorText = await createResponse.text();
+                        throw new Error(`Failed to create profile: ${errorText}`);
                     }
                     
-                    const updatedProfiles = await updateResponse.json();
-                    profile = updatedProfiles[0];
+                    const createdProfiles = await createResponse.json();
+                    profile = createdProfiles[0];
+                } else {
+                    profile = profiles[0];
+                    
+                    // Update profile with new data if provided
+                    if (profile_data) {
+                        const updateResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'apikey': supabaseKey,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({
+                                ...profile_data,
+                                updated_at: new Date().toISOString()
+                            })
+                        });
+                        
+                        if (!updateResponse.ok) {
+                            const errorText = await updateResponse.text();
+                            throw new Error(`Failed to update profile: ${errorText}`);
+                        }
+                        
+                        const updatedProfiles = await updateResponse.json();
+                        profile = updatedProfiles[0];
+                    }
                 }
                 
                 // Sync to wedding party member records if user is a party member
@@ -127,6 +152,40 @@ Deno.serve(async (req) => {
                     throw new Error('Measurement data is required');
                 }
                 
+                // Ensure profile exists first
+                const profileCheckResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'apikey': supabaseKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                let profileExists = false;
+                if (profileCheckResponse.ok) {
+                    const existingProfiles = await profileCheckResponse.json();
+                    profileExists = existingProfiles.length > 0;
+                }
+                
+                if (!profileExists) {
+                    // Create profile first
+                    await fetch(`${supabaseUrl}/rest/v1/user_profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id,
+                            size_profile: measurement_data,
+                            measurements: measurement_data,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                }
+                
                 // Update user profile with measurements
                 const profileUpdateResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}`, {
                     method: 'PATCH',
@@ -149,7 +208,8 @@ Deno.serve(async (req) => {
                 });
                 
                 if (!profileUpdateResponse.ok) {
-                    throw new Error('Failed to update profile measurements');
+                    const errorText = await profileUpdateResponse.text();
+                    throw new Error(`Failed to update profile measurements: ${errorText}`);
                 }
                 
                 const updatedProfile = await profileUpdateResponse.json();
@@ -213,6 +273,9 @@ Deno.serve(async (req) => {
                 
             case 'get_unified_profile':
                 // Get complete unified profile data for user across all systems
+                let unifiedProfile = null;
+                
+                // Try to get existing profile
                 const unifiedProfileResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}&select=*`, {
                     headers: {
                         'Authorization': `Bearer ${supabaseKey}`,
@@ -228,55 +291,118 @@ Deno.serve(async (req) => {
                 const unifiedProfiles = await unifiedProfileResponse.json();
                 
                 if (unifiedProfiles.length === 0) {
-                    throw new Error('Profile not found');
+                    // Create a basic profile for this user
+                    const createProfileResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({
+                            user_id,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString(),
+                            unified_auth_enabled: true
+                        })
+                    });
+                    
+                    if (!createProfileResponse.ok) {
+                        const errorText = await createProfileResponse.text();
+                        console.error('Failed to create profile:', errorText);
+                        throw new Error(`Failed to create profile: ${errorText}`);
+                    }
+                    
+                    const createdProfiles = await createProfileResponse.json();
+                    unifiedProfile = createdProfiles[0];
+                } else {
+                    unifiedProfile = unifiedProfiles[0];
                 }
                 
-                const unifiedProfile = unifiedProfiles[0];
-                
-                // Get wedding-related data
-                const weddingDataResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?user_id=eq.${user_id}&select=*,weddings!inner(*)`, {
-                    headers: {
-                        'Authorization': `Bearer ${supabaseKey}`,
-                        'apikey': supabaseKey,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
+                // Get wedding-related data (non-critical)
                 let weddingData = null;
-                if (weddingDataResponse.ok) {
-                    const weddingMembers = await weddingDataResponse.json();
-                    if (weddingMembers.length > 0) {
-                        weddingData = {
-                            party_member: weddingMembers[0],
-                            wedding: weddingMembers[0].weddings
-                        };
+                try {
+                    const weddingDataResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?user_id=eq.${user_id}&select=*`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (weddingDataResponse.ok) {
+                        const weddingMembers = await weddingDataResponse.json();
+                        if (weddingMembers.length > 0) {
+                            // Get wedding details for the first party member record
+                            const weddingDetailResponse = await fetch(`${supabaseUrl}/rest/v1/weddings?id=eq.${weddingMembers[0].wedding_id}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${supabaseKey}`,
+                                    'apikey': supabaseKey,
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            
+                            if (weddingDetailResponse.ok) {
+                                const weddingDetails = await weddingDetailResponse.json();
+                                if (weddingDetails.length > 0) {
+                                    weddingData = {
+                                        party_member: weddingMembers[0],
+                                        wedding: weddingDetails[0]
+                                    };
+                                }
+                            }
+                        }
                     }
+                } catch (error) {
+                    console.warn('Non-critical error fetching wedding data:', error);
                 }
                 
-                // Get couple wedding data if applicable
-                const coupleWeddingResponse = await fetch(`${supabaseUrl}/rest/v1/weddings?or=(primary_customer_id.eq.${user_id},partner_customer_id.eq.${user_id})`, {
-                    headers: {
-                        'Authorization': `Bearer ${supabaseKey}`,
-                        'apikey': supabaseKey,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
+                // Get couple wedding data if applicable (non-critical)
                 let coupleWedding = null;
-                if (coupleWeddingResponse.ok) {
-                    const coupleWeddings = await coupleWeddingResponse.json();
-                    if (coupleWeddings.length > 0) {
-                        coupleWedding = coupleWeddings[0];
+                try {
+                    const coupleWeddingResponse = await fetch(`${supabaseUrl}/rest/v1/weddings?or=(primary_customer_id.eq.${user_id},partner_customer_id.eq.${user_id})`, {
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (coupleWeddingResponse.ok) {
+                        const coupleWeddings = await coupleWeddingResponse.json();
+                        if (coupleWeddings.length > 0) {
+                            coupleWedding = coupleWeddings[0];
+                        }
                     }
+                } catch (error) {
+                    console.warn('Non-critical error fetching couple wedding data:', error);
                 }
+                
+                // Determine access levels
+                const accessLevels = {
+                    enhanced_profile: true,
+                    couples_portal: !!coupleWedding,
+                    groomsmen_portal: !!weddingData,
+                    admin_portal: false // This would be determined by admin role checks
+                };
                 
                 return new Response(JSON.stringify({
                     success: true,
                     data: {
                         profile: unifiedProfile,
+                        access_levels: accessLevels,
                         wedding_party_data: weddingData,
                         couple_wedding_data: coupleWedding,
-                        access_level: coupleWedding ? 'couple' : weddingData ? 'party_member' : 'customer',
+                        portal_context: {
+                            current_portal: 'unified_auth',
+                            available_portals: [
+                                'enhanced_profile',
+                                ...(coupleWedding ? ['couples_portal'] : []),
+                                ...(weddingData ? ['groomsmen_portal'] : [])
+                            ],
+                            primary_role: coupleWedding ? 'couple' : weddingData ? 'party_member' : 'customer'
+                        },
                         unified_access: true
                     }
                 }), {
@@ -284,7 +410,16 @@ Deno.serve(async (req) => {
                 });
                 
             default:
-                throw new Error(`Unknown action: ${action}`);
+                return new Response(JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'INVALID_ACTION',
+                        message: `Unknown action: ${action}`
+                    }
+                }), {
+                    status: 400,
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
         }
         
     } catch (error) {
@@ -294,7 +429,7 @@ Deno.serve(async (req) => {
             success: false,
             error: {
                 code: 'PROFILE_SYNC_ERROR',
-                message: error.message
+                message: error.message || 'An unexpected error occurred'
             }
         };
 

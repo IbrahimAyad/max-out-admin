@@ -52,9 +52,9 @@
       },
       "8": {
         "id": "8",
-        "content": "Test End-to-End Integration (V1 Launch Prep)",
-        "details": "Comprehensive testing of unified system:\n1. Test cross-portal authentication flows\n2. Verify profile data sync across all portals\n3. Test invitation code generation and redemption\n4. Validate admin portal wedding management\n5. Performance testing under load\n6. Security audit of authentication bridge",
-        "status": "in_progress",
+        "content": "CRITICAL: Fix Profile-Sync Backend Issues (BLOCKING V1 LAUNCH)",
+        "details": "URGENT: The profile-sync Edge Function is returning HTTP 500 errors across all portals, preventing unified authentication from working:\n1. Fix profile-sync Edge Function database queries and error handling\n2. Verify all database schema and RLS policies are correctly implemented\n3. Test profile data retrieval and synchronization\n4. Validate authentication flows across all portals\n5. Ensure session management works properly\n6. Complete end-to-end integration testing",
+        "status": "pending",
         "priority": "high"
       },
       "9": {

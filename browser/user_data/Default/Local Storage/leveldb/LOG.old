@@ -1,3 +1,6 @@
-2025/08/18-02:59:38.056 dff Reusing MANIFEST /workspace/browser/user_data/Default/Local Storage/leveldb/MANIFEST-000001
-2025/08/18-02:59:38.059 dff Recovering log #3
-2025/08/18-02:59:38.059 dff Reusing old log /workspace/browser/user_data/Default/Local Storage/leveldb/000003.log 
+2025/08/18-07:44:49.772 1b29 Reusing MANIFEST /workspace/browser/user_data/Default/Local Storage/leveldb/MANIFEST-000001
+2025/08/18-07:44:49.775 1b29 Recovering log #3
+2025/08/18-07:44:49.775 1b29 Reusing old log /workspace/browser/user_data/Default/Local Storage/leveldb/000003.log 
+2025/08/18-07:51:27.284 1b2a Level-0 table #5: started
+2025/08/18-07:51:27.286 1b2a Level-0 table #5: 29201 bytes OK
+2025/08/18-07:51:27.288 1b2a Delete type=0 #3

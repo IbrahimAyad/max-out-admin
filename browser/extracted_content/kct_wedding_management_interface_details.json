@@ -1,0 +1,32 @@
+📄 Extracted from page: KCT Admin Hub
+URL: https://9858w2bjznjh.space.minimax.io/
+
+Extracted content:
+```json
+{
+    "title": "KCT Admin Hub",
+    "url": "https://9858w2bjznjh.space.minimax.io/",
+    "summary": "The KCT Admin Hub provides a dedicated 'Wedding Management' interface designed to streamline the coordination of wedding party formalwear. This interface offers a dashboard view with key metrics, status filtering capabilities for various stages of wedding coordination, and clear calls to action for creating and managing wedding events.",
+    "key_points": [
+        "The primary function of this interface is to 'Coordinate wedding party formalwear'.",
+        "It features a dashboard displaying key metrics: 'New Wedding', 'Active Weddings (0)', 'This Month (0)', 'Pending Tasks (0)', and 'Urgent Issues (0)'.",
+        "Users can filter wedding coordination activities by various statuses including 'All Status', 'Planning', 'Measurements', 'Selection', 'Orders Placed', 'Production', 'Fulfillment', and 'Completed'.",
+        "The interface indicates 'No weddings found' when no events have been created.",
+        "A clear call to action 'Get started by creating your first wedding coordination' and a prominent 'Create First Wedding' button are provided to initiate new wedding events.",
+        "The section is clearly titled 'Wedding Management' with a prominent 'KCT Menswear' branding."
+    ],
+    "relevant_links": [
+        "New Wedding (Dashboard metric, likely clickable to start new wedding)",
+        "Create First Wedding (Button to initiate new coordination)",
+        "All Status (Filter/navigation option)",
+        "Planning (Filter/navigation option)",
+        "Measurements (Filter/navigation option)",
+        "Selection (Filter/navigation option)",
+        "Orders Placed (Filter/navigation option)",
+        "Production (Filter/navigation option)",
+        "Fulfillment (Filter/navigation option)",
+        "Completed (Filter/navigation option)"
+    ],
+    "file_name": "kct_wedding_management_interface_details.json"
+}
+```

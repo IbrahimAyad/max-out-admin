@@ -1,0 +1,23 @@
+📄 Extracted from page: groomsmen-portal
+URL: https://qs4j1oh0oweu.space.minimax.io/invitation
+
+Extracted content:
+```json
+{
+    "title": "groomsmen-portal",
+    "url": "https://qs4j1oh0oweu.space.minimax.io/invitation",
+    "summary": "The KCT Menswear Wedding Party Portal is an online platform designed for wedding party members (groomsmen, etc.) to access a personalized wedding experience. Access is granted by entering a unique invitation code, which users are advised to find in their invitation email. Once logged in, the portal seems to offer information related to 'Your Outfit' and a 'Timeline'. For assistance, users are directed to contact their wedding coordinator.",
+    "key_points": [
+        "**Portal Name:** KCT Menswear Wedding Party Portal.",
+        "**Purpose:** Provides a 'personalized wedding experience' for wedding party members.",
+        "**Access Method:** Requires an 'Invitation Code' to gain entry.",
+        "**Invitation Code Format Hint:** Codes are distributed via 'invitation email', suggesting they are unique and likely alphanumeric or a specific string.",
+        "**System Functionality (Hints):** The portal appears to offer sections or details related to 'Your Outfit' and a 'Timeline' once accessed, implying these are key features or information points.",
+        "**User Guidance:** Users are instructed to 'Check your invitation email for the code'.",
+        "**Support:** 'Need help? Contact your wedding coordinator' is provided as the primary support channel.",
+        "**Creator:** The portal was 'Created by MiniMax Agent'."
+    ],
+    "relevant_links": [],
+    "file_name": "groomsmen_portal_info.json"
+}
+```

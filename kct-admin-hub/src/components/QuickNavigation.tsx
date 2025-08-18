@@ -1,10 +1,11 @@
-import { ExternalLink, BarChart3, Package } from 'lucide-react'
+import { ExternalLink, BarChart3, Package, Heart } from 'lucide-react'
 
 interface QuickNavigationProps {
   className?: string
+  onWeddingClick?: () => void
 }
 
-export function QuickNavigation({ className = '' }: QuickNavigationProps) {
+export function QuickNavigation({ className = '', onWeddingClick }: QuickNavigationProps) {
   const dashboards = [
     {
       title: 'Analytics Dashboard',
@@ -19,6 +20,14 @@ export function QuickNavigation({ className = '' }: QuickNavigationProps) {
       url: 'https://i55ibre0zen6.space.minimax.io',
       icon: Package,
       color: 'from-green-500 to-green-600'
+    },
+    {
+      title: 'Wedding Management',
+      description: 'Wedding party coordination and formalwear',
+      onClick: onWeddingClick,
+      icon: Heart,
+      color: 'from-rose-500 to-rose-600',
+      isInternal: true
     }
   ]
 
@@ -50,9 +59,34 @@ export function QuickNavigation({ className = '' }: QuickNavigationProps) {
       {/* Main Dashboards */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Main Dashboards</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {dashboards.map((dashboard) => {
             const IconComponent = dashboard.icon
+            
+            if (dashboard.isInternal) {
+              return (
+                <button
+                  key={dashboard.title}
+                  onClick={dashboard.onClick}
+                  className="group relative overflow-hidden rounded-lg bg-white shadow-lg hover:shadow-xl transition-all duration-300 text-left w-full"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${dashboard.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
+                  <div className="relative p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <IconComponent className="w-8 h-8 text-gray-700" />
+                      <div className="w-4 h-4" /> {/* Spacer instead of external link icon */}
+                    </div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                      {dashboard.title}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {dashboard.description}
+                    </p>
+                  </div>
+                </button>
+              )
+            }
+            
             return (
               <a
                 key={dashboard.title}

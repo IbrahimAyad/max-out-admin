@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Bell, Menu, X } from 'lucide-react'
+import { Bell, Menu, X, ArrowLeft } from 'lucide-react'
 import { DashboardOverview } from './components/DashboardOverview'
 import { NotificationCenter } from './components/NotificationCenter'
 import { QuickNavigation } from './components/QuickNavigation'
 import { RecentActivity } from './components/RecentActivity'
+import { WeddingManagement } from './components/WeddingManagement'
 import { useAdminQueries } from './hooks/useAdminQueries'
 
 const queryClient = new QueryClient({
@@ -16,9 +17,11 @@ const queryClient = new QueryClient({
   },
 })
 
-function AdminHeader({ onNotificationToggle, unreadCount }: { 
+function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackClick }: { 
   onNotificationToggle: () => void
-  unreadCount: number 
+  unreadCount: number
+  currentView: 'dashboard' | 'wedding'
+  onBackClick?: () => void
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -28,13 +31,23 @@ function AdminHeader({ onNotificationToggle, unreadCount }: {
         <div className="flex items-center justify-between h-16">
           {/* Logo and Title */}
           <div className="flex items-center space-x-4">
+            {currentView === 'wedding' && (
+              <button 
+                onClick={onBackClick}
+                className="p-2 text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center font-bold text-sm">
                 KCT
               </div>
               <div>
                 <h1 className="text-xl font-bold">KCT Menswear</h1>
-                <p className="text-sm text-gray-300">Admin Hub</p>
+                <p className="text-sm text-gray-300">
+                  {currentView === 'wedding' ? 'Wedding Management' : 'Admin Hub'}
+                </p>
               </div>
             </div>
           </div>
@@ -89,38 +102,53 @@ function AdminHeader({ onNotificationToggle, unreadCount }: {
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
+  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding'>('dashboard')
   const { unreadNotifications } = useAdminQueries()
 
   const unreadCount = unreadNotifications.data?.data.length || 0
+
+  const handleWeddingClick = () => {
+    setCurrentView('wedding')
+  }
+
+  const handleBackToDashboard = () => {
+    setCurrentView('dashboard')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader 
         onNotificationToggle={() => setIsNotificationCenterOpen(!isNotificationCenterOpen)}
         unreadCount={unreadCount}
+        currentView={currentView}
+        onBackClick={handleBackToDashboard}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Welcome Section */}
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome to KCT Admin Hub
-            </h2>
-            <p className="text-gray-600">
-              Central command center for all administrative operations
-            </p>
+        {currentView === 'dashboard' ? (
+          <div className="space-y-8">
+            {/* Welcome Section */}
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Welcome to KCT Admin Hub
+              </h2>
+              <p className="text-gray-600">
+                Central command center for all administrative operations
+              </p>
+            </div>
+
+            {/* Dashboard Overview */}
+            <DashboardOverview />
+
+            {/* Quick Navigation */}
+            <QuickNavigation onWeddingClick={handleWeddingClick} />
+
+            {/* Recent Activity */}
+            <RecentActivity />
           </div>
-
-          {/* Dashboard Overview */}
-          <DashboardOverview />
-
-          {/* Quick Navigation */}
-          <QuickNavigation />
-
-          {/* Recent Activity */}
-          <RecentActivity />
-        </div>
+        ) : (
+          <WeddingManagement />
+        )}
       </main>
 
       {/* Notification Center */}

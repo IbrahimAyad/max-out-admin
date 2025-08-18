@@ -5,7 +5,7 @@
         "id": "1",
         "content": "Migrate Shopify Customer Data to Unified User Profiles",
         "details": "Migrate 2,819 customers from the customers table to user_profiles table. Enhanced migration to include extracting any existing size data and mapping to comprehensive size profile structure. Ensure all measurements, preferences, and sizing data are properly transferred.",
-        "status": "pending",
+        "status": "in_progress",
         "priority": "high"
       },
       "2": {

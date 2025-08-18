@@ -3,45 +3,24 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Analyze existing Next.js/Supabase architecture and customer data structure",
-        "details": "1. Review existing customers table structure and data. 2. Understand current auth flow and Edge Functions. 3. Map out integration points for profile management. 4. Identify data migration needs from customers to user_profiles.",
+        "content": "Create Next.js Integration Documentation and Components",
+        "details": "1. Document how to call existing profile-management edge function from Next.js. 2. Create React component examples for customer profile management. 3. Build size profile and style preference components for main site. 4. Provide authentication flow examples with existing Supabase Auth. 5. Create integration guide with code samples.",
         "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create enhanced Supabase Edge Functions API for main site integration",
-        "details": "1. Refactor existing profile-management function for main site compatibility. 2. Create customer-profile-api endpoints for Next.js integration. 3. Ensure proper authentication flow with existing Supabase Auth. 4. Add endpoints for size profiles, style preferences, and measurement management.",
+        "content": "Enhance Wedding Portal with Party Management Features",
+        "details": "1. Add wedding party management to existing system at https://1dysdy49try6.space.minimax.io. 2. Create groomsmen coordination features. 3. Add group measurement management for wedding parties. 4. Implement wedding planner interface. 5. Enhanced wedding-specific workflows and data fields.",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Develop wedding-focused enhanced customer portal",
-        "details": "1. Create specialized wedding portal based on current system. 2. Add wedding party management features. 3. Implement wedding-specific workflows (groomsmen coordination, group measurements). 4. Design wedding planner interface. 5. Add wedding-specific data fields in additional_info JSONB.",
+        "content": "Execute Customer Data Migration",
+        "details": "1. Create and run migration script from customers table to user_profiles. 2. Preserve existing customer data, order history, and Stripe relationships. 3. Map existing customer data to new user_profiles structure. 4. Validate data integrity and relationships post-migration. 5. Update 2,819 customer records.",
         "status": "pending",
         "priority": "high"
-      },
-      "4": {
-        "id": "4",
-        "content": "Implement data migration and customer record consolidation",
-        "details": "1. Create migration script for customers table to user_profiles. 2. Preserve existing customer data and order history. 3. Ensure Stripe customer IDs remain linked. 4. Handle wedding-specific data in additional_info field. 5. Validate data integrity post-migration.",
-        "status": "pending",
-        "priority": "medium"
-      },
-      "5": {
-        "id": "5",
-        "content": "Create Next.js integration components and documentation",
-        "details": "1. Build React components for customer profile management. 2. Create API integration examples for Next.js. 3. Provide authentication flow documentation. 4. Build size profile and style preference components. 5. Create integration guide for your development team.",
-        "status": "pending",
-        "priority": "medium"
-      },
-      "6": {
-        "id": "6",
-        "content": "Testing and validation of integrated systems",
-        "details": "1. Test API endpoints with sample Next.js integration. 2. Validate wedding portal functionality. 3. Test customer data consistency across systems. 4. Verify Stripe integration compatibility. 5. End-to-end testing of customer workflows.",
-        "status": "pending",
-        "priority": "medium"
       }
     }
   }

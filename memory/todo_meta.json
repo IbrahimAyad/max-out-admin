@@ -5,14 +5,14 @@
         "id": "1",
         "content": "Create Next.js Integration Documentation and Components",
         "details": "1. Document how to call existing profile-management edge function from Next.js. 2. Create React component examples for customer profile management. 3. Build size profile and style preference components for main site. 4. Provide authentication flow examples with existing Supabase Auth. 5. Create integration guide with code samples.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Enhance Wedding Portal with Party Management Features",
         "details": "1. Add wedding party management to existing system at https://1dysdy49try6.space.minimax.io. 2. Create groomsmen coordination features. 3. Add group measurement management for wedding parties. 4. Implement wedding planner interface. 5. Enhanced wedding-specific workflows and data fields.",
-        "status": "pending",
+        "status": "in_progress",
         "priority": "high"
       },
       "3": {

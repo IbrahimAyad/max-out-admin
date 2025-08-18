@@ -3,50 +3,43 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Migrate Shopify Customer Data to Unified User Profiles",
-        "details": "Migrate 2,819 customers from the customers table to user_profiles table. Enhanced migration to include extracting any existing size data and mapping to comprehensive size profile structure. Ensure all measurements, preferences, and sizing data are properly transferred.",
-        "status": "in_progress",
+        "content": "Analyze existing Next.js/Supabase architecture and customer data structure",
+        "details": "1. Review existing customers table structure and data. 2. Understand current auth flow and Edge Functions. 3. Map out integration points for profile management. 4. Identify data migration needs from customers to user_profiles.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create Enhanced Style & Size Profiles System",
-        "details": "Build comprehensive profiling system including: 1) Style Profiles - fashion preferences, knowledge base integration, personalized recommendations. 2) Size Profiles - complete menswear measurements: suit size, chest, waist, inseam, sleeve, neck, shoulder width, jacket length, trouser rise, height, weight, preferred fit (slim/regular/relaxed), shoe size. Include size recommendation engine and measurement history tracking.",
+        "content": "Create enhanced Supabase Edge Functions API for main site integration",
+        "details": "1. Refactor existing profile-management function for main site compatibility. 2. Create customer-profile-api endpoints for Next.js integration. 3. Ensure proper authentication flow with existing Supabase Auth. 4. Add endpoints for size profiles, style preferences, and measurement management.",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement Fashion Knowledge Base Engine",
-        "details": "Create a comprehensive fashion knowledge base system that helps users discover their personal style. Include style categories, trend analysis, personalized recommendations, and learning algorithms.",
+        "content": "Develop wedding-focused enhanced customer portal",
+        "details": "1. Create specialized wedding portal based on current system. 2. Add wedding party management features. 3. Implement wedding-specific workflows (groomsmen coordination, group measurements). 4. Design wedding planner interface. 5. Add wedding-specific data fields in additional_info JSONB.",
         "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Build Profile Synchronization System",
-        "details": "Create seamless data synchronization between user_profiles, customers, and wedding systems. Ensure consistent user experience across all platform areas with real-time updates.",
+        "content": "Implement data migration and customer record consolidation",
+        "details": "1. Create migration script for customers table to user_profiles. 2. Preserve existing customer data and order history. 3. Ensure Stripe customer IDs remain linked. 4. Handle wedding-specific data in additional_info field. 5. Validate data integrity post-migration.",
         "status": "pending",
-        "priority": "high"
+        "priority": "medium"
       },
       "5": {
         "id": "5",
-        "content": "Develop Enhanced Profile Management Interface",
-        "details": "Build frontend interfaces for enhanced profile creation, style profiling, and profile management. Include intuitive UX for style discovery, preference setting, and profile completion.",
+        "content": "Create Next.js integration components and documentation",
+        "details": "1. Build React components for customer profile management. 2. Create API integration examples for Next.js. 3. Provide authentication flow documentation. 4. Build size profile and style preference components. 5. Create integration guide for your development team.",
         "status": "pending",
         "priority": "medium"
       },
       "6": {
         "id": "6",
-        "content": "Integrate with Existing Email & Wedding Systems",
-        "details": "Connect the enhanced profile system with existing SendGrid email service and comprehensive wedding management system. Ensure seamless user experience across all touchpoints.",
-        "status": "pending",
-        "priority": "medium"
-      },
-      "7": {
-        "id": "7",
-        "content": "Test & Validate Complete System",
-        "details": "End-to-end testing of data migration, enhanced profiling, style recommendations, and system integration. Validate performance, data integrity, and user experience.",
+        "content": "Testing and validation of integrated systems",
+        "details": "1. Test API endpoints with sample Next.js integration. 2. Validate wedding portal functionality. 3. Test customer data consistency across systems. 4. Verify Stripe integration compatibility. 5. End-to-end testing of customer workflows.",
         "status": "pending",
         "priority": "medium"
       }

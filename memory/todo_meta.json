@@ -3,43 +3,50 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Analyze Current User Profile System Architecture",
-        "details": "Compare user_profiles vs customers vs style_profiles tables to understand data flow and identify gaps. Current status: user_profiles has 3 records, customers has 2822 records, style_profiles has 0 records.",
-        "status": "in_progress",
+        "content": "Migrate Shopify Customer Data to Unified User Profiles",
+        "details": "Migrate 2,819 customers from the customers table to user_profiles table. Map fields appropriately, handle data transformation, and ensure no data loss. Preserve existing relationships and maintain data integrity.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create Enhanced Customer Profile Implementation",
-        "details": "Implement the missing enhanced customer profile system that integrates style preferences, fashion knowledge base, and advanced user profiling. Need to bridge the gap between user_profiles and style_profiles tables.",
+        "content": "Create Enhanced Style Profiles System",
+        "details": "Build the style_profiles table and associated functionality. Include style preferences, fashion knowledge base integration, personalized recommendations, and style analytics. Design for scalability and user engagement.",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Audit Email Services Setup",
-        "details": "Review existing SendGrid email service implementation (send-email edge function, email_logs table) and identify any missing components or improvements needed.",
+        "content": "Implement Fashion Knowledge Base Engine",
+        "details": "Create a comprehensive fashion knowledge base system that helps users discover their personal style. Include style categories, trend analysis, personalized recommendations, and learning algorithms.",
         "status": "pending",
-        "priority": "medium"
+        "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Implement User Profile Synchronization",
-        "details": "Create system to sync data between user_profiles and customers tables, ensuring consistent user experience across the platform.",
+        "content": "Build Profile Synchronization System",
+        "details": "Create seamless data synchronization between user_profiles, customers, and wedding systems. Ensure consistent user experience across all platform areas with real-time updates.",
         "status": "pending",
         "priority": "high"
       },
       "5": {
         "id": "5",
-        "content": "Develop Fashion Knowledge Base Integration",
-        "details": "Build the fashion knowledge base system that will help users find their own style, integrating with the enhanced customer profile system.",
+        "content": "Develop Enhanced Profile Management Interface",
+        "details": "Build frontend interfaces for enhanced profile creation, style profiling, and profile management. Include intuitive UX for style discovery, preference setting, and profile completion.",
         "status": "pending",
         "priority": "medium"
       },
       "6": {
         "id": "6",
-        "content": "Test Complete User Profile & Email System",
-        "details": "End-to-end testing of enhanced profile creation, style profiling, and email service integration.",
+        "content": "Integrate with Existing Email & Wedding Systems",
+        "details": "Connect the enhanced profile system with existing SendGrid email service and comprehensive wedding management system. Ensure seamless user experience across all touchpoints.",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "7": {
+        "id": "7",
+        "content": "Test & Validate Complete System",
+        "details": "End-to-end testing of data migration, enhanced profiling, style recommendations, and system integration. Validate performance, data integrity, and user experience.",
         "status": "pending",
         "priority": "medium"
       }

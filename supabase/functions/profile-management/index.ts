@@ -21,30 +21,35 @@ Deno.serve(async (req) => {
       throw new Error('Authorization header required');
     }
 
-    // Get user from JWT token using native Deno approach
+    // Get user from Supabase auth API (proper way)
     const token = authHeader.replace('Bearer ', '');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !serviceKey) {
+      throw new Error(`Missing environment variables: URL=${!!supabaseUrl}, Key=${!!serviceKey}`);
+    }
     
     let userId;
     try {
-      // Decode JWT token to get user ID
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT format');
+      // Use Supabase auth API to verify token and get user
+      const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'apikey': serviceKey
+        }
+      });
+
+      if (!userResponse.ok) {
+        const errorText = await userResponse.text();
+        throw new Error(`Token verification failed: ${userResponse.status} ${errorText}`);
       }
+
+      const userData = await userResponse.json();
+      userId = userData.id;
       
-      // Decode the payload (second part)
-      const payload = JSON.parse(atob(parts[1]));
-      
-      if (!payload.sub) {
-        throw new Error('Missing user ID in token');
-      }
-      
-      userId = payload.sub;
-      
-      // Verify token is not expired
-      const now = Math.floor(Date.now() / 1000);
-      if (payload.exp && payload.exp < now) {
-        throw new Error('Token expired');
+      if (!userId) {
+        throw new Error('No user ID found in token response');
       }
     } catch (tokenError) {
       throw new Error(`Authentication failed: ${tokenError.message}`);
@@ -54,13 +59,6 @@ Deno.serve(async (req) => {
       case 'get': {
         // Get user profile
         console.log('Getting profile for user:', userId);
-        
-        const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        
-        if (!supabaseUrl || !serviceKey) {
-          throw new Error(`Missing environment variables: URL=${!!supabaseUrl}, Key=${!!serviceKey}`);
-        }
         
         const profileUrl = `${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${userId}&select=*`;
         console.log('Fetching from URL:', profileUrl);

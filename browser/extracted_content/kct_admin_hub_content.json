@@ -1,0 +1,28 @@
+📄 Extracted from page: KCT Admin Hub
+URL: https://9858w2bjznjh.space.minimax.io/
+
+Extracted content:
+```json
+{
+  "title": "KCT Admin Hub",
+  "url": "https://9858w2bjznjh.space.minimax.io/",
+  "summary": "The page is the main KCT Admin Hub, serving as a central command center for administrative operations. It provides an overview of 'Today's Overview' (revenue, orders, pending orders, alerts) and 'Weekly Performance' (revenue, orders, customers, processing queue). It features links to 'Main Dashboards' such as Analytics and Order Processing, and a section for 'Wedding Management'. 'Quick Actions' allow administrators to view all orders, manage inventory, analyze customers, and view revenue reports. A 'Recent Activity' feed displays high-priority orders, stock warnings, payment confirmations, and various order statuses. A separate 'Notifications' section reiterates recent important alerts.",
+  "key_points": [
+    "The page is confirmed to be the main 'KCT Admin Hub' based on title and content.",
+    "No explicit authentication forms (login, sign-up) are present on this page.",
+    "User management interfaces are indirectly present through 'Customer Analytics' quick action and 'Total Customers' metric, indicating functionality related to customer data.",
+    "Extensive admin controls are visible, including: performance metrics (revenue, orders, pending, alerts), operational dashboards (Analytics, Order Processing), quick actions for 'View All Orders', 'Inventory Management', 'Customer Analytics', and 'Revenue Reports'.",
+    "The page displays real-time operational data via 'Today's Overview', 'Weekly Performance', 'Recent Activity', and 'Notifications'.",
+    "Specific administrative tasks like order processing, inventory management, and revenue reporting are highlighted."
+  ],
+  "relevant_links": [
+    "https://kei4wjdty1ey.space.minimax.io",
+    "https://i55ibre0zen6.space.minimax.io",
+    "https://i55ibre0zen6.space.minimax.io/orders",
+    "https://i55ibre0zen6.space.minimax.io/inventory",
+    "https://kei4wjdty1ey.space.minimax.io/customers",
+    "https://kei4wjdty1ey.space.minimax.io/revenue"
+  ],
+  "file_name": "kct_admin_hub_content.json"
+}
+```

@@ -12,49 +12,49 @@
         "id": "2",
         "content": "Design Unified Authentication Strategy",
         "details": "Create architecture for unified user accounts:\n1. Extend existing Supabase Auth to work with invitation codes\n2. Map wedding codes to Supabase user accounts\n3. Ensure profile/size data flows seamlessly across all portals\n4. Maintain existing portal UX while adding unified backend\n5. Create authentication middleware for portal-specific access",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Develop Authentication Bridge System",
         "details": "Build Supabase Edge Functions to bridge authentication systems:\n1. Wedding code validation service\n2. Invitation code mapping service\n3. Profile data sync service\n4. Session management across portals\n5. User migration utilities for existing accounts",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "4": {
         "id": "4",
         "content": "Enhance Database Schema for Wedding Integration",
         "details": "Extend user_profiles table and add wedding-specific tables:\n1. Add wedding_party_members table\n2. Add invitation_codes table\n3. Add wedding_events table\n4. Update user_profiles with wedding-specific fields\n5. Create data migration scripts",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       },
       "5": {
         "id": "5",
         "content": "Update Couples Portal Authentication",
         "details": "Modify couples portal to integrate with unified auth:\n1. Connect wedding code validation to Supabase\n2. Ensure existing email/password login works with unified system\n3. Add profile data access to couples experience\n4. Test seamless login flow",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "6": {
         "id": "6",
         "content": "Update Groomsmen Portal Authentication",
         "details": "Enhance groomsmen portal to work with unified auth:\n1. Connect invitation code system to Supabase\n2. Auto-create/link user profiles when accessing with codes\n3. Make profile/size data available within groomsmen experience\n4. Maintain existing secure invitation flow",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "7": {
         "id": "7",
         "content": "Connect Admin Portal to Unified System",
         "details": "Link admin portal with unified user management:\n1. Add user profile management to admin interface\n2. Connect wedding management to unified user data\n3. Add invitation code generation/management\n4. Create admin tools for wedding party setup",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       },
       "8": {
         "id": "8",
         "content": "Test End-to-End Integration (V1 Launch Prep)",
         "details": "Comprehensive testing of unified system:\n1. Test cross-portal authentication flows\n2. Verify profile data sync across all portals\n3. Test invitation code generation and redemption\n4. Validate admin portal wedding management\n5. Performance testing under load\n6. Security audit of authentication bridge",
-        "status": "pending",
+        "status": "in_progress",
         "priority": "high"
       },
       "9": {

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Heart, Lock, Mail, Key, ArrowRight, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { weddingPortalAPI } from '@/lib/supabase'
 
 export function WeddingAccessPage() {
   const [accessMethod, setAccessMethod] = useState<'code' | 'login'>('code')
@@ -14,7 +13,7 @@ export function WeddingAccessPage() {
   const [step, setStep] = useState<'access' | 'create-account' | 'login'>('access')
   const [weddingData, setWeddingData] = useState<any>(null)
   
-  const { signIn, signUp } = useAuth()
+  const { signIn, authenticateWithWeddingCode, validateWeddingCode, syncProfileData } = useAuth()
   const navigate = useNavigate()
 
   const handleWeddingCodeSubmit = async (e: React.FormEvent) => {
@@ -23,9 +22,10 @@ export function WeddingAccessPage() {
     setError('')
     
     try {
-      const response = await weddingPortalAPI.getWeddingByCode(weddingCode)
-      if (response.data) {
-        setWeddingData(response.data)
+      // Validate wedding code first
+      const validationResult = await validateWeddingCode(weddingCode)
+      if (validationResult.success && validationResult.data?.wedding) {
+        setWeddingData(validationResult.data.wedding)
         setStep('create-account')
       } else {
         setError('Invalid wedding code. Please check and try again.')
@@ -43,19 +43,34 @@ export function WeddingAccessPage() {
     setError('')
     
     try {
-      const { error: signUpError } = await signUp(email, password, {
-        wedding_code: weddingCode,
-        wedding_role: 'couple',
-        full_name: `${weddingData.primary_customer_name || 'Wedding Couple'}`
-      })
+      // Use unified authentication with wedding code
+      const authResult = await authenticateWithWeddingCode(
+        weddingCode, 
+        email, 
+        password, 
+        {
+          wedding_role: 'couple',
+          full_name: `${weddingData.primary_customer_name || 'Wedding Couple'}`
+        }
+      )
       
-      if (signUpError) {
-        setError(signUpError.message)
-      } else {
-        // Store wedding context in localStorage
+      if (authResult.success) {
+        // Store wedding context in localStorage for compatibility
         localStorage.setItem('wedding_id', weddingData.id)
         localStorage.setItem('wedding_code', weddingCode)
+        
+        // Sync profile data to ensure consistency across portals
+        if (authResult.data?.user?.id) {
+          await syncProfileData(authResult.data.user.id, {
+            wedding_id: weddingData.id,
+            wedding_code: weddingCode,
+            wedding_role: 'couple'
+          })
+        }
+        
         navigate('/wedding')
+      } else {
+        setError(authResult.error?.message || 'Failed to create account')
       }
     } catch (error: any) {
       setError('Failed to create account. Please try again.')
@@ -70,11 +85,13 @@ export function WeddingAccessPage() {
     setError('')
     
     try {
-      const { error: signInError } = await signIn(email, password)
+      const { data, error: signInError } = await signIn(email, password)
       
       if (signInError) {
         setError(signInError.message)
-      } else {
+      } else if (data?.user) {
+        // Sync profile data to ensure consistency
+        await syncProfileData(data.user.id)
         navigate('/wedding')
       }
     } catch (error: any) {

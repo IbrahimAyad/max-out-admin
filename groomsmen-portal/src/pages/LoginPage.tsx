@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/lib/AuthContext'
-import { supabase } from '@/lib/supabase'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import toast from 'react-hot-toast'
 
@@ -18,7 +17,7 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
   
-  const { signIn, signUp } = useAuth()
+  const { signIn, authenticateWithInvitation, syncProfileData } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -47,21 +46,65 @@ export function LoginPage() {
           throw new Error('Password must be at least 6 characters')
         }
 
-        // Sign up
-        const { error } = await signUp(email, password)
-        if (error) throw error
-
-        toast.success('Account created! Please check your email to verify your account.')
-        
-        // Try to accept invitation
-        if (invitationData?.invitation) {
-          await acceptInvitation()
+        // Use unified authentication with invitation
+        if (invitationData?.invite_code) {
+          const authResult = await authenticateWithInvitation(
+            invitationData.invite_code,
+            email,
+            password,
+            {
+              first_name: firstName,
+              last_name: lastName,
+              phone: phone,
+              wedding_role: 'groomsman'
+            }
+          )
+          
+          if (authResult.success) {
+            // Clear invitation data
+            sessionStorage.removeItem('invitationData')
+            
+            // Sync profile data to ensure consistency across portals
+            if (authResult.data?.user?.id) {
+              await syncProfileData(authResult.data.user.id, {
+                first_name: firstName,
+                last_name: lastName,
+                phone: phone,
+                wedding_role: 'groomsman',
+                invite_code: invitationData.invite_code
+              })
+            }
+            
+            toast.success('Welcome to the wedding party!')
+            navigate('/dashboard')
+          } else {
+            throw new Error(authResult.error?.message || 'Failed to create account')
+          }
+        } else {
+          throw new Error('Invitation data not found')
         }
         
       } else {
-        // Sign in
-        const { error } = await signIn(email, password)
-        if (error) throw error
+        // Sign in with existing account
+        const { data, error } = await signIn(email, password)
+        if (error) throw new Error(error.message)
+
+        // If we have invitation data and successful login, accept the invitation
+        if (invitationData?.invite_code && data?.user) {
+          try {
+            // Sync profile data to link invitation
+            await syncProfileData(data.user.id, {
+              invite_code: invitationData.invite_code,
+              wedding_role: 'groomsman'
+            })
+            
+            sessionStorage.removeItem('invitationData')
+            toast.success('Successfully linked to wedding party!')
+          } catch (linkError) {
+            console.warn('Failed to link invitation:', linkError)
+            // Don't fail the login for this
+          }
+        }
 
         toast.success('Signed in successfully!')
         navigate('/dashboard')
@@ -74,40 +117,7 @@ export function LoginPage() {
     }
   }
 
-  const acceptInvitation = async () => {
-    if (!invitationData?.invitation) return
 
-    try {
-      const { data, error } = await supabase.functions.invoke('groomsmen-invitation/accept', {
-        body: {
-          inviteCode: invitationData.invitation.invite_code,
-          userInfo: {
-            firstName,
-            lastName,
-            phone
-          }
-        }
-      })
-
-      if (error || !data) {
-        throw new Error(error?.message || 'Failed to accept invitation')
-      }
-
-      if (data.error) {
-        throw new Error(data.error.message)
-      }
-
-      // Clear invitation data
-      sessionStorage.removeItem('invitationData')
-      
-      toast.success('Welcome to the wedding party!')
-      navigate('/dashboard')
-      
-    } catch (error: any) {
-      console.error('Invitation acceptance error:', error)
-      toast.error(error.message || 'Failed to accept invitation')
-    }
-  }
 
   if (loading) {
     return (
@@ -136,17 +146,17 @@ export function LoginPage() {
           {invitationData?.wedding && (
             <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
               <h2 className="text-lg font-semibold text-gray-900">
-                {invitationData.wedding.wedding_code}
+                {invitationData.wedding?.wedding_code || 'Wedding'}
               </h2>
               <p className="text-gray-600">
-                {new Date(invitationData.wedding.wedding_date).toLocaleDateString('en-US', {
+                {invitationData.wedding?.wedding_date && new Date(invitationData.wedding.wedding_date).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}
               </p>
-              {invitationData.wedding.venue_name && (
+              {invitationData.wedding?.venue_name && (
                 <p className="text-sm text-gray-500 mt-1">
                   {invitationData.wedding.venue_name}
                 </p>

@@ -1,0 +1,30 @@
+📄 Extracted from page: groomsmen-portal
+URL: https://qs4j1oh0oweu.space.minimax.io/invitation
+
+Extracted content:
+```json
+{
+    "title": "groomsmen-portal",
+    "url": "https://qs4j1oh0oweu.space.minimax.io/invitation",
+    "summary": "The page serves as an access portal for a KCT Menswear wedding party, requiring an invitation code for entry. It outlines a simple authentication flow and provides structural clues about the portal's design and underlying implementation.",
+    "key_points": [
+        "**HTML Elements & Layout Components:**",
+        "- Prominent headings: 'KCT Menswear' (H1-like), 'Wedding Party Portal' (H2-like), 'Welcome!' (H3-like).",
+        "- Input field for 'Invitation Code' with a descriptive label and hint text ('Check your invitation email for the code').",
+        "- A primary action button labeled 'Continue' for submission.",
+        "- Mentions of future or conceptual navigation sections: 'Your Outfit' and 'Timeline', suggesting a multi-page or tabbed portal structure beyond the initial access.",
+        "- A help/support line: 'Need help? Contact your wedding coordinator'.",
+        "- A footer or attribution: 'Created by MiniMax Agent'.",
+        "- A close button icon '×', possibly for a modal, banner, or specific UI element.",
+        "**Authentication Flow:**",
+        "- Access is granted via an 'Invitation Code'.",
+        "- Users are instructed to obtain the code from their 'invitation email'.",
+        "- The 'Continue' button initiates the authentication process, leading to a 'personalized wedding experience'.",
+        "**Visible Code & Implementation Details:**",
+        "- The attribution 'Created by MiniMax Agent' directly points to the platform or tool used for development.",
+        "- The URL 'https://qs4j1oh0oweu.space.minimax.io/invitation' further reinforces the 'minimax.io' domain as the hosting or development environment."
+    ],
+    "relevant_links": [],
+    "file_name": "wedding_portal_structure.json"
+}
+```

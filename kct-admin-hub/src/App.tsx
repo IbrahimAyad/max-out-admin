@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Bell, Menu, X, ArrowLeft } from 'lucide-react'
+import { Bell, Menu, X, ArrowLeft, Settings, User, LogOut } from 'lucide-react'
 import { DashboardOverview } from './components/DashboardOverview'
 import { NotificationCenter } from './components/NotificationCenter'
 import { QuickNavigation } from './components/QuickNavigation'
 import { RecentActivity } from './components/RecentActivity'
 import { WeddingManagement } from './components/WeddingManagement'
+import { AdminLogin } from './components/AdminLogin'
+import { UserMigrationTools } from './components/UserMigrationTools'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { useAdminQueries } from './hooks/useAdminQueries'
 
 const queryClient = new QueryClient({
@@ -17,13 +20,15 @@ const queryClient = new QueryClient({
   },
 })
 
-function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackClick }: { 
+function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackClick, onSettingsClick }: { 
   onNotificationToggle: () => void
   unreadCount: number
-  currentView: 'dashboard' | 'wedding'
+  currentView: 'dashboard' | 'wedding' | 'settings'
   onBackClick?: () => void
+  onSettingsClick?: () => void
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { user, signOut } = useAuth()
 
   return (
     <header className="bg-black text-white shadow-lg">
@@ -31,7 +36,7 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
         <div className="flex items-center justify-between h-16">
           {/* Logo and Title */}
           <div className="flex items-center space-x-4">
-            {currentView === 'wedding' && (
+            {(currentView === 'wedding' || currentView === 'settings') && (
               <button 
                 onClick={onBackClick}
                 className="p-2 text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
@@ -46,7 +51,8 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
               <div>
                 <h1 className="text-xl font-bold">KCT Menswear</h1>
                 <p className="text-sm text-gray-300">
-                  {currentView === 'wedding' ? 'Wedding Management' : 'Admin Hub'}
+                  {currentView === 'wedding' ? 'Wedding Management' : 
+                   currentView === 'settings' ? 'Admin Settings' : 'Admin Hub'}
                 </p>
               </div>
             </div>
@@ -54,6 +60,22 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* User Info */}
+            <div className="flex items-center space-x-3 text-gray-300">
+              <User className="w-5 h-5" />
+              <span className="text-sm">{user?.email}</span>
+            </div>
+            
+            {/* Settings Button */}
+            <button
+              onClick={onSettingsClick}
+              className="p-2 text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            
+            {/* Notifications */}
             <button
               onClick={onNotificationToggle}
               className="relative p-2 text-gray-300 hover:text-white transition-colors"
@@ -64,6 +86,15 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
+            </button>
+            
+            {/* Logout Button */}
+            <button
+              onClick={() => signOut()}
+              className="p-2 text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5" />
             </button>
           </div>
 
@@ -80,7 +111,7 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-700 py-4">
+          <div className="md:hidden border-t border-gray-700 py-4 space-y-2">
             <button
               onClick={onNotificationToggle}
               className="flex items-center space-x-2 w-full px-4 py-2 text-gray-300 hover:text-white transition-colors"
@@ -93,6 +124,20 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
                 </span>
               )}
             </button>
+            <button
+              onClick={onSettingsClick}
+              className="flex items-center space-x-2 w-full px-4 py-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <Settings className="w-5 h-5" />
+              <span>Settings</span>
+            </button>
+            <button
+              onClick={() => signOut()}
+              className="flex items-center space-x-2 w-full px-4 py-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Sign Out</span>
+            </button>
           </div>
         )}
       </div>
@@ -102,7 +147,7 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings'>('dashboard')
   const { unreadNotifications } = useAdminQueries()
 
   const unreadCount = unreadNotifications.data?.data.length || 0
@@ -115,6 +160,10 @@ function AdminDashboard() {
     setCurrentView('dashboard')
   }
 
+  const handleSettingsClick = () => {
+    setCurrentView('settings')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader 
@@ -122,6 +171,7 @@ function AdminDashboard() {
         unreadCount={unreadCount}
         currentView={currentView}
         onBackClick={handleBackToDashboard}
+        onSettingsClick={handleSettingsClick}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -132,19 +182,41 @@ function AdminDashboard() {
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Welcome to KCT Admin Hub
               </h2>
-              <p className="text-gray-600">
-                Central command center for all administrative operations
+              <p className="text-lg text-gray-600">
+                Comprehensive wedding and business management platform
               </p>
             </div>
 
-            {/* Dashboard Overview */}
-            <DashboardOverview />
+            {/* Dashboard Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-8">
+                <DashboardOverview />
+                <QuickNavigation onWeddingClick={handleWeddingClick} />
+              </div>
+              
+              {/* Right Column */}
+              <div className="space-y-8">
+                <RecentActivity />
+              </div>
+            </div>
+          </div>
+        ) : currentView === 'settings' ? (
+          <div className="space-y-8">
+            {/* Settings Header */}
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Admin Settings
+              </h2>
+              <p className="text-lg text-gray-600">
+                System administration and migration tools
+              </p>
+            </div>
 
-            {/* Quick Navigation */}
-            <QuickNavigation onWeddingClick={handleWeddingClick} />
-
-            {/* Recent Activity */}
-            <RecentActivity />
+            {/* Settings Content */}
+            <div className="max-w-4xl mx-auto">
+              <UserMigrationTools />
+            </div>
           </div>
         ) : (
           <WeddingManagement />
@@ -160,12 +232,44 @@ function AdminDashboard() {
   )
 }
 
-function App() {
+function AuthenticatedApp() {
   return (
     <QueryClientProvider client={queryClient}>
       <AdminDashboard />
     </QueryClientProvider>
   )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  )
+}
+
+function AppContent() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-4 shadow-2xl mx-auto">
+            <div className="text-2xl font-bold text-black">KCT</div>
+          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4" />
+          <p className="text-white">Loading Admin Portal...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <AdminLogin />
+  }
+
+  return <AuthenticatedApp />
 }
 
 export default App

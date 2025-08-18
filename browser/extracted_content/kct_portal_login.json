@@ -1,0 +1,23 @@
+📄 Extracted from page: Enhanced Wedding Portal - AI Integration
+URL: https://tkoylj2fx7f5.space.minimax.io/
+
+Extracted content:
+```json
+{
+    "title": "Enhanced Wedding Portal - AI Integration",
+    "url": "https://tkoylj2fx7f5.space.minimax.io/",
+    "summary": "The provided page displays a login interface for the 'KCT Wedding Portal'. The primary and only visible authentication method is a single-field input for a 'Wedding Code'. Users are instructed to enter a code provided by KCT Menswear to gain access. Despite the presence of the text 'Existing Account', no form fields or structure for a dual authentication system (e.g., username/password, two-factor authentication) are visible on this interface.",
+    "key_points": [
+        "The interface is for the 'KCT Wedding Portal'.",
+        "The primary visible authentication method is via a 'Wedding Code'.",
+        "There is a single input field for 'Wedding Code'.",
+        "Users are prompted to 'Enter the wedding code provided by KCT Menswear'.",
+        "An 'Access Wedding Portal' button is available.",
+        "The text 'Existing Account' is present, but no corresponding input fields or dual authentication mechanisms (e.g., username, password, second factor) are displayed.",
+        "No specific validation requirements (like format or length) for the wedding code are detailed on the interface.",
+        "No technical implementation details (e.g., API endpoints, encryption, specific frameworks) are visible on the page."
+    ],
+    "relevant_links": [],
+    "file_name": "kct_portal_login.json"
+}
+```

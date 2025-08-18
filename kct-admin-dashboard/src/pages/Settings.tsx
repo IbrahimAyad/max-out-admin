@@ -11,13 +11,20 @@ import {
   Key,
   Mail,
   Phone,
-  Building
+  Building,
+  Database,
+  Upload,
+  Download,
+  Users,
+  RefreshCw
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function Settings() {
-  const { user } = useAuth()
+  const { user, migration } = useAuth()
   const [activeTab, setActiveTab] = useState('general')
+  const [migrationLoading, setMigrationLoading] = useState(false)
+  const [migrationReport, setMigrationReport] = useState(null)
   const [settings, setSettings] = useState({
     businessName: 'KCT Menswear',
     businessEmail: 'admin@kctmenswear.com',
@@ -39,6 +46,7 @@ export default function Settings() {
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'security', name: 'Security', icon: Shield },
     { id: 'appearance', name: 'Appearance', icon: Palette },
+    { id: 'migration', name: 'User Migration', icon: Database },
   ]
 
   const handleSave = () => {
@@ -48,6 +56,37 @@ export default function Settings() {
 
   const handleInputChange = (key: string, value: string | boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  const generateMigrationReport = async () => {
+    setMigrationLoading(true)
+    try {
+      const report = await migration.generateReport()
+      setMigrationReport(report)
+      toast.success('Migration report generated successfully')
+    } catch (error: any) {
+      toast.error(`Failed to generate report: ${error.message}`)
+    } finally {
+      setMigrationLoading(false)
+    }
+  }
+
+  const runBulkMigration = async () => {
+    if (!confirm('This will migrate all wedding portal users to the unified system. This action cannot be undone. Continue?')) {
+      return
+    }
+    
+    setMigrationLoading(true)
+    try {
+      const result = await migration.bulkMigration()
+      toast.success(`Migration completed: ${result.migrated_count} users migrated`)
+      // Refresh the report after migration
+      await generateMigrationReport()
+    } catch (error: any) {
+      toast.error(`Migration failed: ${error.message}`)
+    } finally {
+      setMigrationLoading(false)
+    }
   }
 
   return (
@@ -405,6 +444,118 @@ export default function Settings() {
                       The luxury black and gold theme is optimized for the KCT Menswear brand experience.
                       Theme changes will be applied across the entire admin dashboard.
                     </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'migration' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-neutral-900">User Migration System</h3>
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-5 w-5 text-neutral-400" />
+                    <span className="text-sm text-neutral-500">V1 Unified Authentication</span>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-5 w-5 text-blue-600" />
+                    <h4 className="text-sm font-medium text-blue-900">Migration Overview</h4>
+                  </div>
+                  <p className="text-sm text-blue-800 mt-2">
+                    Migrate users from legacy wedding portals to the unified authentication system. 
+                    This ensures seamless cross-portal access and data synchronization.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="border border-neutral-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-neutral-900 mb-3">Migration Report</h4>
+                    <p className="text-sm text-neutral-500 mb-4">
+                      Generate a detailed report of users that need migration from wedding portals.
+                    </p>
+                    <button
+                      onClick={generateMigrationReport}
+                      disabled={migrationLoading}
+                      className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 disabled:opacity-50"
+                    >
+                      {migrationLoading ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-2" />
+                      )}
+                      Generate Report
+                    </button>
+                    
+                    {migrationReport && (
+                      <div className="mt-4 bg-neutral-50 rounded-lg p-4">
+                        <h5 className="text-sm font-medium text-neutral-900 mb-2">Report Summary</h5>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-neutral-500">Users requiring migration:</span>
+                            <span className="ml-2 font-medium">{migrationReport.total_users || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-neutral-500">Wedding portals found:</span>
+                            <span className="ml-2 font-medium">{migrationReport.portal_count || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-neutral-500">Couples accounts:</span>
+                            <span className="ml-2 font-medium">{migrationReport.couples_count || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-neutral-500">Groomsmen accounts:</span>
+                            <span className="ml-2 font-medium">{migrationReport.groomsmen_count || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border border-neutral-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-neutral-900 mb-3">Bulk Migration</h4>
+                    <p className="text-sm text-neutral-500 mb-4">
+                      Migrate all wedding portal users to the unified authentication system. 
+                      This operation cannot be undone.
+                    </p>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={runBulkMigration}
+                        disabled={migrationLoading || !migrationReport}
+                        className="inline-flex items-center px-4 py-2 border border-orange-300 rounded-md shadow-sm text-sm font-medium text-orange-700 bg-white hover:bg-orange-50 disabled:opacity-50"
+                      >
+                        {migrationLoading ? (
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4 mr-2" />
+                        )}
+                        Run Migration
+                      </button>
+                      {!migrationReport && (
+                        <span className="text-xs text-neutral-500">
+                          Generate a report first to enable migration
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border border-neutral-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-neutral-900 mb-3">User Management</h4>
+                    <p className="text-sm text-neutral-500 mb-4">
+                      Access unified user management tools and wedding party coordination.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <button className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50">
+                        <Users className="h-4 w-4 mr-2" />
+                        Manage Wedding Parties
+                      </button>
+                      <button className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-md shadow-sm text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Generate Invitation Codes
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

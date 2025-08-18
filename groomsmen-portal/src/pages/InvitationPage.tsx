@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Heart, Users, Calendar } from 'lucide-react'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/AuthContext'
 import toast from 'react-hot-toast'
 
 export function InvitationPage() {
   const [inviteCode, setInviteCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [weddingInfo, setWeddingInfo] = useState<any>(null)
+  const { validateInvitationCode } = useAuth()
   const navigate = useNavigate()
 
   const validateInvitation = async () => {
@@ -19,27 +20,26 @@ export function InvitationPage() {
 
     setLoading(true)
     try {
-      const { data, error } = await supabase.functions.invoke('groomsmen-invitation/validate', {
-        body: { inviteCode: inviteCode.trim().toUpperCase() }
-      })
-
-      if (error || !data) {
-        throw new Error(error?.message || 'Failed to validate invitation')
-      }
-
-      if (data.error) {
-        throw new Error(data.error.message)
-      }
-
-      // Store wedding info and redirect to login/signup
-      setWeddingInfo(data.data)
-      toast.success('Invitation validated! Please sign in or create an account.')
+      // Use unified authentication validation
+      const result = await validateInvitationCode(inviteCode.trim().toUpperCase())
       
-      // Store invitation data in sessionStorage for the next step
-      sessionStorage.setItem('invitationData', JSON.stringify(data.data))
-      
-      // Redirect to login page
-      navigate('/login')
+      if (result.success && result.data?.invitation && result.data?.wedding) {
+        // Store invitation and wedding data
+        setWeddingInfo(result.data.wedding)
+        toast.success('Invitation validated! Please sign in or create an account.')
+        
+        // Store invitation data in sessionStorage for the next step
+        sessionStorage.setItem('invitationData', JSON.stringify({
+          invitation: result.data.invitation,
+          wedding: result.data.wedding,
+          invite_code: inviteCode.trim().toUpperCase()
+        }))
+        
+        // Redirect to login page
+        navigate('/login')
+      } else {
+        throw new Error(result.error?.message || 'Invalid invitation code')
+      }
       
     } catch (error: any) {
       console.error('Invitation validation error:', error)

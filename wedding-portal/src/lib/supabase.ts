@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { unifiedAuthAPI } from './unified-auth'
 
 const supabaseUrl = 'https://gvcswimqaxvylgxbklbz.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2Y3N3aW1xYXh2eWxneGJrbGJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NjA1MzAsImV4cCI6MjA2OTMzNjUzMH0.UZdiGcJXUV5VYetjWXV26inmbj2yXdiT03Z6t_5Lg24'
@@ -301,31 +302,40 @@ export const weddingPortalAPI = {
   }
 }
 
-// Authentication helpers
+// Authentication helpers - Updated to use unified authentication
 export const auth = {
   signIn: async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password })
+    const result = await unifiedAuthAPI.signInWithEmail(email, password)
+    if (result.success) {
+      return { data: result.data, error: null }
+    } else {
+      return { data: null, error: result.error }
+    }
   },
 
   signUp: async (email: string, password: string, metadata?: any) => {
-    return await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: metadata
-      }
-    })
+    const result = await unifiedAuthAPI.signUpWithEmail(email, password, metadata)
+    if (result.success) {
+      return { data: result.data, error: null }
+    } else {
+      return { data: null, error: result.error }
+    }
   },
 
   signOut: async () => {
-    return await supabase.auth.signOut()
+    const result = await unifiedAuthAPI.signOut()
+    if (result.success) {
+      return { error: null }
+    } else {
+      return { error: result.error }
+    }
   },
 
   getCurrentUser: () => {
-    return supabase.auth.getUser()
+    return unifiedAuthAPI.getCurrentUser()
   },
 
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    return supabase.auth.onAuthStateChange(callback)
+    return unifiedAuthAPI.auth.onAuthStateChange(callback)
   }
 }

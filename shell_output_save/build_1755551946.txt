@@ -1,0 +1,222 @@
+
+> react_repo@0.0.0 build
+> yes | pnpm install && rm -rf node_modules/.vite-temp && tsc -b && vite build
+
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +452
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 452, reused 0, downloaded 0, added 0
+1Progress: resolved 452, reused 62, downloaded 0, added 0
+Progress: resolved 452, reused 129, downloaded 0, added 0
+Progress: resolved 452, reused 433, downloaded 17, added 12
+Progress: resolved 452, reused 433, downloaded 19, added 155
+Progress: resolved 452, reused 433, downloaded 19, added 452, done
+
+dependencies:
++ @hookform/resolvers 3.10.0
++ @radix-ui/react-accordion 1.2.4
++ @radix-ui/react-alert-dialog 1.1.7
++ @radix-ui/react-aspect-ratio 1.1.3
++ @radix-ui/react-avatar 1.1.4
++ @radix-ui/react-checkbox 1.1.5
++ @radix-ui/react-collapsible 1.1.4
++ @radix-ui/react-context-menu 2.2.7
++ @radix-ui/react-dialog 1.1.7
++ @radix-ui/react-dropdown-menu 2.1.7
++ @radix-ui/react-hover-card 1.1.7
++ @radix-ui/react-label 2.1.3
++ @radix-ui/react-menubar 1.1.7
++ @radix-ui/react-navigation-menu 1.2.6
++ @radix-ui/react-popover 1.1.7
++ @radix-ui/react-progress 1.1.3
++ @radix-ui/react-radio-group 1.2.4
++ @radix-ui/react-scroll-area 1.2.4
++ @radix-ui/react-select 2.1.7
++ @radix-ui/react-separator 1.1.3
++ @radix-ui/react-slider 1.2.4
++ @radix-ui/react-slot 1.2.0
++ @radix-ui/react-switch 1.1.4
++ @radix-ui/react-tabs 1.1.4
++ @radix-ui/react-toast 1.2.7
++ @radix-ui/react-toggle 1.1.3
++ @radix-ui/react-toggle-group 1.1.3
++ @radix-ui/react-tooltip 1.2.0
++ @supabase/supabase-js 2.55.0
++ @tanstack/react-query 5.85.3
++ class-variance-authority 0.7.1
++ clsx 2.1.1
++ cmdk 1.0.0
++ date-fns 3.6.0
++ embla-carousel-react 8.6.0
++ input-otp 1.4.2
++ lucide-react 0.364.0
++ next-themes 0.4.6
++ react 18.3.1
++ react-day-picker 8.10.1
++ react-dom 18.3.1
++ react-hook-form 7.55.0
++ react-query 3.39.3
++ react-resizable-panels 2.1.7
++ react-router-dom 6.30.0
++ recharts 2.15.2
++ sonner 1.7.4
++ tailwind-merge 2.6.0
++ tailwindcss-animate 1.0.7
++ vaul 1.1.2
++ zod 3.24.2
+
+devDependencies:
++ @eslint/js 9.24.0
++ @types/node 22.14.1
++ @types/react 18.3.20
++ @types/react-dom 18.3.6
++ @types/react-router-dom 5.3.3
++ @vitejs/plugin-react 4.3.4
++ autoprefixer 10.4.20
++ eslint 9.24.0
++ eslint-plugin-react-hooks 5.2.0
++ eslint-plugin-react-refresh 0.4.19
++ globals 15.15.0
++ postcss 8.4.49
++ tailwindcss 3.4.16
++ typescript 5.6.3
++ typescript-eslint 8.29.1
++ vite 6.2.6
++ vite-plugin-source-info 1.0.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild.                                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 2.2s using pnpm v10.12.4
+src/App.tsx:108:49 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+108   const unreadCount = unreadNotifications.data?.data.length || 0
+                                                    ~~~~
+
+src/components/NotificationCenter.tsx:110:40 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+110             {unreadNotifications.data?.data.length > 0 && (
+                                           ~~~~
+
+src/components/NotificationCenter.tsx:112:43 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+112                 {unreadNotifications.data.data.length}
+                                              ~~~~
+
+src/components/NotificationCenter.tsx:117:40 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+117             {unreadNotifications.data?.data.length > 0 && (
+                                           ~~~~
+
+src/components/NotificationCenter.tsx:141:35 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+141           ) : notifications.data?.data.length === 0 ? (
+                                      ~~~~
+
+src/components/NotificationCenter.tsx:148:36 - error TS2339: Property 'data' does not exist on type 'NoInfer<TQueryFnData>'.
+
+148               {notifications.data?.data.map((notification) => (
+                                       ~~~~
+
+src/hooks/useAdminQueries.ts:30:25 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): DefinedUseQueryResult<...>', gave the following error.
+    Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+      Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+        Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+  Overload 2 of 3, '(options: UndefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): UseQueryResult<...>', gave the following error.
+    Type '() => Promise<{ data: any[]; }>' is not assignable to type 'unique symbol | QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+      Type '() => Promise<{ data: any[]; }>' is not assignable to type 'QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+        Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+          Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+            Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+  Overload 3 of 3, '(options: UseQueryOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): UseQueryResult<...>', gave the following error.
+    Type '() => Promise<{ data: any[]; }>' is not assignable to type 'unique symbol | QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+      Type '() => Promise<{ data: any[]; }>' is not assignable to type 'QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+        Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+          Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+            Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+
+30   const notifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                           ~~~~~~~~
+
+  src/hooks/useAdminQueries.ts:30:36
+    30   const notifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                          ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:547:94
+    547 type QueryFunction<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = (context: QueryFunctionContext<TQueryKey, TPageParam>) => T | Promise<T>;
+                                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The expected type comes from the return type of this signature.
+  src/hooks/useAdminQueries.ts:30:36
+    30   const notifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                          ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:608:5
+    608     queryFn?: QueryFunction<TQueryFnData, TQueryKey, TPageParam> | SkipToken;
+            ~~~~~~~
+    The expected type comes from property 'queryFn' which is declared here on type 'UndefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>'
+  src/hooks/useAdminQueries.ts:30:36
+    30   const notifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                          ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:608:5
+    608     queryFn?: QueryFunction<TQueryFnData, TQueryKey, TPageParam> | SkipToken;
+            ~~~~~~~
+    The expected type comes from property 'queryFn' which is declared here on type 'UseQueryOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>'
+
+src/hooks/useAdminQueries.ts:37:31 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): DefinedUseQueryResult<...>', gave the following error.
+    Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+      Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+        Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+  Overload 2 of 3, '(options: UndefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): UseQueryResult<...>', gave the following error.
+    Type '() => Promise<{ data: any[]; }>' is not assignable to type 'unique symbol | QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+      Type '() => Promise<{ data: any[]; }>' is not assignable to type 'QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+        Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+          Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+            Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+  Overload 3 of 3, '(options: UseQueryOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>, queryClient?: QueryClient): UseQueryResult<...>', gave the following error.
+    Type '() => Promise<{ data: any[]; }>' is not assignable to type 'unique symbol | QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+      Type '() => Promise<{ data: any[]; }>' is not assignable to type 'QueryFunction<{ success: boolean; data: AdminNotification[]; }, readonly unknown[], never>'.
+        Type 'Promise<{ data: any[]; }>' is not assignable to type '{ success: boolean; data: AdminNotification[]; } | Promise<{ success: boolean; data: AdminNotification[]; }>'.
+          Type 'Promise<{ data: any[]; }>' is not assignable to type 'Promise<{ success: boolean; data: AdminNotification[]; }>'.
+            Property 'success' is missing in type '{ data: any[]; }' but required in type '{ success: boolean; data: AdminNotification[]; }'.
+
+37   const unreadNotifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                 ~~~~~~~~
+
+  src/hooks/useAdminQueries.ts:37:42
+    37   const unreadNotifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                                ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:547:94
+    547 type QueryFunction<T = unknown, TQueryKey extends QueryKey = QueryKey, TPageParam = never> = (context: QueryFunctionContext<TQueryKey, TPageParam>) => T | Promise<T>;
+                                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The expected type comes from the return type of this signature.
+  src/hooks/useAdminQueries.ts:37:42
+    37   const unreadNotifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                                ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:608:5
+    608     queryFn?: QueryFunction<TQueryFnData, TQueryKey, TPageParam> | SkipToken;
+            ~~~~~~~
+    The expected type comes from property 'queryFn' which is declared here on type 'UndefinedInitialDataOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>'
+  src/hooks/useAdminQueries.ts:37:42
+    37   const unreadNotifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+                                                ~~~~~~~
+    'success' is declared here.
+  node_modules/.pnpm/@tanstack+query-core@5.85.3/node_modules/@tanstack/query-core/build/modern/hydration-D0MPgBG9.d.ts:608:5
+    608     queryFn?: QueryFunction<TQueryFnData, TQueryKey, TPageParam> | SkipToken;
+            ~~~~~~~
+    The expected type comes from property 'queryFn' which is declared here on type 'UseQueryOptions<{ success: boolean; data: AdminNotification[]; }, Error, { success: boolean; data: AdminNotification[]; }, readonly unknown[]>'
+
+
+Found 8 errors.
+

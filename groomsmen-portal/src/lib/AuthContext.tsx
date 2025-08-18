@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { unifiedAuthAPI } from '@/lib/unified-auth'
 import { User } from '@supabase/supabase-js'
 
 interface AuthContextType {
@@ -8,6 +8,11 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<any>
   signUp: (email: string, password: string) => Promise<any>
   signOut: () => Promise<any>
+  // New unified auth methods for groomsmen portal
+  authenticateWithInvitation: (inviteCode: string, email: string, password: string, userData?: any) => Promise<any>
+  validateInvitationCode: (inviteCode: string) => Promise<any>
+  acceptInvitation: (inviteCode: string, userId: string) => Promise<any>
+  syncProfileData: (userId: string, profileData?: any) => Promise<any>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -20,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     async function getInitialSession() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { user } = await unifiedAuthAPI.getCurrentUser()
         setUser(user)
       } catch (error) {
         console.error('Error getting initial session:', error)
@@ -32,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getInitialSession()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = unifiedAuthAPI.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user || null)
         setLoading(false)
@@ -43,15 +48,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password })
+    const result = await unifiedAuthAPI.signInWithEmail(email, password)
+    if (result.success) {
+      return { data: result.data, error: null }
+    } else {
+      return { data: null, error: result.error }
+    }
   }
 
   const signUp = async (email: string, password: string) => {
-    return await supabase.auth.signUp({ email, password })
+    const result = await unifiedAuthAPI.signUpWithEmail(email, password)
+    if (result.success) {
+      return { data: result.data, error: null }
+    } else {
+      return { data: null, error: result.error }
+    }
   }
 
   const signOut = async () => {
-    return await supabase.auth.signOut()
+    const result = await unifiedAuthAPI.signOut()
+    if (result.success) {
+      return { error: null }
+    } else {
+      return { error: result.error }
+    }
   }
 
   return (
@@ -60,7 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       signIn,
       signUp,
-      signOut
+      signOut,
+      // New unified auth methods
+      authenticateWithInvitation: unifiedAuthAPI.authenticateWithInvitation,
+      validateInvitationCode: unifiedAuthAPI.validateInvitationCode,
+      acceptInvitation: unifiedAuthAPI.acceptInvitation,
+      syncProfileData: unifiedAuthAPI.syncProfileData
     }}>
       {children}
     </AuthContext.Provider>

@@ -6,35 +6,35 @@ export const useAdminQueries = () => {
   const queryClient = useQueryClient()
 
   // Dashboard overview
-  const dashboardOverview = useQuery<{ success: boolean; data: DashboardOverview }>({
+  const dashboardOverview = useQuery({
     queryKey: ['dashboard-overview'],
     queryFn: adminHubAPI.getDashboardOverview,
     refetchInterval: 30000, // Refresh every 30 seconds
   })
 
   // Quick stats
-  const quickStats = useQuery<{ success: boolean; data: QuickStats }>({
+  const quickStats = useQuery({
     queryKey: ['quick-stats'],
     queryFn: adminHubAPI.getQuickStats,
     refetchInterval: 60000, // Refresh every minute
   })
 
   // Recent activity
-  const recentActivity = useQuery<{ success: boolean; data: RecentActivity }>({
+  const recentActivity = useQuery({
     queryKey: ['recent-activity'],
     queryFn: adminHubAPI.getRecentActivity,
     refetchInterval: 15000, // Refresh every 15 seconds
   })
 
   // Notifications
-  const notifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+  const notifications = useQuery({
     queryKey: ['notifications'],
     queryFn: () => adminHubAPI.getNotifications({ limit: 50 }),
     refetchInterval: 10000, // Refresh every 10 seconds
   })
 
   // Unread notifications only
-  const unreadNotifications = useQuery<{ success: boolean; data: AdminNotification[] }>({
+  const unreadNotifications = useQuery({
     queryKey: ['unread-notifications'],
     queryFn: () => adminHubAPI.getNotifications({ unread_only: true, limit: 20 }),
     refetchInterval: 5000, // Refresh every 5 seconds

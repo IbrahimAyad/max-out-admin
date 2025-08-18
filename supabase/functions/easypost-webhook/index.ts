@@ -1,7 +1,7 @@
 Deno.serve(async (req) => {
     const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, user-agent',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-easypost-hmac-signature',
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE, PATCH',
         'Access-Control-Max-Age': '86400',
         'Access-Control-Allow-Credentials': 'false'
@@ -12,64 +12,97 @@ Deno.serve(async (req) => {
     }
 
     try {
-        console.log('EasyPost webhook received:', req.method);
-        
-        // Get environment variables
-        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        
-        if (!serviceRoleKey || !supabaseUrl) {
-            throw new Error('Supabase configuration missing');
+        // Only accept POST requests for webhooks
+        if (req.method !== 'POST') {
+            return new Response(JSON.stringify({
+                error: 'Method not allowed. Only POST requests accepted.'
+            }), {
+                status: 405,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
         }
 
-        // Parse webhook payload
-        const webhookData = await req.json();
+        // Get the raw body and signature for verification
+        const rawBody = await req.text();
+        const signature = req.headers.get('x-easypost-hmac-signature');
+        const webhookSecret = 'kct-easypost-webhook-secret-2025';
+
+        // Verify webhook signature
+        if (signature && webhookSecret) {
+            const expectedSignature = await generateHmacSignature(rawBody, webhookSecret);
+            if (signature !== expectedSignature) {
+                console.log('Invalid webhook signature');
+                return new Response(JSON.stringify({
+                    error: 'Invalid signature'
+                }), {
+                    status: 401,
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
+            }
+        }
+
+        // Parse the webhook payload
+        const webhookData = JSON.parse(rawBody);
+        const eventType = webhookData.description || webhookData.object?.mode || 'unknown';
+        const objectType = webhookData.object?.object || 'unknown';
+
+        console.log(`Received EasyPost webhook: ${eventType} - ${objectType}`);
         console.log('Webhook payload:', JSON.stringify(webhookData, null, 2));
 
-        const { object, description } = webhookData;
+        // Handle different webhook event types
+        let processedData = null;
         
-        if (!object) {
-            throw new Error('Invalid webhook payload: missing object');
-        }
-
-        // Handle different event types
-        switch (description) {
-            case 'tracker.updated':
-                await handleTrackerUpdate(object, serviceRoleKey, supabaseUrl);
+        switch (objectType) {
+            case 'Tracker':
+                processedData = await handleTrackerEvent(webhookData);
                 break;
-            
-            case 'batch.updated':
-                await handleBatchUpdate(object, serviceRoleKey, supabaseUrl);
+            case 'Shipment':
+                processedData = await handleShipmentEvent(webhookData);
                 break;
-                
-            case 'shipment.purchased':
-                await handleShipmentPurchased(object, serviceRoleKey, supabaseUrl);
+            case 'ScanForm':
+                processedData = await handleScanFormEvent(webhookData);
                 break;
-                
-            case 'shipment.label_created':
-                await handleLabelCreated(object, serviceRoleKey, supabaseUrl);
+            case 'Batch':
+                processedData = await handleBatchEvent(webhookData);
                 break;
-                
             default:
-                console.log(`Unhandled webhook event: ${description}`);
+                console.log(`Unhandled webhook object type: ${objectType}`);
+                processedData = {
+                    handled: false,
+                    message: `Received ${objectType} event but no handler configured`
+                };
         }
 
-        return new Response(JSON.stringify({ 
+        // Store webhook event for audit trail
+        const auditRecord = {
+            webhook_id: webhookData.id || 'unknown',
+            event_type: eventType,
+            object_type: objectType,
+            received_at: new Date().toISOString(),
+            payload: webhookData,
+            processed_data: processedData,
+            signature_verified: !!signature
+        };
+
+        console.log('Webhook processed successfully:', auditRecord);
+
+        return new Response(JSON.stringify({
             success: true,
-            message: 'Webhook processed successfully',
-            event_type: description 
+            event_type: eventType,
+            object_type: objectType,
+            processed: processedData?.handled || false,
+            message: processedData?.message || 'Event received and logged'
         }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
 
     } catch (error) {
-        console.error('EasyPost webhook error:', error);
+        console.error('Webhook processing error:', error);
         
         const errorResponse = {
             error: {
-                code: 'WEBHOOK_PROCESSING_FAILED',
-                message: error.message,
-                timestamp: new Date().toISOString()
+                code: 'EASYPOST_WEBHOOK_ERROR',
+                message: error.message
             }
         };
 
@@ -80,199 +113,121 @@ Deno.serve(async (req) => {
     }
 });
 
-// Handle tracking updates
-async function handleTrackerUpdate(tracker: any, serviceRoleKey: string, supabaseUrl: string) {
-    console.log('Processing tracker update:', tracker.id);
-    
-    const trackingNumber = tracker.tracking_code;
+// Handle tracker events (shipment tracking updates)
+async function handleTrackerEvent(webhookData) {
+    const tracker = webhookData.object;
+    const trackingCode = tracker.tracking_code;
     const status = tracker.status;
-    const lastEvent = tracker.tracking_details?.[0];
+    const statusDetail = tracker.status_detail;
     
-    if (!trackingNumber) {
-        console.warn('Tracker update missing tracking number');
-        return;
-    }
-
-    // Update order tracking status
-    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
-        method: 'PATCH',
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-            tracking_status: status,
-            updated_at: new Date().toISOString()
-        })
-    });
-
-    if (!updateResponse.ok) {
-        console.error('Failed to update order tracking status:', await updateResponse.text());
-    }
-
-    // Insert tracking event
-    const eventData = {
-        tracking_number: trackingNumber,
-        status: status,
-        message: lastEvent?.message || `Status updated to ${status}`,
-        location: lastEvent?.tracking_location?.city ? 
-                 `${lastEvent.tracking_location.city}, ${lastEvent.tracking_location.state}` : null,
-        occurred_at: lastEvent?.datetime || new Date().toISOString(),
-        easypost_event_id: `tracker_${tracker.id}_${Date.now()}`,
-        created_at: new Date().toISOString()
-    };
-
-    const eventResponse = await fetch(`${supabaseUrl}/rest/v1/shipping_events`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(eventData)
-    });
-
-    if (!eventResponse.ok) {
-        console.error('Failed to create shipping event:', await eventResponse.text());
-    }
-
-    // Trigger email notifications via new webhook email function
-    try {
-        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/easypost-webhook-email`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${serviceRoleKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                object: tracker,
-                description: 'tracker.updated'
-            })
-        });
-
-        if (!emailResponse.ok) {
-            console.error('Failed to trigger email notification:', await emailResponse.text());
-        } else {
-            console.log('Email notification triggered successfully');
-        }
-    } catch (emailError) {
-        console.error('Error triggering email notification:', emailError);
-    }
-
-    console.log('Tracker update processed successfully');
-}
-
-// Handle batch updates
-async function handleBatchUpdate(batch: any, serviceRoleKey: string, supabaseUrl: string) {
-    console.log('Processing batch update:', batch.id);
-    // Batch updates can contain multiple shipments
-    // This is useful for bulk operations
-}
-
-// Handle shipment purchased
-async function handleShipmentPurchased(shipment: any, serviceRoleKey: string, supabaseUrl: string) {
-    console.log('Processing shipment purchased:', shipment.id);
+    console.log(`Tracker update: ${trackingCode} - ${status} (${statusDetail})`);
     
-    const trackingNumber = shipment.tracking_code;
-    const easypostShipmentId = shipment.id;
+    // Key status updates to handle
+    const criticalStatuses = [
+        'delivered',
+        'out_for_delivery', 
+        'in_transit',
+        'exception',
+        'return_to_sender',
+        'failure'
+    ];
     
-    if (!trackingNumber) {
-        console.warn('Shipment purchased without tracking number');
-        return;
-    }
-
-    // Update order with shipment details and set status to shipped
-    const updateData = {
-        easypost_shipment_id: easypostShipmentId,
-        tracking_number: trackingNumber,
-        tracking_status: 'label_created',
-        carrier: shipment.selected_rate?.carrier,
-        service_type: shipment.selected_rate?.service,
-        shipping_cost: parseFloat(shipment.selected_rate?.rate || '0'),
-        status: 'shipped',
-        updated_at: new Date().toISOString()
-    };
-
-    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
-        method: 'PATCH',
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(updateData)
-    });
-
-    if (!updateResponse.ok) {
-        console.error('Failed to update order with shipment details:', await updateResponse.text());
-        return;
-    }
-
-    // Get the updated order data for email
-    const orderData = await updateResponse.json();
-    const order = orderData[0];
-
-    if (order) {
-        // Trigger order automation for shipping label created
+    if (criticalStatuses.includes(status)) {
+        // Send notification to customer
+        const notificationData = {
+            notification_type: 'order_status_update',
+            tracking_code: trackingCode,
+            status: status,
+            status_detail: statusDetail,
+            estimated_delivery: tracker.est_delivery_date,
+            tracking_details: tracker.tracking_details || []
+        };
+        
+        // Call the wedding-notifications function
         try {
-            const automationResponse = await fetch(`${supabaseUrl}/functions/v1/order-automation`, {
+            await fetch('https://gvcswimqaxvylgxbklbz.supabase.co/functions/v1/wedding-notifications', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${serviceRoleKey}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    action: 'shipping_label_created',
-                    orderData: order
-                })
+                body: JSON.stringify(notificationData)
             });
-
-            if (!automationResponse.ok) {
-                console.error('Failed to trigger shipping email automation:', await automationResponse.text());
-            } else {
-                console.log('Shipping email automation triggered successfully');
-            }
-        } catch (emailError) {
-            console.error('Error triggering shipping email automation:', emailError);
+        } catch (notificationError) {
+            console.error('Failed to send tracking notification:', notificationError);
         }
     }
-
-    console.log('Shipment purchased processed successfully');
+    
+    return {
+        handled: true,
+        message: `Tracker ${trackingCode} updated to ${status}`,
+        tracking_code: trackingCode,
+        status: status
+    };
 }
 
-// Handle label created
-async function handleLabelCreated(shipment: any, serviceRoleKey: string, supabaseUrl: string) {
-    console.log('Processing label created:', shipment.id);
+// Handle shipment events
+async function handleShipmentEvent(webhookData) {
+    const shipment = webhookData.object;
+    const shipmentId = shipment.id;
+    const status = shipment.status || 'unknown';
     
-    const labelUrl = shipment.postage_label?.label_url;
-    const trackingNumber = shipment.tracking_code;
+    console.log(`Shipment update: ${shipmentId} - ${status}`);
     
-    if (!labelUrl || !trackingNumber) {
-        console.warn('Label created but missing label URL or tracking number');
-        return;
-    }
+    return {
+        handled: true,
+        message: `Shipment ${shipmentId} status: ${status}`,
+        shipment_id: shipmentId,
+        status: status
+    };
+}
 
-    // Update order with label URL
-    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
-        method: 'PATCH',
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-            shipping_label_url: labelUrl,
-            updated_at: new Date().toISOString()
-        })
-    });
+// Handle scan form events
+async function handleScanFormEvent(webhookData) {
+    const scanForm = webhookData.object;
+    const scanFormId = scanForm.id;
+    
+    console.log(`ScanForm event: ${scanFormId}`);
+    
+    return {
+        handled: true,
+        message: `ScanForm ${scanFormId} processed`,
+        scan_form_id: scanFormId
+    };
+}
 
-    if (!updateResponse.ok) {
-        console.error('Failed to update order with label URL:', await updateResponse.text());
-    }
+// Handle batch events
+async function handleBatchEvent(webhookData) {
+    const batch = webhookData.object;
+    const batchId = batch.id;
+    const status = batch.status || 'unknown';
+    
+    console.log(`Batch event: ${batchId} - ${status}`);
+    
+    return {
+        handled: true,
+        message: `Batch ${batchId} status: ${status}`,
+        batch_id: batchId,
+        status: status
+    };
+}
 
-    console.log('Label created processed successfully');
+// Generate HMAC signature for webhook verification
+async function generateHmacSignature(data, secret) {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const dataToSign = encoder.encode(data);
+    
+    const key = await crypto.subtle.importKey(
+        'raw',
+        keyData,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+    );
+    
+    const signature = await crypto.subtle.sign('HMAC', key, dataToSign);
+    const hashArray = Array.from(new Uint8Array(signature));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
 }

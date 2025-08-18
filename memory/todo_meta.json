@@ -4,14 +4,14 @@
       "1": {
         "id": "1",
         "content": "Migrate Shopify Customer Data to Unified User Profiles",
-        "details": "Migrate 2,819 customers from the customers table to user_profiles table. Map fields appropriately, handle data transformation, and ensure no data loss. Preserve existing relationships and maintain data integrity.",
+        "details": "Migrate 2,819 customers from the customers table to user_profiles table. Enhanced migration to include extracting any existing size data and mapping to comprehensive size profile structure. Ensure all measurements, preferences, and sizing data are properly transferred.",
         "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create Enhanced Style Profiles System",
-        "details": "Build the style_profiles table and associated functionality. Include style preferences, fashion knowledge base integration, personalized recommendations, and style analytics. Design for scalability and user engagement.",
+        "content": "Create Enhanced Style & Size Profiles System",
+        "details": "Build comprehensive profiling system including: 1) Style Profiles - fashion preferences, knowledge base integration, personalized recommendations. 2) Size Profiles - complete menswear measurements: suit size, chest, waist, inseam, sleeve, neck, shoulder width, jacket length, trouser rise, height, weight, preferred fit (slim/regular/relaxed), shoe size. Include size recommendation engine and measurement history tracking.",
         "status": "pending",
         "priority": "high"
       },

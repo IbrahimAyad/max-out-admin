@@ -3,24 +3,17 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Integrate SendGrid email notifications into KCT Menswear order processing workflow",
-        "details": "1. Set up SendGrid API configuration in Supabase environment. 2. Create email templates for order confirmations, shipping notifications, and tracking updates. 3. Build automated email triggers for order events. 4. Integrate with EasyPost webhook for shipping status emails. 5. Add email management features to admin dashboard. 6. Set up customer notification preferences.",
-        "status": "completed",
+        "content": "Complete comprehensive testing of the entire KCT Menswear system",
+        "details": "1. Test order creation flow (both Stripe and catalog products). 2. Test shipping rate calculation and label generation. 3. Test email automation workflows. 4. Test EasyPost webhook integration. 5. Test all API endpoints. 6. Test authentication and security. 7. Test error handling scenarios. 8. Validate all integrations work end-to-end. 9. Provide detailed test results report.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Create professional email templates for KCT Menswear",
-        "details": "1. Order confirmation email template with order details and Core/Catalog products. 2. Shipping confirmation email with tracking information. 3. Delivery notification email. 4. Admin notification emails for new orders. 5. Customer service follow-up emails. 6. Branded email design matching KCT Menswear aesthetic.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "3": {
-        "id": "3",
-        "content": "Set up automated email workflow triggers",
-        "details": "1. New order placed → Send order confirmation to customer + admin notification. 2. Order processed → Send processing confirmation. 3. Shipping label created → Send shipping confirmation with tracking. 4. EasyPost tracking updates → Send delivery status updates. 5. Order delivered → Send delivery confirmation and feedback request.",
-        "status": "completed",
-        "priority": "high"
+        "content": "Create focused API keys and connection document",
+        "details": "1. Extract essential keys, URLs, and connection details from existing documentation. 2. Create a concise, developer-friendly reference document. 3. Include only the critical information needed for frontend integration. 4. Organize by priority (must-have vs nice-to-have). 5. Include quick setup checklist.",
+        "status": "pending",
+        "priority": "medium"
       }
     }
   }

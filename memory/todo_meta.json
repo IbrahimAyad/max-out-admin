@@ -12,14 +12,14 @@
         "id": "2",
         "content": "Database Schema Enhancement for Size-Specific Inventory",
         "details": "Modify Supabase database to support: 1) Product variants table linking products to sizes/colors, 2) Size-specific inventory tracking for suits (34S-54L) and shirts (14.5-18), 3) Color-only variants for products like suspenders, 4) Low stock alerts per variant, 5) Exclude ties (already complete)",
-        "status": "in_progress",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Enhanced Products Table Interface Development",
         "details": "Build modern React interface featuring: 1) Size matrix view showing inventory per size, 2) Advanced filtering by category/size/stock level, 3) Bulk inventory update tools, 4) Visual stock level indicators, 5) Quick add/edit product variants, 6) Integration with existing Analytics Dashboard design",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       }
     }

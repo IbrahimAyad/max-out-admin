@@ -13,57 +13,28 @@ Deno.serve(async (req) => {
 
     try {
         const { action, data } = await req.json();
-
-        if (!action) {
-            throw new Error('Action parameter is required');
-        }
-
-        // Get environment variables
-        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
         const supabaseUrl = Deno.env.get('SUPABASE_URL');
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-        if (!serviceRoleKey || !supabaseUrl) {
+        if (!supabaseUrl || !serviceRoleKey) {
             throw new Error('Supabase configuration missing');
-        }
-
-        // Get user from auth header if provided
-        let userId = null;
-        const authHeader = req.headers.get('authorization');
-        if (authHeader) {
-            try {
-                const token = authHeader.replace('Bearer ', '');
-                const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'apikey': serviceRoleKey
-                    }
-                });
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    userId = userData.id;
-                }
-            } catch (error) {
-                console.log('Could not get user from token:', error.message);
-            }
         }
 
         let result;
 
         switch (action) {
-            case 'create_product_variants':
-                result = await createProductVariants(supabaseUrl, serviceRoleKey, data, userId);
+            case 'bulk_update':
+                result = await handleBulkUpdate(data, supabaseUrl, serviceRoleKey);
                 break;
-            case 'bulk_update_stock':
-                result = await bulkUpdateStock(supabaseUrl, serviceRoleKey, data, userId);
+            case 'get_variants':
+                result = await getEnhancedVariants(data, supabaseUrl, serviceRoleKey);
                 break;
-            case 'generate_suit_variants':
-                result = await generateSuitVariants(supabaseUrl, serviceRoleKey, data, userId);
+            case 'update_variant':
+                result = await updateVariant(data, supabaseUrl, serviceRoleKey);
                 break;
-            case 'generate_shirt_variants':
-                result = await generateShirtVariants(supabaseUrl, serviceRoleKey, data, userId);
-                break;
-            case 'generate_accessory_variants':
-                result = await generateAccessoryVariants(supabaseUrl, serviceRoleKey, data, userId);
+            case 'get_low_stock':
+                result = await getLowStockAlerts(supabaseUrl, serviceRoleKey);
                 break;
             default:
                 throw new Error(`Unknown action: ${action}`);
@@ -75,278 +46,215 @@ Deno.serve(async (req) => {
 
     } catch (error) {
         console.error('Inventory management error:', error);
-
-        const errorResponse = {
+        return new Response(JSON.stringify({
             error: {
-                code: 'INVENTORY_OPERATION_FAILED',
-                message: error.message,
-                timestamp: new Date().toISOString()
+                code: 'INVENTORY_ERROR',
+                message: error.message
             }
-        };
-
-        return new Response(JSON.stringify(errorResponse), {
+        }), {
             status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
 });
 
-// Function to create individual product variants
-async function createProductVariants(supabaseUrl: string, serviceRoleKey: string, data: any, userId: string | null) {
-    const { variants } = data;
-
-    if (!variants || !Array.isArray(variants)) {
-        throw new Error('Variants array is required');
-    }
-
-    const createdVariants = [];
-
-    for (const variant of variants) {
-        const response = await fetch(`${supabaseUrl}/rest/v1/inventory_variants`, {
-            method: 'POST',
+async function handleBulkUpdate(updates, supabaseUrl, serviceRoleKey) {
+    const results = [];
+    
+    for (const update of updates) {
+        const { variant_id, inventory_quantity, reason } = update;
+        
+        // Get current variant
+        const currentResponse = await fetch(`${supabaseUrl}/rest/v1/enhanced_product_variants?id=eq.${variant_id}`, {
             headers: {
                 'Authorization': `Bearer ${serviceRoleKey}`,
                 'apikey': serviceRoleKey,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!currentResponse.ok) {
+            results.push({ variant_id, success: false, error: 'Variant not found' });
+            continue;
+        }
+        
+        const current = await currentResponse.json();
+        if (current.length === 0) {
+            results.push({ variant_id, success: false, error: 'Variant not found' });
+            continue;
+        }
+        
+        const currentVariant = current[0];
+        const previousQuantity = currentVariant.available_quantity;
+        
+        // Update variant
+        const updateResponse = await fetch(`${supabaseUrl}/rest/v1/enhanced_product_variants?id=eq.${variant_id}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ...variant,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                inventory_quantity,
+                available_quantity: inventory_quantity,
+                last_inventory_update: new Date().toISOString()
             })
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to create variant: ${errorText}`);
-        }
-
-        const created = await response.json();
-        createdVariants.push(created[0]);
-
-        // Record inventory movement
-        if (variant.stock_quantity > 0) {
-            await recordInventoryMovement(supabaseUrl, serviceRoleKey, created[0].id, 'in', variant.stock_quantity, 0, variant.stock_quantity, 'Initial stock', userId);
+        
+        if (updateResponse.ok) {
+            // Log the change
+            await fetch(`${supabaseUrl}/rest/v1/inventory_history`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${serviceRoleKey}`,
+                    'apikey': serviceRoleKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    variant_id,
+                    change_type: 'adjustment',
+                    quantity_change: inventory_quantity - previousQuantity,
+                    previous_quantity: previousQuantity,
+                    new_quantity: inventory_quantity,
+                    reason: reason || 'Bulk inventory update'
+                })
+            });
+            
+            results.push({ variant_id, success: true, previous: previousQuantity, new: inventory_quantity });
+        } else {
+            results.push({ variant_id, success: false, error: 'Update failed' });
         }
     }
-
-    return { createdVariants, count: createdVariants.length };
+    
+    return { updated: results.filter(r => r.success).length, results };
 }
 
-// Function to bulk update stock quantities
-async function bulkUpdateStock(supabaseUrl: string, serviceRoleKey: string, data: any, userId: string | null) {
-    const { updates } = data;
-
-    if (!updates || !Array.isArray(updates)) {
-        throw new Error('Updates array is required');
+async function getEnhancedVariants(filters, supabaseUrl, serviceRoleKey) {
+    let query = `${supabaseUrl}/rest/v1/enhanced_product_variants?select=*`;
+    
+    if (filters.product_id) {
+        query += `&product_id=eq.${filters.product_id}`;
     }
-
-    const updatedVariants = [];
-
-    for (const update of updates) {
-        const { variant_id, new_quantity, notes } = update;
-
-        // Get current quantity
-        const currentResponse = await fetch(`${supabaseUrl}/rest/v1/inventory_variants?id=eq.${variant_id}&select=stock_quantity`, {
+    if (filters.stock_status) {
+        query += `&stock_status=eq.${filters.stock_status}`;
+    }
+    if (filters.variant_type) {
+        query += `&variant_type=eq.${filters.variant_type}`;
+    }
+    
+    const response = await fetch(query, {
+        headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Failed to fetch variants');
+    }
+    
+    const variants = await response.json();
+    
+    // Get product details for each variant
+    const productIds = [...new Set(variants.map(v => v.product_id))];
+    if (productIds.length > 0) {
+        const productsResponse = await fetch(`${supabaseUrl}/rest/v1/products?id=in.(${productIds.join(',')})&select=id,name,category,sku`, {
             headers: {
                 'Authorization': `Bearer ${serviceRoleKey}`,
                 'apikey': serviceRoleKey
             }
         });
-
-        if (!currentResponse.ok) {
-            throw new Error(`Failed to get current quantity for variant ${variant_id}`);
-        }
-
-        const currentData = await currentResponse.json();
-        if (currentData.length === 0) {
-            throw new Error(`Variant ${variant_id} not found`);
-        }
-
-        const currentQuantity = currentData[0].stock_quantity;
-        const quantityDiff = new_quantity - currentQuantity;
-
-        // Update the stock quantity
-        const updateResponse = await fetch(`${supabaseUrl}/rest/v1/inventory_variants?id=eq.${variant_id}`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${serviceRoleKey}`,
-                'apikey': serviceRoleKey,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            },
-            body: JSON.stringify({
-                stock_quantity: new_quantity,
-                updated_at: new Date().toISOString()
-            })
-        });
-
-        if (!updateResponse.ok) {
-            const errorText = await updateResponse.text();
-            throw new Error(`Failed to update variant ${variant_id}: ${errorText}`);
-        }
-
-        const updated = await updateResponse.json();
-        updatedVariants.push(updated[0]);
-
-        // Record inventory movement
-        const movementType = quantityDiff > 0 ? 'in' : (quantityDiff < 0 ? 'out' : 'adjustment');
-        await recordInventoryMovement(supabaseUrl, serviceRoleKey, variant_id, movementType, Math.abs(quantityDiff), currentQuantity, new_quantity, notes || 'Bulk update', userId);
-    }
-
-    return { updatedVariants, count: updatedVariants.length };
-}
-
-// Function to generate all variants for a suit product
-async function generateSuitVariants(supabaseUrl: string, serviceRoleKey: string, data: any, userId: string | null) {
-    const { product_id, color_ids, piece_types, base_price } = data;
-
-    if (!product_id || !color_ids || !piece_types || !base_price) {
-        throw new Error('product_id, color_ids, piece_types, and base_price are required');
-    }
-
-    // Get all suit sizes
-    const sizesResponse = await fetch(`${supabaseUrl}/rest/v1/size_definitions?category=eq.suits&order=sort_order`, {
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey
-        }
-    });
-
-    if (!sizesResponse.ok) {
-        throw new Error('Failed to fetch suit sizes');
-    }
-
-    const sizes = await sizesResponse.json();
-    const variants = [];
-
-    // Generate variants for each combination
-    for (const colorId of color_ids) {
-        for (const pieceType of piece_types) {
-            for (const size of sizes) {
-                const sku = `SUIT-${colorId}-${size.size_code}-${pieceType.toUpperCase()}`;
-                const price = pieceType === '3-piece' ? base_price + 50 : base_price; // 3-piece costs $50 more
-
-                variants.push({
-                    product_id: product_id,
-                    size_id: size.id,
-                    color_id: colorId,
-                    piece_type: pieceType,
-                    sku: sku,
-                    price: price,
-                    stock_quantity: 0,
-                    low_stock_threshold: 5,
-                    is_active: true
-                });
-            }
-        }
-    }
-
-    // Create the variants
-    return await createProductVariants(supabaseUrl, serviceRoleKey, { variants }, userId);
-}
-
-// Function to generate all variants for a shirt product
-async function generateShirtVariants(supabaseUrl: string, serviceRoleKey: string, data: any, userId: string | null) {
-    const { product_id, color_ids, fit_type, base_price } = data;
-
-    if (!product_id || !color_ids || !fit_type || !base_price) {
-        throw new Error('product_id, color_ids, fit_type, and base_price are required');
-    }
-
-    // Get all shirt sizes
-    const sizesResponse = await fetch(`${supabaseUrl}/rest/v1/size_definitions?category=eq.shirts&order=sort_order`, {
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey
-        }
-    });
-
-    if (!sizesResponse.ok) {
-        throw new Error('Failed to fetch shirt sizes');
-    }
-
-    const sizes = await sizesResponse.json();
-    const variants = [];
-
-    // Generate variants for each combination
-    for (const colorId of color_ids) {
-        for (const size of sizes) {
-            const sku = `SHIRT-${fit_type.toUpperCase()}-${colorId}-${size.size_code}`;
-
-            variants.push({
-                product_id: product_id,
-                size_id: size.id,
-                color_id: colorId,
-                piece_type: fit_type,
-                sku: sku,
-                price: base_price,
-                stock_quantity: 0,
-                low_stock_threshold: 3,
-                is_active: true
+        
+        if (productsResponse.ok) {
+            const products = await productsResponse.json();
+            const productMap = Object.fromEntries(products.map(p => [p.id, p]));
+            
+            // Add product details to variants
+            variants.forEach(variant => {
+                variant.product = productMap[variant.product_id] || null;
             });
         }
     }
-
-    // Create the variants
-    return await createProductVariants(supabaseUrl, serviceRoleKey, { variants }, userId);
+    
+    return variants;
 }
 
-// Function to generate color-only variants for accessories
-async function generateAccessoryVariants(supabaseUrl: string, serviceRoleKey: string, data: any, userId: string | null) {
-    const { product_id, color_ids, base_price, sku_prefix } = data;
-
-    if (!product_id || !color_ids || !base_price || !sku_prefix) {
-        throw new Error('product_id, color_ids, base_price, and sku_prefix are required');
-    }
-
-    const variants = [];
-
-    // Generate variants for each color
-    for (const colorId of color_ids) {
-        const sku = `${sku_prefix}-${colorId}`;
-
-        variants.push({
-            product_id: product_id,
-            size_id: null,
-            color_id: colorId,
-            piece_type: null,
-            sku: sku,
-            price: base_price,
-            stock_quantity: 0,
-            low_stock_threshold: 5,
-            is_active: true
-        });
-    }
-
-    // Create the variants
-    return await createProductVariants(supabaseUrl, serviceRoleKey, { variants }, userId);
-}
-
-// Helper function to record inventory movements
-async function recordInventoryMovement(supabaseUrl: string, serviceRoleKey: string, variantId: number, movementType: string, quantity: number, previousQuantity: number, newQuantity: number, notes: string, userId: string | null) {
-    const response = await fetch(`${supabaseUrl}/rest/v1/inventory_movements`, {
-        method: 'POST',
+async function updateVariant(variantData, supabaseUrl, serviceRoleKey) {
+    const { id, ...updates } = variantData;
+    
+    const response = await fetch(`${supabaseUrl}/rest/v1/enhanced_product_variants?id=eq.${id}`, {
+        method: 'PATCH',
         headers: {
             'Authorization': `Bearer ${serviceRoleKey}`,
             'apikey': serviceRoleKey,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            variant_id: variantId,
-            movement_type: movementType,
-            quantity: quantity,
-            previous_quantity: previousQuantity,
-            new_quantity: newQuantity,
-            notes: notes,
-            created_by: userId || 'system',
-            created_at: new Date().toISOString()
+            ...updates,
+            updated_at: new Date().toISOString()
         })
     });
-
+    
     if (!response.ok) {
-        console.error('Failed to record inventory movement:', await response.text());
-        // Don't throw error here as it's not critical to the main operation
+        throw new Error('Failed to update variant');
     }
+    
+    return { success: true, id };
+}
+
+async function getLowStockAlerts(supabaseUrl, serviceRoleKey) {
+    const response = await fetch(`${supabaseUrl}/rest/v1/low_stock_alerts?alert_status=eq.active&select=*`, {
+        headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Failed to fetch low stock alerts');
+    }
+    
+    const alerts = await response.json();
+    
+    // Get variant and product details for each alert
+    const variantIds = alerts.map(a => a.variant_id);
+    if (variantIds.length > 0) {
+        const variantsResponse = await fetch(`${supabaseUrl}/rest/v1/enhanced_product_variants?id=in.(${variantIds.join(',')})&select=*`, {
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey
+            }
+        });
+        
+        if (variantsResponse.ok) {
+            const variants = await variantsResponse.json();
+            const variantMap = Object.fromEntries(variants.map(v => [v.id, v]));
+            
+            // Get product details
+            const productIds = [...new Set(variants.map(v => v.product_id))];
+            const productsResponse = await fetch(`${supabaseUrl}/rest/v1/products?id=in.(${productIds.join(',')})&select=id,name,category`, {
+                headers: {
+                    'Authorization': `Bearer ${serviceRoleKey}`,
+                    'apikey': serviceRoleKey
+                }
+            });
+            
+            if (productsResponse.ok) {
+                const products = await productsResponse.json();
+                const productMap = Object.fromEntries(products.map(p => [p.id, p]));
+                
+                // Add details to alerts
+                alerts.forEach(alert => {
+                    const variant = variantMap[alert.variant_id];
+                    if (variant) {
+                        alert.variant = variant;
+                        alert.product = productMap[variant.product_id] || null;
+                    }
+                });
+            }
+        }
+    }
+    
+    return alerts;
 }

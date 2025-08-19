@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { Search, Filter, Plus, Package, AlertTriangle, CheckCircle, XCircle, MoreHorizontal, Edit, Eye, ShoppingCart } from 'lucide-react'
+import { Search, Filter, Plus, Package, AlertTriangle, CheckCircle, XCircle, MoreHorizontal, Edit, Eye, ShoppingCart, Download } from 'lucide-react'
 import { useInventoryProducts, useDefinitions } from '@/hooks/useInventory'
 import { type EnhancedProduct } from '@/lib/supabase'
 import { ProductSizeMatrix } from './ProductSizeMatrix'
 import { ProductColorGrid } from './ProductColorGrid'
 import { BulkInventoryModal } from './BulkInventoryModal'
 import { AddProductModal } from './AddProductModal'
+import { ExportModal } from './ExportModal'
 
 type FilterCategory = 'all' | 'suits' | 'shirts' | 'accessories'
 type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
@@ -19,6 +20,7 @@ export function EnhancedProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState<EnhancedProduct | null>(null)
   const [showBulkModal, setShowBulkModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showExportModal, setShowExportModal] = useState(false)
   const [expandedProduct, setExpandedProduct] = useState<number | null>(null)
 
   const { products, loading, error, refetch } = useInventoryProducts()
@@ -99,6 +101,13 @@ export function EnhancedProductsPage() {
           <p className="text-gray-600">Manage size-specific and color-specific product variants</p>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center space-x-2"
+          >
+            <Download className="h-4 w-4" />
+            <span>Export</span>
+          </button>
           <button
             onClick={() => setShowBulkModal(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2"
@@ -356,6 +365,13 @@ export function EnhancedProductsPage() {
         <AddProductModal
           onClose={() => setShowAddModal(false)}
           onAdd={refetch}
+        />
+      )}
+
+      {showExportModal && (
+        <ExportModal
+          products={filteredProducts}
+          onClose={() => setShowExportModal(false)}
         />
       )}
     </div>

@@ -1,0 +1,29 @@
+{
+  "name": "kct-user-profiles",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/user-profiles/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/user-profiles/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/user-profiles && npm run build",
+  "outputDirectory": "apps/user-profiles/dist",
+  "installCommand": "cd apps/user-profiles && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

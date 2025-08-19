@@ -1,0 +1,29 @@
+{
+  "name": "kct-wedding-portal",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/wedding-portal/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/wedding-portal/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/wedding-portal && npm run build",
+  "outputDirectory": "apps/wedding-portal/dist",
+  "installCommand": "cd apps/wedding-portal && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

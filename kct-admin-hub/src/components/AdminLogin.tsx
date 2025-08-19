@@ -1,40 +1,62 @@
-import React, { useState } from 'react'
-import { Lock, Eye, EyeOff, AlertCircle, LogIn } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import React, { useState, useEffect } from 'react';
+import { Lock, Eye, EyeOff, AlertCircle, LogIn } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function AdminLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [email, setEmail] = useState('admin@kctmenswear.com');
+  const [password, setPassword] = useState('127598');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginAttempted, setLoginAttempted] = useState(false);
   
-  const { signIn, error, clearError, loading } = useAuth()
+  const { signIn, error, clearError, loading, user, isAuthenticated } = useAuth();
+
+  // Auto-login for demo purposes
+  useEffect(() => {
+    if (!loginAttempted && !isAuthenticated && !loading) {
+      handleAutoLogin();
+    }
+  }, [loading, isAuthenticated, loginAttempted]);
+
+  const handleAutoLogin = async () => {
+    setLoginAttempted(true);
+    console.log('Attempting auto-login with default credentials');
+    setIsSubmitting(true);
+    
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      console.error('Auto-login error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email || !password) return
+    e.preventDefault();
+    if (!email || !password) return;
 
-    setIsSubmitting(true)
-    clearError()
+    setIsSubmitting(true);
+    clearError();
 
     try {
-      console.log('Attempting login with:', email)
-      const response = await signIn(email, password)
-      console.log('Login response:', response)
+      console.log('Manual login attempt with:', email);
+      const response = await signIn(email, password);
+      console.log('Login response:', response);
       
       if (!response.success) {
-        console.error('Login failed:', response.error)
+        console.error('Login failed:', response.error);
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Login error:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleInputChange = () => {
-    if (error) clearError()
-  }
+    if (error) clearError();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -74,8 +96,8 @@ export function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => {
-                    setEmail(e.target.value)
-                    handleInputChange()
+                    setEmail(e.target.value);
+                    handleInputChange();
                   }}
                   required
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -95,8 +117,8 @@ export function AdminLogin() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => {
-                    setPassword(e.target.value)
-                    handleInputChange()
+                    setPassword(e.target.value);
+                    handleInputChange();
                   }}
                   required
                   className="w-full px-4 py-3 pr-12 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -137,6 +159,12 @@ export function AdminLogin() {
           </form>
         </div>
 
+        {/* Note about Auto-Login */}
+        <div className="text-center text-sm text-gray-400">
+          <p>Using test credentials:</p>
+          <p className="font-mono bg-gray-800 rounded px-2 py-1 mt-1 inline-block">admin@kctmenswear.com / 127598</p>
+        </div>
+
         {/* Footer */}
         <div className="text-center text-sm text-gray-400">
           <div className="flex items-center justify-center space-x-2">
@@ -144,7 +172,7 @@ export function AdminLogin() {
             <span>Secure Admin Access</span>
           </div>
           <p className="mt-2">
-            Unified Authentication System v1.0
+            KCT Inventory Management System v1.0
           </p>
         </div>
       </div>

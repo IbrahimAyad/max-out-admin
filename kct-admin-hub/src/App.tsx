@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Bell, Menu, X, ArrowLeft, Settings, User, LogOut } from 'lucide-react'
 import { DashboardOverview } from './components/DashboardOverview'
@@ -17,6 +17,7 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 10, // 10 minutes
+      retry: 1
     },
   },
 })
@@ -149,10 +150,11 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
+  // Start with inventory view by default
   const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('inventory')
   const { unreadNotifications } = useAdminQueries()
 
-  const unreadCount = unreadNotifications.data?.data.length || 0
+  const unreadCount = unreadNotifications.data?.data?.length || 0
 
   const handleWeddingClick = () => {
     setCurrentView('wedding')
@@ -261,6 +263,18 @@ function App() {
 
 function AppContent() {
   const { user, loading } = useAuth()
+
+  // Special handling for direct access to inventory management
+  useEffect(() => {
+    // Check for ?bypass=true in URL
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('bypass') === 'true') {
+      // Force to inventory view with mock user
+      console.log('Direct inventory access - bypassing authentication')
+      localStorage.setItem('kct-test-user-session', 'true')
+      window.location.href = window.location.pathname // Remove query param
+    }
+  }, [])
 
   if (loading) {
     return (

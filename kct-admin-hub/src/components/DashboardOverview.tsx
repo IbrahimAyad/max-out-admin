@@ -8,37 +8,50 @@ export function DashboardOverview() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
-    }).format(amount)
+    }).format(amount || 0)
   }
 
-  const overviewData = dashboardOverview.data?.data
-  const statsData = quickStats.data?.data
+  // Safely get data with defaults
+  const overviewData = dashboardOverview.data?.data || {
+    todayRevenue: 0,
+    todayOrdersCount: 0,
+    pendingOrdersCount: 0,
+    urgentNotificationsCount: 0,
+    lastUpdated: new Date().toISOString()
+  }
+
+  const statsData = quickStats.data?.data || {
+    weeklyRevenue: 0,
+    weeklyOrdersCount: 0,
+    totalCustomers: 0,
+    processingQueueLength: 0
+  }
 
   const todayCards = [
     {
       title: "Today's Revenue",
-      value: overviewData ? formatCurrency(overviewData.todayRevenue) : '$0.00',
+      value: formatCurrency(overviewData.todayRevenue),
       icon: DollarSign,
       color: 'bg-green-500',
       textColor: 'text-green-600'
     },
     {
       title: "Today's Orders",
-      value: overviewData && overviewData.todayOrdersCount !== undefined ? overviewData.todayOrdersCount.toString() : '0',
+      value: String(overviewData.todayOrdersCount || 0),
       icon: ShoppingCart,
       color: 'bg-blue-500',
       textColor: 'text-blue-600'
     },
     {
       title: 'Pending Orders',
-      value: overviewData && overviewData.pendingOrdersCount !== undefined ? overviewData.pendingOrdersCount.toString() : '0',
+      value: String(overviewData.pendingOrdersCount || 0),
       icon: Clock,
       color: 'bg-orange-500',
       textColor: 'text-orange-600'
     },
     {
       title: 'Urgent Alerts',
-      value: overviewData && overviewData.urgentNotificationsCount !== undefined ? overviewData.urgentNotificationsCount.toString() : '0',
+      value: String(overviewData.urgentNotificationsCount || 0),
       icon: AlertTriangle,
       color: 'bg-red-500',
       textColor: 'text-red-600'
@@ -48,28 +61,28 @@ export function DashboardOverview() {
   const weeklyCards = [
     {
       title: 'Weekly Revenue',
-      value: statsData ? formatCurrency(statsData.weeklyRevenue) : '$0.00',
+      value: formatCurrency(statsData.weeklyRevenue),
       icon: TrendingUp,
       color: 'bg-purple-500',
       textColor: 'text-purple-600'
     },
     {
       title: 'Weekly Orders',
-      value: statsData && statsData.weeklyOrdersCount !== undefined ? statsData.weeklyOrdersCount.toString() : '0',
+      value: String(statsData.weeklyOrdersCount || 0),
       icon: ShoppingCart,
       color: 'bg-indigo-500',
       textColor: 'text-indigo-600'
     },
     {
       title: 'Total Customers',
-      value: statsData && statsData.totalCustomers !== undefined ? statsData.totalCustomers.toString() : '0',
+      value: String(statsData.totalCustomers || 0),
       icon: Users,
       color: 'bg-teal-500',
       textColor: 'text-teal-600'
     },
     {
       title: 'Processing Queue',
-      value: statsData && statsData.processingQueueLength !== undefined ? statsData.processingQueueLength.toString() : '0',
+      value: String(statsData.processingQueueLength || 0),
       icon: Clock,
       color: 'bg-amber-500',
       textColor: 'text-amber-600'

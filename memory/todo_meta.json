@@ -3,31 +3,24 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Analyze current products database schema and identify sizing/inventory enhancement requirements",
-        "details": "1. Examine current Supabase database structure for products table\n2. Document existing fields and relationships\n3. Design new schema for size-specific inventory tracking\n4. Plan database migrations for sizing enhancements",
-        "status": "pending",
+        "content": "Enhance KCT Admin Hub Products Table with Sizing & Inventory Management",
+        "details": "Transform the basic products table into a comprehensive inventory management system that supports size-specific tracking based on the user's Stripe product structure. Implementation includes database schema updates, enhanced React interface with size matrix views, and advanced inventory controls.",
+        "status": "in_progress",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Design comprehensive sizing system architecture",
-        "details": "1. Create size management data model (size charts, measurements, variants)\n2. Design size-specific inventory tracking system\n3. Plan reorder points and stock alerts by size\n4. Design size analytics and reporting features",
+        "content": "Database Schema Enhancement for Size-Specific Inventory",
+        "details": "Modify Supabase database to support: 1) Product variants table linking products to sizes/colors, 2) Size-specific inventory tracking, 3) Category-specific sizing systems (suits: 34S-54L, shirts: 14.5-18, ties: color variants), 4) Low stock alerts per size",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Enhance products table with advanced sizing and inventory management features",
-        "details": "1. Add size-specific inventory columns and management interface\n2. Implement size chart management system\n3. Create advanced inventory tracking with reorder points\n4. Build size-specific analytics and low stock alerts\n5. Add bulk inventory management tools",
+        "content": "Enhanced Products Table Interface Development",
+        "details": "Build modern React interface featuring: 1) Size matrix view showing inventory per size, 2) Advanced filtering by category/size/stock level, 3) Bulk inventory update tools, 4) Visual stock level indicators, 5) Quick add/edit product variants, 6) Integration with existing Analytics Dashboard design",
         "status": "pending",
         "priority": "high"
-      },
-      "4": {
-        "id": "4",
-        "content": "Test and validate the enhanced products table system",
-        "details": "1. Test size-specific inventory tracking functionality\n2. Validate inventory management workflows\n3. Test analytics and reporting features\n4. Ensure data integrity and performance optimization",
-        "status": "pending",
-        "priority": "medium"
       }
     }
   }

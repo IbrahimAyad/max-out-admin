@@ -1,0 +1,236 @@
+📄 Extracted from page: KCT Analytics Dashboard - Dual Product Architecture
+URL: https://kei4wjdty1ey.space.minimax.io/products
+
+Extracted content:
+```json
+{
+  "title": "KCT Analytics Dashboard - Dual Product Architecture",
+  "url": "https://kei4wjdty1ey.space.minimax.io/products",
+  "summary": "This page is the 'Products' section of the KCT Admin Hub, designed for managing a product catalog and inventory for KCT Menswear. It features a main navigation sidebar, user account details, product category filters, an 'Add Product' button, and a detailed listing of various accessory products, each displaying its name, category, SKU, active status, price, and number of variants.",
+  "key_points": [
+    {
+      "section": "Page Header",
+      "content": {
+        "dashboard_title": "KCT Analytics Dashboard - Dual Product Architecture",
+        "company_name": "KCT Menswear",
+        "user_info": {
+          "email": "kct.admin@business.com",
+          "role": "Administrator",
+          "action": "Sign out"
+        }
+      }
+    },
+    {
+      "section": "Navigation Elements",
+      "content": {
+        "sidebar_menu": [
+          {"name": "Dashboard", "path": "/dashboard"},
+          {"name": "Orders", "path": "/orders"},
+          {"name": "Products", "path": "/products"},
+          {"name": "Customers", "path": "/customers"},
+          {"name": "Reports", "path": "/reports"},
+          {"name": "Analytics", "path": "/analytics"},
+          {"name": "Settings", "path": "/settings"}
+        ],
+        "current_page": "Products"
+      }
+    },
+    {
+      "section": "Products Page Details",
+      "content": {
+        "page_heading": "Products",
+        "page_description": "Manage your product catalog and inventory",
+        "action_buttons": [
+          {"name": "Add Product", "type": "button"}
+        ],
+        "product_categories_filters": [
+          "All Categories",
+          "Suits",
+          "Tuxedos",
+          "Blazers",
+          "Double-Breasted Suits",
+          "Stretch Suits",
+          "Mens Shirts",
+          "Accessories"
+        ],
+        "product_listings": [
+          {
+            "name": "Gold Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-023",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Grey Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-024",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Turquoise Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-035",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Burnt Orange Suspender Bowtie Set",
+            "category": "Accessories",
+            "sku": "ACC-SBS-003",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "1 variants"
+          },
+          {
+            "name": "Blush Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-011",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Burnt Orange Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-012",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Canary Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-013",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Carolina Blue Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-014",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Chocolate Brown Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-015",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Coral Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-016",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Dark Burgundy Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-017",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Dusty Rose Suspender Bowtie Set",
+            "category": "Accessories",
+            "sku": "ACC-SBS-004",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "1 variants"
+          },
+          {
+            "name": "Dark Teal",
+            "category": "Accessories",
+            "sku": "ACC-VTS-018",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Dusty Rose Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-019",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Dusty Sage Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-020",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Fuchsia Suspender Bowtie Set",
+            "category": "Accessories",
+            "sku": "ACC-SBS-005",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "1 variants"
+          },
+          {
+            "name": "Emerald Green Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-021",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Gold Suspender Bowtie Set",
+            "category": "Accessories",
+            "sku": "ACC-SBS-006",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "1 variants"
+          },
+          {
+            "name": "Fuchsia Vest",
+            "category": "Accessories",
+            "sku": "ACC-VTS-022",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "10 variants"
+          },
+          {
+            "name": "Hunter Green Suspender Bowtie Set",
+            "category": "Accessories",
+            "sku": "ACC-SBS-007",
+            "status": "active",
+            "price": "$50.00",
+            "variants": "1 variants"
+          }
+        ]
+      }
+    },
+    {
+      "section": "Footer",
+      "content": "Created by MiniMax Agent"
+    }
+  ],
+  "relevant_links": [
+    "/dashboard",
+    "/orders",
+    "/products",
+    "/customers",
+    "/reports",
+    "/analytics",
+    "/settings"
+  ],
+  "file_name": "kct_admin_products_page.json"
+}
+```

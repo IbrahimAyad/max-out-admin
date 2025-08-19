@@ -1,3 +1,3 @@
-2025/08/18-13:33:15.930 627 Reusing MANIFEST /workspace/browser/user_data/Default/Sync Data/LevelDB/MANIFEST-000001
-2025/08/18-13:33:15.931 627 Recovering log #3
-2025/08/18-13:33:15.931 627 Reusing old log /workspace/browser/user_data/Default/Sync Data/LevelDB/000003.log 
+2025/08/18-20:00:15.187 6e3 Reusing MANIFEST /workspace/browser/user_data/Default/Sync Data/LevelDB/MANIFEST-000001
+2025/08/18-20:00:15.188 6e3 Recovering log #3
+2025/08/18-20:00:15.188 6e3 Reusing old log /workspace/browser/user_data/Default/Sync Data/LevelDB/000003.log 

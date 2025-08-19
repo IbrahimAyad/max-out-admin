@@ -85,19 +85,14 @@ Deno.serve(async (req) => {
                     }
                 }
                 
-                // Check for admin access (based on user metadata or role)
-                const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-                    headers: {
-                        'Authorization': `Bearer ${supabaseKey}`,
-                        'apikey': supabaseKey
-                    }
-                });
+                // Check for admin access (based on email domain or specific admin users)
+                // For now, allow admin access for certain email patterns or explicitly set admin users
+                const adminEmails = ['admin@kctmenswear.com', 'support@kctmenswear.com'];
+                const isAdminEmail = adminEmails.includes(profile.email?.toLowerCase());
+                const isExplicitAdmin = profile.wedding_role === 'admin' || profile.account_status === 'admin';
                 
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    if (userData.user_metadata?.role === 'admin' || userData.app_metadata?.role === 'admin') {
-                        accessLevels.admin_portal = true;
-                    }
+                if (isAdminEmail || isExplicitAdmin) {
+                    accessLevels.admin_portal = true;
                 }
                 
                 // Create unified session data
@@ -201,9 +196,14 @@ Deno.serve(async (req) => {
                         break;
                         
                     case 'admin_portal':
-                        // Check admin role from user metadata
-                        hasAccess = validateProfiles[0].wedding_role === 'admin' || false;
-                        accessReason = hasAccess ? 'User has admin role' : 'User does not have admin role';
+                        // Check admin role from user profile or email
+                        const adminEmails = ['admin@kctmenswear.com', 'support@kctmenswear.com'];
+                        const userProfile = validateProfiles[0];
+                        const isAdminEmail = adminEmails.includes(userProfile.email?.toLowerCase());
+                        const isExplicitAdmin = userProfile.wedding_role === 'admin' || userProfile.account_status === 'admin';
+                        
+                        hasAccess = isAdminEmail || isExplicitAdmin;
+                        accessReason = hasAccess ? 'User has admin access' : 'User does not have admin access';
                         break;
                         
                     case 'enhanced_profile':

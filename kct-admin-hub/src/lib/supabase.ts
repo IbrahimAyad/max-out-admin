@@ -36,32 +36,35 @@ export const adminHubAPI = {
   },
 
   getNotifications: async (params: { limit?: number; priority?: string; unread_only?: boolean } = {}) => {
-    // Direct database access using admin client
+    // Use the admin-hub-api Edge Function instead of direct database access
     try {
-      let query = supabaseAdmin.from('admin_notifications').select('*')
-      
-      if (params.unread_only) {
-        query = query.eq('is_read', false)
-      }
-      if (params.priority) {
-        query = query.eq('priority', params.priority)
-      }
-      
-      query = query.order('created_at', { ascending: false })
+      let endpoint = 'admin-hub-api/notifications';
+      const queryParams = new URLSearchParams();
       
       if (params.limit) {
-        query = query.limit(params.limit)
-      } else {
-        query = query.limit(100)
+        queryParams.append('limit', params.limit.toString());
+      }
+      if (params.priority) {
+        queryParams.append('priority', params.priority);
+      }
+      if (params.unread_only) {
+        queryParams.append('unread_only', 'true');
       }
       
-      const { data, error } = await query
-      if (error) throw error
+      if (queryParams.toString()) {
+        endpoint += '?' + queryParams.toString();
+      }
       
-      return { data }
+      const { data, error } = await supabaseAdmin.functions.invoke(endpoint, {
+        method: 'GET'
+      });
+      
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching notifications:', error)
-      throw error
+      console.error('Error fetching notifications:', error);
+      // Return empty array as fallback instead of throwing
+      return { data: [] };
     }
   },
 
@@ -102,33 +105,30 @@ export const adminHubAPI = {
 
   markNotificationRead: async (notificationId: string) => {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('admin_notifications')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('id', notificationId)
-        .select()
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/mark-notification-read', {
+        method: 'POST',
+        body: { notification_id: notificationId }
+      });
       
-      if (error) throw error
-      return { data }
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error marking notification as read:', error)
-      throw error
+      console.error('Error marking notification as read:', error);
+      throw error;
     }
   },
 
   markAllNotificationsRead: async () => {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('admin_notifications')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('is_read', false)
-        .select()
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/mark-all-notifications-read', {
+        method: 'POST'
+      });
       
-      if (error) throw error
-      return { data }
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
-      throw error
+      console.error('Error marking all notifications as read:', error);
+      throw error;
     }
   }
 }

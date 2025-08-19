@@ -12,219 +12,160 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-        if (!supabaseUrl || !supabaseServiceKey) {
-            throw new Error('Supabase configuration missing');
-        }
-
-        // Get user from auth header
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        
+        // Get authorization header to extract user
         const authHeader = req.headers.get('authorization');
-        if (!authHeader) {
-            throw new Error('No authorization header');
+        const token = authHeader?.replace('Bearer ', '');
+        
+        if (!token) {
+            throw new Error('No authorization token provided');
         }
-
-        const token = authHeader.replace('Bearer ', '');
-
-        // Verify token and get user
+        
+        // Get current user from Supabase
         const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'apikey': supabaseServiceKey
+                'apikey': Deno.env.get('SUPABASE_ANON_KEY')!
             }
         });
-
+        
         if (!userResponse.ok) {
-            throw new Error('Invalid token');
+            throw new Error('Invalid authorization token');
         }
-
-        const userData = await userResponse.json();
-        const userId = userData.id;
-
-        // Get party member data using service role key
-        const memberResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?user_id=eq.${userId}`, {
+        
+        const user = await userResponse.json();
+        const userId = user.id;
+        
+        // Get party member data for this user
+        const partyMemberResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_party_members?user_id=eq.${userId}&select=*,weddings(*)`, {
             headers: {
-                'apikey': supabaseServiceKey,
-                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'apikey': supabaseKey,
                 'Content-Type': 'application/json'
             }
         });
-
-        if (!memberResponse.ok) {
-            const errorText = await memberResponse.text();
-            console.error('Failed to fetch party member data:', errorText);
+        
+        if (!partyMemberResponse.ok) {
             throw new Error('Failed to fetch party member data');
         }
-
-        const members = await memberResponse.json();
-
-        if (members.length === 0) {
-            return new Response(JSON.stringify({
-                error: {
-                    code: 'MEMBER_NOT_FOUND',
-                    message: 'No wedding party membership found for this user'
-                }
-            }), {
-                status: 404,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            });
-        }
-
-        const member = members[0];
         
-        // Get wedding data separately
-        const weddingResponse = await fetch(`${supabaseUrl}/rest/v1/weddings?id=eq.${member.wedding_id}`, {
-            headers: {
-                'apikey': supabaseServiceKey,
-                'Authorization': `Bearer ${supabaseServiceKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        let wedding = null;
-        if (weddingResponse.ok) {
-            const weddings = await weddingResponse.json();
-            wedding = weddings.length > 0 ? weddings[0] : null;
+        const partyMembers = await partyMemberResponse.json();
+        
+        if (partyMembers.length === 0) {
+            throw new Error('User is not a wedding party member');
         }
-
+        
+        const member = partyMembers[0];
+        const wedding = member.weddings;
+        
         if (!wedding) {
-            // Return basic dashboard data without wedding details
-            wedding = {
-                id: member.wedding_id,
-                wedding_code: 'UNKNOWN',
-                wedding_date: '2025-12-31',
-                venue_name: 'TBD',
-                venue_city: 'TBD',
-                venue_state: 'TBD',
-                wedding_theme: 'Classic',
-                color_scheme: {}
-            };
+            throw new Error('No wedding data found');
         }
-
+        
         // Calculate days until wedding
         const weddingDate = new Date(wedding.wedding_date);
         const today = new Date();
         const daysUntilWedding = Math.ceil((weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-        // Get tasks, communications, measurements, and outfits with proper error handling
-        let tasks = [];
-        let communications = [];
-        let measurements = [];
-        let outfits = [];
-
-        try {
-            // Get tasks (non-critical)
-            const tasksResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_timeline_tasks?wedding_id=eq.${member.wedding_id}&assigned_member_id=eq.${member.id}&order=due_date.asc&limit=5`, {
-                headers: {
-                    'apikey': supabaseServiceKey,
-                    'Authorization': `Bearer ${supabaseServiceKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (tasksResponse.ok) {
-                tasks = await tasksResponse.json();
-            }
-        } catch (error) {
-            console.warn('Non-critical: Failed to fetch tasks:', error);
-        }
-
-        try {
-            // Get communications (non-critical)
-            const communicationsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_communications?wedding_id=eq.${member.wedding_id}&order=created_at.desc&limit=3`, {
-                headers: {
-                    'apikey': supabaseServiceKey,
-                    'Authorization': `Bearer ${supabaseServiceKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (communicationsResponse.ok) {
-                communications = await communicationsResponse.json();
-            }
-        } catch (error) {
-            console.warn('Non-critical: Failed to fetch communications:', error);
-        }
-
-        try {
-            // Get measurements (non-critical)
-            const measurementsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_measurements?party_member_id=eq.${member.id}&is_current=eq.true`, {
-                headers: {
-                    'apikey': supabaseServiceKey,
-                    'Authorization': `Bearer ${supabaseServiceKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (measurementsResponse.ok) {
-                measurements = await measurementsResponse.json();
-            }
-        } catch (error) {
-            console.warn('Non-critical: Failed to fetch measurements:', error);
-        }
-
-        try {
-            // Get outfits (non-critical)
-            const outfitResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_outfits?party_member_id=eq.${member.id}`, {
-                headers: {
-                    'apikey': supabaseServiceKey,
-                    'Authorization': `Bearer ${supabaseServiceKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (outfitResponse.ok) {
-                outfits = await outfitResponse.json();
-            }
-        } catch (error) {
-            console.warn('Non-critical: Failed to fetch outfits:', error);
-        }
-
-        const hasCurrentMeasurements = measurements.length > 0;
-        const hasOutfitAssigned = outfits.length > 0;
-
-        // Calculate completion status
+        
+        // Calculate completion percentage
         const completionItems = {
-            invitation_accepted: !!member.accepted_at,
-            measurements_submitted: hasCurrentMeasurements,
-            outfit_assigned: hasOutfitAssigned,
-            outfit_approved: hasOutfitAssigned && outfits[0]?.approved_by_member,
+            invitation_accepted: member.invitation_status === 'accepted',
+            measurements_submitted: member.measurements_status === 'submitted' || member.measurements_status === 'approved',
+            outfit_assigned: member.outfit_status !== 'pending',
+            outfit_approved: member.outfit_status === 'approved',
             payment_completed: member.payment_status === 'completed'
         };
-
+        
         const completedItems = Object.values(completionItems).filter(Boolean).length;
-        const totalItems = Object.keys(completionItems).length;
-        const completionPercentage = Math.round((completedItems / totalItems) * 100);
-
-        // Identify urgent tasks (due within 7 days)
-        const urgentTasks = tasks.filter(task => {
-            if (!task.due_date) return false;
-            const dueDate = new Date(task.due_date);
-            const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            return daysUntilDue <= 7 && daysUntilDue >= 0;
+        const completionPercentage = Math.round((completedItems / 5) * 100);
+        
+        // Get pending tasks
+        const pendingTasks = [];
+        const urgentTasks = [];
+        
+        if (!completionItems.invitation_accepted) {
+            urgentTasks.push({
+                id: 'accept_invitation',
+                taskName: 'Accept Wedding Invitation',
+                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                priority: 'urgent'
+            });
+        }
+        
+        if (!completionItems.measurements_submitted) {
+            const dueDate = new Date(weddingDate.getTime() - 60 * 24 * 60 * 60 * 1000); // 60 days before wedding
+            (dueDate < new Date() ? urgentTasks : pendingTasks).push({
+                id: 'submit_measurements',
+                taskName: 'Submit Measurements',
+                dueDate: dueDate.toISOString(),
+                priority: dueDate < new Date() ? 'urgent' : 'normal'
+            });
+        }
+        
+        if (!completionItems.outfit_approved && completionItems.outfit_assigned) {
+            pendingTasks.push({
+                id: 'approve_outfit',
+                taskName: 'Review and Approve Outfit',
+                dueDate: new Date(weddingDate.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days before
+                priority: 'normal'
+            });
+        }
+        
+        // Get recent communications
+        const communicationsResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_communications?party_member_id=eq.${member.id}&order=created_at.desc&limit=5`, {
+            headers: {
+                'Authorization': `Bearer ${supabaseKey}`,
+                'apikey': supabaseKey,
+                'Content-Type': 'application/json'
+            }
         });
-
-        // Build dashboard data
+        
+        let recentCommunications = [];
+        let unreadCount = 0;
+        
+        if (communicationsResponse.ok) {
+            recentCommunications = await communicationsResponse.json();
+            
+            // Count unread messages
+            const unreadResponse = await fetch(`${supabaseUrl}/rest/v1/wedding_communications?party_member_id=eq.${member.id}&read_status=eq.false`, {
+                headers: {
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'apikey': supabaseKey,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (unreadResponse.ok) {
+                const unreadMessages = await unreadResponse.json();
+                unreadCount = unreadMessages.length;
+            }
+        }
+        
+        // Determine quick actions based on current status
+        const quickActions = {
+            submitMeasurements: !completionItems.measurements_submitted,
+            viewOutfit: completionItems.outfit_assigned,
+            approveOutfit: completionItems.outfit_assigned && !completionItems.outfit_approved,
+            checkMessages: unreadCount > 0,
+            updateProfile: true
+        };
+        
         const dashboardData = {
             member: {
-                id: member.id,
-                firstName: member.first_name,
-                lastName: member.last_name,
-                role: member.role,
-                customRoleTitle: member.custom_role_title,
-                email: member.email,
-                phone: member.phone
+                firstName: member.first_name || 'Member',
+                lastName: member.last_name || '',
+                role: member.role || 'Groomsman',
+                customRoleTitle: member.custom_role_title
             },
             wedding: {
-                id: wedding.id,
-                weddingCode: wedding.wedding_code,
                 weddingDate: wedding.wedding_date,
-                daysUntilWedding,
+                daysUntilWedding: Math.max(0, daysUntilWedding),
                 venueName: wedding.venue_name,
                 venueCity: wedding.venue_city,
                 venueState: wedding.venue_state,
-                theme: wedding.wedding_theme,
+                theme: wedding.theme,
                 colorScheme: wedding.color_scheme
             },
             progress: {
@@ -235,44 +176,32 @@ Deno.serve(async (req) => {
                 paymentStatus: member.payment_status || 'pending'
             },
             tasks: {
-                pending: tasks,
+                pending: pendingTasks,
                 urgent: urgentTasks,
-                overdueCount: tasks.filter(task => {
-                    if (!task.due_date) return false;
-                    return new Date(task.due_date) < today;
-                }).length
+                overdueCount: urgentTasks.length
             },
             communications: {
-                recent: communications,
-                unreadCount: communications.filter(comm => {
-                    const readBy = comm.read_by || {};
-                    return !readBy[member.id];
-                }).length
+                recent: recentCommunications,
+                unreadCount
             },
-            quickActions: {
-                submitMeasurements: !hasCurrentMeasurements,
-                viewOutfit: hasOutfitAssigned,
-                approveOutfit: hasOutfitAssigned && !outfits[0]?.approved_by_member,
-                checkMessages: communications.length > 0,
-                updateProfile: !member.phone || !member.address
-            }
+            quickActions
         };
-
+        
         return new Response(JSON.stringify({
             success: true,
             data: dashboardData
         }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
-
+        
     } catch (error) {
         console.error('Groomsmen dashboard error:', error);
-
+        
         const errorResponse = {
             success: false,
             error: {
-                code: 'DASHBOARD_ERROR',
-                message: error.message || 'An unexpected error occurred'
+                code: 'GROOMSMEN_DASHBOARD_ERROR',
+                message: error.message || 'Failed to load dashboard data'
             }
         };
 

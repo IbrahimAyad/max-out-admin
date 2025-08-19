@@ -3,66 +3,31 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Analyze Current Portal Architecture & Authentication Systems",
-        "details": "Document the existing authentication systems across all portals:\n1. Couples Portal: Dual auth (Wedding Code + Email/Password)\n2. Admin Portal: Enterprise admin system with AI analytics\n3. Groomsmen Portal: Invitation code-based access\n4. User Profile System: Supabase Auth with profile/size data\nIdentify integration points and potential conflicts.",
-        "status": "completed",
+        "content": "Analyze current products database schema and identify sizing/inventory enhancement requirements",
+        "details": "1. Examine current Supabase database structure for products table\n2. Document existing fields and relationships\n3. Design new schema for size-specific inventory tracking\n4. Plan database migrations for sizing enhancements",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Design Unified Authentication Strategy",
-        "details": "Create architecture for unified user accounts:\n1. Extend existing Supabase Auth to work with invitation codes\n2. Map wedding codes to Supabase user accounts\n3. Ensure profile/size data flows seamlessly across all portals\n4. Maintain existing portal UX while adding unified backend\n5. Create authentication middleware for portal-specific access",
-        "status": "completed",
+        "content": "Design comprehensive sizing system architecture",
+        "details": "1. Create size management data model (size charts, measurements, variants)\n2. Design size-specific inventory tracking system\n3. Plan reorder points and stock alerts by size\n4. Design size analytics and reporting features",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Develop Authentication Bridge System",
-        "details": "Build Supabase Edge Functions to bridge authentication systems:\n1. Wedding code validation service\n2. Invitation code mapping service\n3. Profile data sync service\n4. Session management across portals\n5. User migration utilities for existing accounts",
-        "status": "completed",
+        "content": "Enhance products table with advanced sizing and inventory management features",
+        "details": "1. Add size-specific inventory columns and management interface\n2. Implement size chart management system\n3. Create advanced inventory tracking with reorder points\n4. Build size-specific analytics and low stock alerts\n5. Add bulk inventory management tools",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Enhance Database Schema for Wedding Integration",
-        "details": "Extend user_profiles table and add wedding-specific tables:\n1. Add wedding_party_members table\n2. Add invitation_codes table\n3. Add wedding_events table\n4. Update user_profiles with wedding-specific fields\n5. Create data migration scripts",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "5": {
-        "id": "5",
-        "content": "Update Couples Portal Authentication",
-        "details": "Modify couples portal to integrate with unified auth:\n1. Connect wedding code validation to Supabase\n2. Ensure existing email/password login works with unified system\n3. Add profile data access to couples experience\n4. Test seamless login flow",
-        "status": "completed",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Update Groomsmen Portal Authentication",
-        "details": "Enhance groomsmen portal to work with unified auth:\n1. Connect invitation code system to Supabase\n2. Auto-create/link user profiles when accessing with codes\n3. Make profile/size data available within groomsmen experience\n4. Maintain existing secure invitation flow",
-        "status": "completed",
-        "priority": "high"
-      },
-      "7": {
-        "id": "7",
-        "content": "Connect Admin Portal to Unified System",
-        "details": "Link admin portal with unified user management:\n1. Add user profile management to admin interface\n2. Connect wedding management to unified user data\n3. Add invitation code generation/management\n4. Create admin tools for wedding party setup",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "8": {
-        "id": "8",
-        "content": "V1 Core Features Validation & Launch Readiness",
-        "details": "Validate all critical V1 features across unified wedding portal system:\n1. Cross-portal authentication (wedding codes, invitation codes, email/password)\n2. Unified profile/size data synchronization\n3. Admin portal user management and wedding coordination\n4. End-to-end user workflows for couples, groomsmen, and admin users\n5. Session management and portal switching\n6. Data integrity and security validation\n7. Performance and reliability testing\n8. V1 launch readiness checklist completion",
-        "status": "completed",
-        "priority": "high"
-      },
-      "9": {
-        "id": "9",
-        "content": "V2 Planning - Advanced Features",
-        "details": "Document advanced features for future development:\n1. Real-time profile sync notifications\n2. Advanced wedding party management tools\n3. Enhanced analytics and reporting\n4. Mobile app integration\n5. Third-party service integrations\n6. Advanced customization options",
+        "content": "Test and validate the enhanced products table system",
+        "details": "1. Test size-specific inventory tracking functionality\n2. Validate inventory management workflows\n3. Test analytics and reporting features\n4. Ensure data integrity and performance optimization",
         "status": "pending",
-        "priority": "low"
+        "priority": "medium"
       }
     }
   }

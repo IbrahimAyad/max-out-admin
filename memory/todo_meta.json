@@ -5,14 +5,14 @@
         "id": "1",
         "content": "Enhance KCT Admin Hub Products Table with Sizing & Inventory Management",
         "details": "Transform the basic products table into a comprehensive inventory management system that supports size-specific tracking based on the user's Stripe product structure. Implementation includes database schema updates, enhanced React interface with size matrix views, and advanced inventory controls.",
-        "status": "in_progress",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Database Schema Enhancement for Size-Specific Inventory",
         "details": "Modify Supabase database to support: 1) Product variants table linking products to sizes/colors, 2) Size-specific inventory tracking, 3) Category-specific sizing systems (suits: 34S-54L, shirts: 14.5-18, ties: color variants), 4) Low stock alerts per size",
-        "status": "pending",
+        "status": "in_progress",
         "priority": "high"
       },
       "3": {

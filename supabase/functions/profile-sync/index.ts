@@ -275,6 +275,54 @@ Deno.serve(async (req) => {
                 // Get complete unified profile data for user across all systems
                 let unifiedProfile = null;
                 
+                // First check if user exists in auth.users
+                const userExistsResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/check_user_exists`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'apikey': supabaseKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_id_param: user_id })
+                });
+                
+                let userExists = false;
+                if (userExistsResponse.ok) {
+                    const result = await userExistsResponse.json();
+                    userExists = result;
+                } else {
+                    // Fallback: try to get user profile anyway
+                    console.warn('Could not check if user exists, proceeding with profile check');
+                    userExists = true;
+                }
+                
+                if (!userExists) {
+                    // Return minimal profile data for non-existent users
+                    return new Response(JSON.stringify({
+                        success: true,
+                        data: {
+                            profile: null,
+                            access_levels: {
+                                enhanced_profile: false,
+                                couples_portal: false,
+                                groomsmen_portal: false,
+                                admin_portal: false
+                            },
+                            wedding_party_data: null,
+                            couple_wedding_data: null,
+                            portal_context: {
+                                current_portal: 'unified_auth',
+                                available_portals: [],
+                                primary_role: 'guest'
+                            },
+                            unified_access: false,
+                            user_exists: false
+                        }
+                    }), {
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                    });
+                }
+                
                 // Try to get existing profile
                 const unifiedProfileResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles?user_id=eq.${user_id}&select=*`, {
                     headers: {
@@ -285,37 +333,116 @@ Deno.serve(async (req) => {
                 });
                 
                 if (!unifiedProfileResponse.ok) {
-                    throw new Error('Failed to fetch profile');
+                    const errorText = await unifiedProfileResponse.text();
+                    console.error('Failed to fetch profile:', errorText);
+                    throw new Error(`Failed to fetch profile: ${errorText}`);
                 }
                 
                 const unifiedProfiles = await unifiedProfileResponse.json();
                 
                 if (unifiedProfiles.length === 0) {
                     // Create a basic profile for this user
-                    const createProfileResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${supabaseKey}`,
-                            'apikey': supabaseKey,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=representation'
-                        },
-                        body: JSON.stringify({
-                            user_id,
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString(),
-                            unified_auth_enabled: true
-                        })
-                    });
-                    
-                    if (!createProfileResponse.ok) {
-                        const errorText = await createProfileResponse.text();
-                        console.error('Failed to create profile:', errorText);
-                        throw new Error(`Failed to create profile: ${errorText}`);
+                    try {
+                        const createProfileResponse = await fetch(`${supabaseUrl}/rest/v1/user_profiles`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'apikey': supabaseKey,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({
+                                user_id,
+                                created_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString(),
+                                unified_auth_enabled: true,
+                                account_status: 'active',
+                                customer_segment: 'regular',
+                                customer_tier: 'Bronze',
+                                country: 'US',
+                                total_orders: 0,
+                                total_spent: 0,
+                                average_order_value: 0,
+                                lifetime_value: 0,
+                                engagement_score: 0,
+                                repeat_customer: false,
+                                vip_status: false,
+                                is_wedding_customer: false,
+                                email_verified: false,
+                                backup_email_verified: false,
+                                onboarding_completed: false
+                            })
+                        });
+                        
+                        if (!createProfileResponse.ok) {
+                            const errorText = await createProfileResponse.text();
+                            console.error('Failed to create profile:', errorText);
+                            
+                            // If profile creation fails, return a minimal response to prevent auth failure
+                            return new Response(JSON.stringify({
+                                success: true,
+                                data: {
+                                    profile: {
+                                        user_id,
+                                        unified_auth_enabled: true,
+                                        created_at: new Date().toISOString(),
+                                        profile_creation_failed: true
+                                    },
+                                    access_levels: {
+                                        enhanced_profile: true,
+                                        couples_portal: false,
+                                        groomsmen_portal: false,
+                                        admin_portal: false
+                                    },
+                                    wedding_party_data: null,
+                                    couple_wedding_data: null,
+                                    portal_context: {
+                                        current_portal: 'unified_auth',
+                                        available_portals: ['enhanced_profile'],
+                                        primary_role: 'customer'
+                                    },
+                                    unified_access: true,
+                                    creation_error: errorText
+                                }
+                            }), {
+                                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                            });
+                        }
+                        
+                        const createdProfiles = await createProfileResponse.json();
+                        unifiedProfile = createdProfiles[0];
+                    } catch (createError) {
+                        console.error('Profile creation error:', createError);
+                        
+                        // Return minimal profile to prevent auth failure
+                        return new Response(JSON.stringify({
+                            success: true,
+                            data: {
+                                profile: {
+                                    user_id,
+                                    unified_auth_enabled: true,
+                                    created_at: new Date().toISOString(),
+                                    profile_creation_failed: true
+                                },
+                                access_levels: {
+                                    enhanced_profile: true,
+                                    couples_portal: false,
+                                    groomsmen_portal: false,
+                                    admin_portal: false
+                                },
+                                wedding_party_data: null,
+                                couple_wedding_data: null,
+                                portal_context: {
+                                    current_portal: 'unified_auth',
+                                    available_portals: ['enhanced_profile'],
+                                    primary_role: 'customer'
+                                },
+                                unified_access: true
+                            }
+                        }), {
+                            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                        });
                     }
-                    
-                    const createdProfiles = await createProfileResponse.json();
-                    unifiedProfile = createdProfiles[0];
                 } else {
                     unifiedProfile = unifiedProfiles[0];
                 }

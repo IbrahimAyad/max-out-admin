@@ -1,11 +1,12 @@
-import { ExternalLink, BarChart3, Package, Heart } from 'lucide-react'
+import { ExternalLink, BarChart3, Package, Heart, Layers } from 'lucide-react'
 
 interface QuickNavigationProps {
   className?: string
   onWeddingClick?: () => void
+  onInventoryClick?: () => void
 }
 
-export function QuickNavigation({ className = '', onWeddingClick }: QuickNavigationProps) {
+export function QuickNavigation({ className = '', onWeddingClick, onInventoryClick }: QuickNavigationProps) {
   const dashboards = [
     {
       title: 'Analytics Dashboard',
@@ -28,6 +29,14 @@ export function QuickNavigation({ className = '', onWeddingClick }: QuickNavigat
       icon: Heart,
       color: 'from-rose-500 to-rose-600',
       isInternal: true
+    },
+    {
+      title: 'Inventory Management',
+      description: 'Size-aware inventory tracking system',
+      onClick: onInventoryClick,
+      icon: Layers,
+      color: 'from-purple-500 to-purple-600',
+      isInternal: true
     }
   ]
 
@@ -40,7 +49,9 @@ export function QuickNavigation({ className = '', onWeddingClick }: QuickNavigat
     {
       title: 'Inventory Management',
       url: 'https://i55ibre0zen6.space.minimax.io/inventory',
-      color: 'bg-gray-800 hover:bg-gray-700'
+      color: 'bg-gray-800 hover:bg-gray-700',
+      onClick: onInventoryClick,
+      isInternal: true
     },
     {
       title: 'Customer Analytics',
@@ -118,18 +129,32 @@ export function QuickNavigation({ className = '', onWeddingClick }: QuickNavigat
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action) => (
-            <a
-              key={action.title}
-              href={action.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${action.color} text-white px-4 py-3 rounded-lg text-sm font-medium text-center transition-colors duration-200 flex items-center justify-center space-x-2`}
-            >
-              <span>{action.title}</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          ))}
+          {quickActions.map((action) => {
+            if (action.isInternal) {
+              return (
+                <button
+                  key={action.title}
+                  onClick={action.onClick}
+                  className={`${action.color} text-white px-4 py-3 rounded-lg text-sm font-medium text-center transition-colors duration-200 flex items-center justify-center space-x-2`}
+                >
+                  <span>{action.title}</span>
+                </button>
+              )
+            }
+            
+            return (
+              <a
+                key={action.title}
+                href={action.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${action.color} text-white px-4 py-3 rounded-lg text-sm font-medium text-center transition-colors duration-200 flex items-center justify-center space-x-2`}
+              >
+                <span>{action.title}</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )
+          })}
         </div>
       </div>
     </div>

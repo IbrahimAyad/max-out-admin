@@ -8,6 +8,7 @@ import { RecentActivity } from './components/RecentActivity'
 import { WeddingManagement } from './components/WeddingManagement'
 import { AdminLogin } from './components/AdminLogin'
 import { UserMigrationTools } from './components/UserMigrationTools'
+import InventoryManagement from './components/InventoryManagement'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { useAdminQueries } from './hooks/useAdminQueries'
 
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackClick, onSettingsClick }: { 
   onNotificationToggle: () => void
   unreadCount: number
-  currentView: 'dashboard' | 'wedding' | 'settings'
+  currentView: 'dashboard' | 'wedding' | 'settings' | 'inventory'
   onBackClick?: () => void
   onSettingsClick?: () => void
 }) {
@@ -52,7 +53,8 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
                 <h1 className="text-xl font-bold">KCT Menswear</h1>
                 <p className="text-sm text-gray-300">
                   {currentView === 'wedding' ? 'Wedding Management' : 
-                   currentView === 'settings' ? 'Admin Settings' : 'Admin Hub'}
+                   currentView === 'settings' ? 'Admin Settings' :
+                   currentView === 'inventory' ? 'Inventory Management' : 'Admin Hub'}
                 </p>
               </div>
             </div>
@@ -147,13 +149,17 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('dashboard')
   const { unreadNotifications } = useAdminQueries()
 
   const unreadCount = unreadNotifications.data?.data.length || 0
 
   const handleWeddingClick = () => {
     setCurrentView('wedding')
+  }
+
+  const handleInventoryClick = () => {
+    setCurrentView('inventory')
   }
 
   const handleBackToDashboard = () => {
@@ -192,7 +198,10 @@ function AdminDashboard() {
               {/* Left Column */}
               <div className="space-y-8">
                 <DashboardOverview />
-                <QuickNavigation onWeddingClick={handleWeddingClick} />
+                <QuickNavigation 
+                  onWeddingClick={handleWeddingClick}
+                  onInventoryClick={handleInventoryClick}
+                />
               </div>
               
               {/* Right Column */}
@@ -218,6 +227,8 @@ function AdminDashboard() {
               <UserMigrationTools />
             </div>
           </div>
+        ) : currentView === 'inventory' ? (
+          <InventoryManagement />
         ) : (
           <WeddingManagement />
         )}

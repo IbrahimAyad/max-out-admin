@@ -1,0 +1,21 @@
+📄 Extracted from page: KCT Menswear Order Management Dashboard
+URL: https://qnjn0z0g4jav.space.minimax.io/
+
+Extracted content:
+```json
+{
+  "title": "KCT Menswear Order Management Dashboard",
+  "url": "https://qnjn0z0g4jav.space.minimax.io/",
+  "summary": "This page is the KCT Menswear Order Management Dashboard, an administrative interface designed for internal staff to manage customer orders. It provides a comprehensive overview of order statistics, including total orders, pending, processing, shipped, and completed orders, as well as total revenue and average order value. Users can filter orders by various criteria such as status, priority, and specific customer groups like 'Wedding Party', 'Prom Group', and 'VIP Customer'. While 'Wedding Party' is a filterable category, the dashboard does not provide dedicated features for a groomsmen portal, detailed wedding party management (beyond order categorization), or navigation links to external customer or partner portals. It is focused on internal order processing and tracking.",
+  "key_points": [
+    "The page is an 'Order Management Dashboard' for KCT Menswear administrators.",
+    "It displays various order statistics and allows filtering of orders.",
+    "A 'Wedding Party' option is available as a filter criterion under 'Priority', indicating orders can be associated with this group.",
+    "No explicit 'groomsmen portal features' or tools for managing individual groomsmen within a wedding party are present.",
+    "There are no visible 'navigation options to other portals' (e.g., customer, groomsmen, or partner portals) on this page; primary navigation is limited to 'Health Check', 'Refresh', and 'Sign Out' within the dashboard.",
+    "The dashboard's primary function is internal order tracking and management."
+  ],
+  "relevant_links": [],
+  "file_name": "kct_menswear_order_dashboard.json"
+}
+```

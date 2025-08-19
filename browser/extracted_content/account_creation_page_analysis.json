@@ -1,0 +1,23 @@
+📄 Extracted from page: groomsmen-portal-unified-auth
+URL: https://2wphf7fjxqxb.space.minimax.io/login
+
+Extracted content:
+```json
+{
+    "title": "groomsmen-portal-unified-auth",
+    "url": "https://2wphf7fjxqxb.space.minimax.io/login",
+    "summary": "This page displays an account creation form. It prompts the user for First Name, Last Name, Phone Number, Email, Password, and Confirm Password. There are no error messages, validation feedback, or system responses visible on this specific page content related to an account creation attempt. The content appears to be the initial form before any submission or processing.",
+    "key_points": [
+        "The page is an account creation form.",
+        "Fields for account creation include First Name, Last Name, Phone Number, Email, Password, and Confirm Password.",
+        "A 'Create Account' button is present.",
+        "No error messages, validation feedback, or system responses regarding an account creation attempt are displayed on the page.",
+        "Links to 'Back' and 'Sign in' are available."
+    ],
+    "relevant_links": [
+        "Back",
+        "Sign in"
+    ],
+    "file_name": "account_creation_page_analysis.json"
+}
+```

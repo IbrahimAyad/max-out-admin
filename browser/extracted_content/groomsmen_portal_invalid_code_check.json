@@ -1,0 +1,24 @@
+📄 Extracted from page: groomsmen-portal-unified-auth
+URL: https://2wphf7fjxqxb.space.minimax.io/invitation
+
+Extracted content:
+```json
+{
+  "title": "groomsmen-portal-unified-auth",
+  "url": "https://2wphf7fjxqxb.space.minimax.io/invitation",
+  "summary": "The page is a 'Wedding Party Portal' by KCT Menswear, designed for users to enter an invitation code to access their personalized wedding experience. It features an input field for the invitation code and a 'Continue' button. Based on the provided page content, there are no visible error messages, validation feedback, or specific responses displayed after submitting an invalid invitation code like 'INVALID123', as the content represents the initial state of the form before any submission.",
+  "key_points": [
+    "The page is titled 'Wedding Party Portal' and belongs to 'KCT Menswear'.",
+    "Users are prompted to 'Enter your invitation code to access your personalized wedding experience'.",
+    "There is an 'Invitation Code' input field with a hint 'Check your invitation email for the code'.",
+    "A 'Continue' button is available for submission.",
+    "Navigation/information links include 'Your Outfit' and 'Timeline'.",
+    "A 'Need help? Contact your wedding coordinator' link/text is present.",
+    "The provided page content does not include any error messages, validation feedback, or post-submission responses that would appear after entering an invalid code; it only shows the initial form display."
+  ],
+  "relevant_links": [
+    "Need help? Contact your wedding coordinator"
+  ],
+  "file_name": "groomsmen_portal_invalid_code_check.json"
+}
+```

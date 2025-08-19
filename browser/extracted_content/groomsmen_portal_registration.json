@@ -1,0 +1,25 @@
+📄 Extracted from page: groomsmen-portal-unified-auth
+URL: https://2wphf7fjxqxb.space.minimax.io/login
+
+Extracted content:
+```json
+{
+  "title": "groomsmen-portal-unified-auth",
+  "url": "https://2wphf7fjxqxb.space.minimax.io/login",
+  "summary": "This page is a 'Create Account' registration form for a 'groomsmen portal'. It prompts users to enter personal details and set up account credentials to join the wedding party portal. There are standard fields for user registration but no explicit invitation code field.",
+  "key_points": [
+    "The page is a user registration form titled 'Create Account'.",
+    "It is for joining a 'wedding party portal'.",
+    "Required fields for account creation include: First Name, Last Name, Phone Number, Email, Password, and Confirm Password.",
+    "Authentication requirements include providing an Email and setting a Password.",
+    "There is no visible invitation code field on this registration page.",
+    "A 'Create Account' button submits the form.",
+    "A link is provided for users who 'Already have an account?' to 'Sign in'."
+  ],
+  "relevant_links": [
+    "Back (navigation)",
+    "Sign in (for existing accounts)"
+  ],
+  "file_name": "groomsmen_portal_registration.json"
+}
+```

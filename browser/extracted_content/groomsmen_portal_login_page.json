@@ -1,0 +1,26 @@
+📄 Extracted from page: groomsmen-portal-unified-auth
+URL: https://2wphf7fjxqxb.space.minimax.io/login
+
+Extracted content:
+```json
+{
+    "title": "groomsmen-portal-unified-auth",
+    "url": "https://2wphf7fjxqxb.space.minimax.io/login",
+    "summary": "This page functions as a login portal for a 'Groomsmen Portal Unified Auth' system, designed to allow users to 'Access your wedding dashboard'. It features a standard sign-in form with fields for Email and Password, a Sign In button, and an option for new users to sign up. There's also a navigation link to go back.",
+    "key_points": [
+        "Login page titled 'Sign In'",
+        "Purpose: Access a 'wedding dashboard'",
+        "Input field for 'Email'",
+        "Input field for 'Password'",
+        "Button: 'Sign In'",
+        "Link: 'Need an account? Sign up'",
+        "Navigation link: 'Back'",
+        "Attribution: 'Created by MiniMax Agent'"
+    ],
+    "relevant_links": [
+        "Back",
+        "Sign up"
+    ],
+    "file_name": "groomsmen_portal_login_page.json"
+}
+```

@@ -1,0 +1,20 @@
+📄 Extracted from page: couples-portal-unified-auth
+URL: https://610bor6wybd6.space.minimax.io/
+
+Extracted content:
+```json
+{
+  "title": "couples-portal-unified-auth",
+  "url": "https://610bor6wybd6.space.minimax.io/",
+  "summary": "The KCT Wedding Portal offers authentication options for accessing a wedding coordination portal. Users can log in either by entering a specific wedding code provided by KCT Menswear or by using an 'Existing Account' option, although no further details about the 'Existing Account' login method (e.g., username/password fields) are visible on this page. The portal's primary purpose is described as 'wedding coordination' and it is powered by KCT Menswear.",
+  "key_points": [
+    "Two primary login methods are available: 'Wedding Code' and 'Existing Account'.",
+    "Users must 'Enter the wedding code provided by KCT Menswear' to log in via the wedding code method.",
+    "The format of the wedding code (e.g., alphanumeric, length) is not specified.",
+    "The portal is branded as the 'KCT Wedding Portal' and a 'Wedding Coordination Portal'.",
+    "The portal is 'Powered by KCT Menswear', indicating it's likely for their clients or related services."
+  ],
+  "relevant_links": [],
+  "file_name": "kct_wedding_portal_auth_details.json"
+}
+```

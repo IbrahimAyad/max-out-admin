@@ -18,7 +18,13 @@ export function AdminLogin() {
     clearError()
 
     try {
-      await signIn(email, password)
+      console.log('Attempting login with:', email)
+      const response = await signIn(email, password)
+      console.log('Login response:', response)
+      
+      if (!response.success) {
+        console.error('Login failed:', response.error)
+      }
     } catch (error) {
       console.error('Login error:', error)
     } finally {

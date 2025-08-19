@@ -149,7 +149,7 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('inventory')
   const { unreadNotifications } = useAdminQueries()
 
   const unreadCount = unreadNotifications.data?.data.length || 0

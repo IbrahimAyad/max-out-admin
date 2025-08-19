@@ -24,21 +24,21 @@ export function DashboardOverview() {
     },
     {
       title: "Today's Orders",
-      value: overviewData?.todayOrdersCount.toString() || '0',
+      value: overviewData && overviewData.todayOrdersCount !== undefined ? overviewData.todayOrdersCount.toString() : '0',
       icon: ShoppingCart,
       color: 'bg-blue-500',
       textColor: 'text-blue-600'
     },
     {
       title: 'Pending Orders',
-      value: overviewData?.pendingOrdersCount.toString() || '0',
+      value: overviewData && overviewData.pendingOrdersCount !== undefined ? overviewData.pendingOrdersCount.toString() : '0',
       icon: Clock,
       color: 'bg-orange-500',
       textColor: 'text-orange-600'
     },
     {
       title: 'Urgent Alerts',
-      value: overviewData?.urgentNotificationsCount.toString() || '0',
+      value: overviewData && overviewData.urgentNotificationsCount !== undefined ? overviewData.urgentNotificationsCount.toString() : '0',
       icon: AlertTriangle,
       color: 'bg-red-500',
       textColor: 'text-red-600'
@@ -55,21 +55,21 @@ export function DashboardOverview() {
     },
     {
       title: 'Weekly Orders',
-      value: statsData?.weeklyOrdersCount.toString() || '0',
+      value: statsData && statsData.weeklyOrdersCount !== undefined ? statsData.weeklyOrdersCount.toString() : '0',
       icon: ShoppingCart,
       color: 'bg-indigo-500',
       textColor: 'text-indigo-600'
     },
     {
       title: 'Total Customers',
-      value: statsData?.totalCustomers.toString() || '0',
+      value: statsData && statsData.totalCustomers !== undefined ? statsData.totalCustomers.toString() : '0',
       icon: Users,
       color: 'bg-teal-500',
       textColor: 'text-teal-600'
     },
     {
       title: 'Processing Queue',
-      value: statsData?.processingQueueLength.toString() || '0',
+      value: statsData && statsData.processingQueueLength !== undefined ? statsData.processingQueueLength.toString() : '0',
       icon: Clock,
       color: 'bg-amber-500',
       textColor: 'text-amber-600'

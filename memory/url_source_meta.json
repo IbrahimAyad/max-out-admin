@@ -1,5 +1,5 @@
 {
-  "_source_id": 32,
+  "_source_id": 47,
   "sources": {
     "Mobile Admin Interface Design Patterns Research": {
       "https://medium.com/@CarlosSmith24/admin-dashboard-ui-ux-best-practices-for-2025-8bdc6090c57d": {
@@ -229,6 +229,113 @@
         "url": "https://medium.com/design-bootcamp/wireframe-exploration-decoding-the-farfetch-apps-search-flow-9a20d876bf73",
         "title": "Wireframe exploration: decoding the Farfetch app's search flow",
         "info": "Wireframing analysis of Farfetch app's search flow covering user journey from home screen through search, product details, cart, and login. Highlights intuitive, minimalist, user-centric design with search bar placement at bottom, personalized recommendations, comprehensive product details, and minimalist black/white aesthetic suitable for luxury fashion e-commerce."
+      }
+    },
+    "Order Management Application Technical Documentation": {
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/App.tsx": {
+        "id": 33,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/App.tsx",
+        "title": "Order Management Main Application Component",
+        "info": "Main App.tsx component handling authentication, user state management, and routing between login and dashboard views with real-time auth state changes"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrderManagementDashboard.tsx": {
+        "id": 34,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrderManagementDashboard.tsx",
+        "title": "Order Management Dashboard Component",
+        "info": "Core dashboard component managing orders list, filtering, status updates, health checking, and routing to order details with comprehensive order data fetching and state management"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrderDetails.tsx": {
+        "id": 35,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrderDetails.tsx",
+        "title": "Order Details Management Component",
+        "info": "Comprehensive order details view with tabbed interface for order information, shipping management, and email management with real-time updates and status management"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/ShippingManager.tsx": {
+        "id": 36,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/ShippingManager.tsx",
+        "title": "Shipping Management Component",
+        "info": "Complete shipping workflow management including package templates, rate calculation, label generation, and tracking with EasyPost integration and progress tracking"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/EmailManager.tsx": {
+        "id": 37,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/EmailManager.tsx",
+        "title": "Email Management and Communication System",
+        "info": "Comprehensive email management with automated order communications, manual email sending, template management, and email log tracking using SendGrid integration"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/DashboardStats.tsx": {
+        "id": 38,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/DashboardStats.tsx",
+        "title": "Dashboard Statistics and Analytics",
+        "info": "Dashboard analytics component calculating and displaying key order metrics including total orders, revenue, processing status, and rush order counts with real-time calculations"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrdersTable.tsx": {
+        "id": 39,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/OrdersTable.tsx",
+        "title": "Orders Table Display Component",
+        "info": "Orders table component displaying order listing with status management, priority indicators, customer information, and quick status updates with comprehensive order visualization"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/shared/supabase/migrations/20250817200705_order_processing_workflow.sql": {
+        "id": 40,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/shared/supabase/migrations/20250817200705_order_processing_workflow.sql",
+        "title": "Order Processing Database Schema",
+        "info": "Comprehensive database schema for order processing workflow including orders, order items, status history, communication logs, priority queue, exception handling, and processing analytics with full relationships and triggers"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/types/order.ts": {
+        "id": 41,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/types/order.ts",
+        "title": "Order Management Type Definitions",
+        "info": "TypeScript type definitions for all order-related entities including orders, order items, status enums, priority levels, shipping interfaces, tracking information, and dashboard statistics"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/lib/supabase.ts": {
+        "id": 42,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/lib/supabase.ts",
+        "title": "Supabase Integration and Configuration",
+        "info": "Supabase client configuration and authentication utilities with order status mappings, priority labels, color schemes, and current user management functions"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/utils/formatting.ts": {
+        "id": 43,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/utils/formatting.ts",
+        "title": "Order Management Formatting Utilities",
+        "info": "Formatting utilities for dates, currency, order status colors and labels, and priority indicators with comprehensive styling and display functions"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/ShippingRateCalculator.tsx": {
+        "id": 44,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/ShippingRateCalculator.tsx",
+        "title": "Shipping Rate Calculator",
+        "info": "Shipping rate calculation component integrating with EasyPost API for real-time shipping rate quotes with address validation and rate selection functionality"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/TrackingDisplay.tsx": {
+        "id": 45,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/TrackingDisplay.tsx",
+        "title": "Package Tracking Display",
+        "info": "Package tracking display component providing real-time tracking information with event history, status updates, and delivery estimates using external tracking APIs"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/SystemHealthChecker.tsx": {
+        "id": 46,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/src/components/SystemHealthChecker.tsx",
+        "title": "System Health Checker",
+        "info": "System health monitoring component with automated health checks for database connectivity, external service availability, and system performance metrics"
+      },
+      "file:///workspace/kct-ecosystem-monorepo/apps/order-management/package.json": {
+        "id": 47,
+        "publisher": "KCT Ecosystem Monorepo",
+        "url": "file:///workspace/kct-ecosystem-monorepo/apps/order-management/package.json",
+        "title": "Order Management Package Configuration",
+        "info": "Project configuration including React, TypeScript, Vite build setup with comprehensive UI component library dependencies, Supabase integration, and development tools"
       }
     }
   }

@@ -1,0 +1,9 @@
+# Security Contact Information
+# This file provides security contact information for KCT Inventory Management
+
+Contact: admin@kctmenswear.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: Please use our contact form for secure communication
+Acknowledgments: We appreciate responsible disclosure of security vulnerabilities
+Preferred-Languages: en
+Canonical: https://zcelcf8f3ggd.space.minimax.io/.well-known/security.txt

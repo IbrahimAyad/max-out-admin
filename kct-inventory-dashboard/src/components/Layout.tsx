@@ -37,17 +37,18 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
       {/* Sidebar */}
-      <div className="flex-shrink-0">
+      <aside className="flex-shrink-0" role="complementary" aria-label="Sidebar navigation">
         <div className="flex flex-col w-64">
           {/* Sidebar header */}
-          <div className="flex items-center h-16 flex-shrink-0 px-4 bg-white border-r border-gray-200">
-            <Package className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900">KCT Menswear</span>
-          </div>
+          <header className="flex items-center h-16 flex-shrink-0 px-4 bg-white border-r border-gray-200">
+            <Package className="h-8 w-8 text-blue-600" aria-hidden="true" />
+            <h1 className="ml-2 text-xl font-bold text-gray-900">KCT Menswear</h1>
+            <span className="sr-only">Admin Dashboard</span>
+          </header>
           
           {/* Navigation */}
           <div className="flex-1 flex flex-col overflow-y-auto bg-white border-r border-gray-200">
-            <nav className="flex-1 px-2 py-4 space-y-1">
+            <nav className="flex-1 px-2 py-4 space-y-1" role="navigation" aria-label="Main navigation">
               {navigation.map((item) => {
                 const Icon = item.icon
                 return (
@@ -59,11 +60,13 @@ export function Layout({ children }: LayoutProps) {
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
+                    aria-current={item.current ? 'page' : undefined}
                   >
                     <Icon
                       className={`mr-3 flex-shrink-0 h-6 w-6 ${
                         item.current ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-500'
                       }`}
+                      aria-hidden="true"
                     />
                     {item.name}
                   </a>
@@ -72,26 +75,30 @@ export function Layout({ children }: LayoutProps) {
             </nav>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* Main content area */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top header */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200">
+        <header className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200" role="banner">
           <button
             type="button"
             className="px-4 border-r border-gray-200 text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
+            aria-label="Open sidebar"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
           
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1" />
             
             {/* User menu */}
-            <div className="flex items-center space-x-4">
-              <button className="text-gray-400 hover:text-gray-500">
-                <Bell className="h-6 w-6" />
+            <div className="flex items-center space-x-4" role="region" aria-label="User menu">
+              <button 
+                className="text-gray-400 hover:text-gray-500"
+                aria-label="View notifications"
+              >
+                <Bell className="h-6 w-6" aria-hidden="true" />
               </button>
               
               <div className="flex items-center space-x-3">
@@ -99,16 +106,24 @@ export function Layout({ children }: LayoutProps) {
                   <p className="text-sm font-medium text-gray-900">kct.admin@business.com</p>
                   <p className="text-xs text-gray-500">Administrator</p>
                 </div>
-                <button className="text-gray-400 hover:text-gray-500">
-                  <LogOut className="h-5 w-5" />
+                <button 
+                  className="text-gray-400 hover:text-gray-500"
+                  aria-label="Logout"
+                >
+                  <LogOut className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Page content */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
+        <main 
+          id="main-content" 
+          className="flex-1 relative overflow-y-auto focus:outline-none" 
+          role="main"
+          aria-label="Main content"
+        >
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               {children}

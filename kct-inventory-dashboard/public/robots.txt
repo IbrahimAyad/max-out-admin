@@ -1,0 +1,17 @@
+# KCT Inventory Management - Admin Dashboard
+# This is a private admin interface - no indexing allowed
+
+User-agent: *
+Disallow: /
+
+# Block all crawlers from accessing the admin dashboard
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+# No sitemap provided as this is a private admin tool

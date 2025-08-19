@@ -1,11 +1,67 @@
+import { useEffect } from 'react'
 import { EnhancedProductsPage } from './components/EnhancedProductsPage'
 import { Layout } from './components/Layout'
 
 function App() {
+  useEffect(() => {
+    // Set up structured data for the admin dashboard
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "KCT Inventory Management",
+      "description": "Professional inventory management system for KCT Menswear",
+      "url": "https://zcelcf8f3ggd.space.minimax.io",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "permissions": "private",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "KCT Menswear"
+      }
+    }
+
+    // Add structured data to head
+    const script = document.createElement('script')
+    script.type = 'application/ld+json'
+    script.textContent = JSON.stringify(structuredData)
+    document.head.appendChild(script)
+
+    // Set dynamic page title based on current view
+    document.title = 'Inventory Management | KCT Admin Hub'
+
+    // Add canonical URL
+    const canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    canonical.href = 'https://zcelcf8f3ggd.space.minimax.io'
+    document.head.appendChild(canonical)
+
+    return () => {
+      // Cleanup
+      document.head.removeChild(script)
+      document.head.removeChild(canonical)
+    }
+  }, [])
+
   return (
-    <Layout>
-      <EnhancedProductsPage />
-    </Layout>
+    <>
+      {/* Main Application */}
+      <Layout>
+        <EnhancedProductsPage />
+      </Layout>
+      
+      {/* Accessibility Skip Link */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 z-50 bg-blue-600 text-white p-2 rounded"
+      >
+        Skip to main content
+      </a>
+    </>
   )
 }
 

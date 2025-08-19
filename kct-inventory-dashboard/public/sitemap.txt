@@ -1,0 +1,4 @@
+# Sitemap for KCT Inventory Management
+# This is a private admin tool - no public sitemap needed
+
+# Admin interfaces should not be indexed by search engines

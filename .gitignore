@@ -88,3 +88,21 @@ temp/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Debug and Test Reports (NEVER COMMIT THESE - CONTAIN SENSITIVE INFO)
+*debug_report*.md
+*test_report*.md
+*_testing_*.md
+*security_test*.md
+login_testing_debug_report.md
+admin_hub_security_test_report.md
+
+# Shell output and temporary files
+shell_output_save/
+*.tmp
+*.temp
+
+# Any files containing tokens or keys
+*token*.txt
+*key*.txt
+*secret*.txt

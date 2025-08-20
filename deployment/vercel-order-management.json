@@ -1,0 +1,29 @@
+{
+  "name": "kct-order-management",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/order-management/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/order-management/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/order-management && npm run build",
+  "outputDirectory": "apps/order-management/dist",
+  "installCommand": "cd apps/order-management && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

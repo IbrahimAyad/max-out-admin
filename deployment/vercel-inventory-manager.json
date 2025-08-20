@@ -1,0 +1,29 @@
+{
+  "name": "kct-inventory-manager",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/inventory-manager/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/inventory-manager/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/inventory-manager && npm run build",
+  "outputDirectory": "apps/inventory-manager/dist",
+  "installCommand": "cd apps/inventory-manager && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

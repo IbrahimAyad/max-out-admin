@@ -1,0 +1,45 @@
+{
+  "name": "kct-ecosystem",
+  "version": "1.0.0",
+  "description": "KCT Menswear Complete Ecosystem - Monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:admin": "cd apps/admin-hub && npm run dev",
+    "dev:inventory": "cd apps/inventory-manager && npm run dev",
+    "dev:wedding": "cd apps/wedding-portal && npm run dev",
+    "dev:groomsmen": "cd apps/groomsmen-portal && npm run dev",
+    "dev:orders": "cd apps/order-management && npm run dev",
+    "dev:profiles": "cd apps/user-profiles && npm run dev",
+    "build:all": "npm run build:admin && npm run build:inventory && npm run build:wedding && npm run build:groomsmen && npm run build:orders && npm run build:profiles",
+    "build:admin": "cd apps/admin-hub && npm run build",
+    "build:inventory": "cd apps/inventory-manager && npm run build",
+    "build:wedding": "cd apps/wedding-portal && npm run build",
+    "build:groomsmen": "cd apps/groomsmen-portal && npm run build",
+    "build:orders": "cd apps/order-management && npm run build",
+    "build:profiles": "cd apps/user-profiles && npm run build",
+    "install:all": "npm run install:admin && npm run install:inventory && npm run install:wedding && npm run install:groomsmen && npm run install:orders && npm run install:profiles",
+    "install:admin": "cd apps/admin-hub && npm install",
+    "install:inventory": "cd apps/inventory-manager && npm install",
+    "install:wedding": "cd apps/wedding-portal && npm install",
+    "install:groomsmen": "cd apps/groomsmen-portal && npm install",
+    "install:orders": "cd apps/order-management && npm install",
+    "install:profiles": "cd apps/user-profiles && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IbrahimAyad/max-out-admin.git"
+  },
+  "author": "MiniMax Agent",
+  "license": "MIT"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "kct-admin-hub",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/admin-hub/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/admin-hub/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/admin-hub && npm run build",
+  "outputDirectory": "apps/admin-hub/dist",
+  "installCommand": "cd apps/admin-hub && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

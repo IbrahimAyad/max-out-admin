@@ -1,0 +1,29 @@
+{
+  "name": "kct-groomsmen-portal",
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/groomsmen-portal/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/apps/groomsmen-portal/dist/$1"
+    }
+  ],
+  "buildCommand": "cd apps/groomsmen-portal && npm run build",
+  "outputDirectory": "apps/groomsmen-portal/dist",
+  "installCommand": "cd apps/groomsmen-portal && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

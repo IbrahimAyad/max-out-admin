@@ -5,28 +5,28 @@
         "id": "1",
         "content": "Set up comprehensive test data in Supabase",
         "details": "1. Add test wedding data with wedding code for Wedding Portal testing. 2. Create test user profiles for Enhanced User Profiles system. 3. Add any other necessary test data for all 6 applications",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Fix routing issues in Order Management application",
         "details": "Investigate and fix why Order Management redirects to Inventory Manager instead of showing its own interface after login",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Fix routing issues in Admin Hub application",
         "details": "Investigate and fix why Admin Hub redirects to Inventory Manager instead of showing its own interface after login",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "4": {
         "id": "4",
         "content": "Create comprehensive test credentials documentation",
         "details": "Document all test login credentials and testing procedures for each application",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       }
     }

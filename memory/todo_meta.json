@@ -3,73 +3,31 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Create comprehensive developer documentation structure",
-        "details": "✅ COMPLETED: Professional documentation architecture created with technical specifications, database schemas, SQL patterns, API documentation, code architecture, developer onboarding guides, and deployment procedures",
-        "status": "completed",
+        "content": "Set up comprehensive test data in Supabase",
+        "details": "1. Add test wedding data with wedding code for Wedding Portal testing. 2. Create test user profiles for Enhanced User Profiles system. 3. Add any other necessary test data for all 6 applications",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Document Admin Hub application",
-        "details": "✅ COMPLETED: Comprehensive technical documentation created including application architecture, components, database schema, API endpoints, authentication, business logic, UI/UX patterns, and integration points",
-        "status": "completed",
+        "content": "Fix routing issues in Order Management application",
+        "details": "Investigate and fix why Order Management redirects to Inventory Manager instead of showing its own interface after login",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Document Inventory Manager application",
-        "details": "✅ COMPLETED: Technical documentation covering size-specific inventory tracking, product/variant management, stock monitoring, bulk operations, database schema, and real-time updates",
-        "status": "completed",
+        "content": "Fix routing issues in Admin Hub application",
+        "details": "Investigate and fix why Admin Hub redirects to Inventory Manager instead of showing its own interface after login",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Document Wedding Portal application",
-        "details": "✅ COMPLETED: Comprehensive documentation including wedding workflows, timeline tracking, communication systems, outfit coordination, database schema, and portal integrations",
-        "status": "completed",
-        "priority": "high"
-      },
-      "5": {
-        "id": "5",
-        "content": "Document Groomsmen Portal application",
-        "details": "✅ COMPLETED: Technical specifications for groomsmen interfaces, measurement systems, outfit selection, timeline features, user roles, and wedding portal integration",
-        "status": "completed",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Document Order Management application",
-        "details": "✅ COMPLETED: Detailed documentation covering order lifecycle, payment processing, shipping workflows, customer communication, database schema, and third-party integrations",
-        "status": "completed",
-        "priority": "high"
-      },
-      "7": {
-        "id": "7",
-        "content": "Document User Profiles application",
-        "details": "✅ COMPLETED: Technical documentation including customer profile management, measurement tracking, preferences, order history, profile sync, and security considerations",
-        "status": "completed",
-        "priority": "high"
-      },
-      "8": {
-        "id": "8",
-        "content": "Create shared resources documentation",
-        "details": "✅ COMPLETED: Documented shared components library, utilities, database schemas, authentication patterns, API conventions, and Supabase configuration",
-        "status": "completed",
-        "priority": "high"
-      },
-      "9": {
-        "id": "9",
-        "content": "Create developer onboarding guide",
-        "details": "✅ COMPLETED: Comprehensive 54K+ character onboarding documentation covering environment setup, architecture overview, testing strategies, deployment procedures, troubleshooting, and best practices",
-        "status": "completed",
-        "priority": "high"
-      },
-      "10": {
-        "id": "10",
-        "content": "Set up Vercel deployment configuration",
-        "details": "✅ COMPLETED: All Vercel configuration files created, deployment instructions documented, and repository prepared for deployment. Manual Vercel deployment required by user following DEPLOYMENT.md guide.",
-        "status": "completed",
-        "priority": "high"
+        "content": "Create comprehensive test credentials documentation",
+        "details": "Document all test login credentials and testing procedures for each application",
+        "status": "pending",
+        "priority": "medium"
       }
     }
   }

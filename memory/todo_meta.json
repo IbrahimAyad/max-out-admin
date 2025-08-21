@@ -3,64 +3,36 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Investigate and fix suits variants data integrity issue",
-        "details": "✅ **COMPLETED!** All 13 suits now have correct variants:\n\n**Fixed Missing Variants (created 20 each):**\n- Black Suit: 0 → 20 Black variants\n- Classic Navy Suit: 0 → 20 Navy variants  \n- Navy Suit: 0 → 20 Navy variants\n\n**Fixed Color Mapping:**\n- Fall Rust: 'Classic' → 'Brown' (20 variants)\n- Mint: 'Classic' → 'Green' (20 variants)\n- Brick Fall Suit: 'Classic' → 'Brown' (20 variants)\n\n**Summary**: All 13 suits now have 20 properly color-matched variants each. The suits data integrity issue is completely resolved.",
-        "status": "completed",
+        "content": "Database Schema Implementation",
+        "details": "Create vendor mirror tables (vendor_products, vendor_variants, vendor_images, vendor_inventory_levels), import decision tracking, product overrides, and live inventory views. Add vendor mapping columns to existing product_variants table.",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Investigate and fix vests variants data integrity issue",
-        "details": "FINDINGS: No vest products exist in the database. Available categories are: Accessories, Blazers, Double-Breasted Suits, Dress Shirts, Formalwear, Mens Shirts, Shirts, Stretch Suits, Suits, Suspenders, Tuxedos.\nSTATUS: No action needed for vests.",
-        "status": "completed",
+        "content": "Shopify API Integration Routes",
+        "details": "Implement 6 API routes: /api/vendor-shopify/sync (GraphQL catalog), /api/vendor-shopify/inventory (REST inventory), /api/vendor-shopify/webhooks (HMAC verified), /api/vendor-shopify/import (selective import), /api/product-overrides (admin edits), /api/checkout/validate (stock validation)",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Diagnose and fix 401 authentication error in product management",
-        "details": "✅ **ANALYSIS COMPLETE:** AI chatbot infrastructure exists but needs product tagging!\n\n**WHAT'S WORKING:**\n- Full chatbot system: `chat_contexts`, `chat_orders` tables ready\n- 57 product recommendations exist\n- 17 active smart collections (6 populated with 358+ product placements)\n- All 183 products have descriptions and categories\n- Analytics infrastructure ready\n\n**CRITICAL ISSUE:** Only 5/183 products have tags needed for AI chatbot!\n- Tags required for: color matching, occasion filtering, style preferences\n- Current tagged products show pattern: colors, occasions, materials, types\n\n**SOLUTION:** Bulk add comprehensive tags to 178 remaining products based on product names and categories.",
-        "status": "in_progress",
+        "content": "Admin Dashboard - Vendor Inbox UI",
+        "details": "Create new 'Vendor Inbox' card showing count from v_vendor_inbox_count view. Build click-through table displaying vendor products with multi-select import functionality, stage/skip actions, and live inventory display.",
+        "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Investigate existing database schema for analytics and collections",
-        "details": "FINDINGS: Comprehensive analytics and AI infrastructure already exists!\n\n**Analytics Tables (ready but empty):**\n- analytics_page_views: tracks page visits, time spent, bounce rates\n- analytics_product_performance: tracks views, add-to-cart, purchases, revenue, conversion rates\n- analytics_events: general event tracking\n- user_interactions: user behavior tracking\n\n**Collections & AI (ready, 10 collections defined but not populated):**\n- smart_collections: 10 collections including AI-powered 'Trending Now' and 'Complete Your Look'\n- product_recommendations: comprehensive recommendation tracking with scores and reasons\n- collection_products: links products to collections\n\n**Status:** Infrastructure exists but needs activation - analytics tracking needs to be enabled in UI and collections need to be populated with products.",
-        "status": "completed",
-        "priority": "high"
-      },
-      "5": {
-        "id": "5",
-        "content": "Implement AI-powered product recommendations system",
-        "details": "Create intelligent recommendation engine that can suggest products based on user behavior, product similarities, and purchase patterns",
-        "status": "pending",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Build custom collections management system",
-        "details": "Implement functionality for creating and managing custom product collections, both manually curated and AI-generated",
-        "status": "pending",
-        "priority": "high"
-      },
-      "7": {
-        "id": "7",
-        "content": "Add analytics tracking for views and clicks",
-        "details": "Implement comprehensive analytics system to track product views, clicks, user engagement, and generate insights",
-        "status": "pending",
-        "priority": "high"
-      },
-      "8": {
-        "id": "8",
-        "content": "Develop analytics dashboard and UI components",
-        "details": "Create user interface for viewing analytics, managing collections, and displaying AI recommendations",
+        "content": "Real-Time Inventory & Checkout Integration",
+        "details": "Integrate live vendor inventory into existing product pages and checkout flow. Implement inventory reservations to prevent overselling during checkout process.",
         "status": "pending",
         "priority": "medium"
       },
-      "9": {
-        "id": "9",
-        "content": "Test and verify all fixes and new features",
-        "details": "Confirm that suits/vests show correct variants, manual product updates work, analytics tracking functions, and AI recommendations are working properly",
+      "5": {
+        "id": "5",
+        "content": "Automation & Security Setup",
+        "details": "Set up cron jobs (nightly catalog sync, 15-min inventory sync), implement webhook security (HMAC verification), add admin auth protection to all API routes, and configure environment variables.",
         "status": "pending",
         "priority": "medium"
       }

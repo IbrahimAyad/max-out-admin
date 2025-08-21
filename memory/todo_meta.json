@@ -3,29 +3,29 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Fix RLS policies for database access",
-        "details": "✅ COMPLETED: Fixed 401 errors by implementing clean RLS policies for products and enhanced_product_variants tables. Public can view, authenticated users can manage.",
-        "status": "completed",
+        "content": "Investigate and fix suits variants data integrity issue",
+        "details": "Apply the same color-matching variant fix we used for blazers to all suit products, ensuring each suit product only shows variants that match its primary color",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Build professional ecom CRUD system for inventory management",
-        "details": "✅ COMPLETED: Built enterprise-grade inventory management system with: 1) 5-step product creation wizard with smart variant generation, 2) Professional editing interface with inline capabilities, 3) Advanced image upload and management system, 4) Modern data tables with filtering/search, 5) Bulk operations and CSV import/export, 6) Professional UI/UX that rivals Shopify/BigCommerce admin panels. Deployed with full functionality.",
-        "status": "completed",
+        "content": "Investigate and fix vests variants data integrity issue",
+        "details": "Apply the same color-matching variant fix we used for blazers to all vest products, ensuring each vest product only shows variants that match its primary color",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Fix admin-hub routing navigation",
-        "details": "Update navigation tiles in admin-hub to point to correct Vercel app URLs instead of localhost",
+        "content": "Diagnose and fix 401 authentication error in product management",
+        "details": "Investigate the 401 error occurring when users try to update and save products manually. Check API endpoints, authentication tokens, and Supabase RLS policies",
         "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Complete remaining V1 launch tasks",
-        "details": "Edge functions fixes, CORS headers, app-specific fixes for order-management, user-profiles, wedding-portal, and ENV.md documentation",
+        "content": "Test and verify all fixes are working properly",
+        "details": "Confirm that suits and vests show correct variants, and that manual product updates work without authentication errors",
         "status": "pending",
         "priority": "medium"
       }

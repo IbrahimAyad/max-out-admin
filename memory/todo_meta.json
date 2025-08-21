@@ -3,30 +3,37 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Implement Selective Product Import System",
-        "details": "Build the import functionality to move selected products from vendor_* tables to main products table with full data transfer including images, while maintaining vendor inventory sync",
-        "status": "completed",
+        "content": "Fix Inventory Refresh Rate Limiting (HTTP 429)",
+        "details": "Implement batched inventory refresh with queue system, retry logic with exponential backoff, rate limit handling, and progress tracking to handle 50+ product refreshes without errors",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Enhance Vendor Inbox UI for Import Selection",
-        "details": "Add multi-select checkboxes, import button, and product preview functionality to the vendor inbox interface",
-        "status": "completed",
+        "content": "Implement Robust Image Processing Pipeline",
+        "details": "Build complete image ingest pipeline with R2 Worker integration, status tracking, retry mechanisms, and background processing to ensure all imported products get their images within 2-5 minutes",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Implement Professional Inventory Sync Strategy",
-        "details": "Create both scheduled sync (twice weekly) and manual refresh button for inventory updates with vendor stock levels",
-        "status": "completed",
+        "content": "Enhance User Feedback & Progress Tracking",
+        "details": "Add comprehensive toast notifications, progress bars for inventory refresh and image processing, and audit logging with timestamps for all operations",
+        "status": "pending",
         "priority": "medium"
       },
       "4": {
         "id": "4",
-        "content": "Fix Critical Import System Issues",
-        "details": "1. CORS errors on inventory sync endpoints 2. Missing images during import 3. Import button disappearing on bulk selection 4. No success feedback/notifications 5. Inventory data not syncing to main product table 6. Add duplicate tracking system",
-        "status": "completed",
+        "content": "Scale-Up Infrastructure for 823+ Products",
+        "details": "Implement chunked background processing, resumable jobs, and pagination to handle full vendor catalog imports efficiently without UI blocking",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "5": {
+        "id": "5",
+        "content": "Final Production Testing & Validation",
+        "details": "Test inventory refresh on 50+ items, verify images appear within 2-5 minutes, and validate bulk import of 100+ products with proper deduplication and error handling",
+        "status": "pending",
         "priority": "high"
       }
     }

@@ -3,59 +3,31 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Fix Cross-App P0 Issues (Foundation)",
-        "details": "1. Set up environment variables for all 6 Vercel projects\n2. Fix RLS policies for products/enhanced_product_variants (allow select for authenticated)\n3. Fix Edge Functions returning 500s (profile-sync, profile-management, email-dispatch, shipping-rate)\n4. Implement proper CORS handling in all Edge Functions\n5. Standardize JSON responses: {ok: boolean, error?: string, data?: any}",
-        "status": "pending",
+        "content": "Fix RLS policies for database access",
+        "details": "✅ COMPLETED: Fixed 401 errors by implementing clean RLS policies for products and enhanced_product_variants tables. Public can view, authenticated users can manage.",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Fix Admin Hub Navigation",
-        "details": "1. Route main tiles to their apps via environment-based URLs\n2. Fix hardcoded localhost links\n3. Implement proper back navigation to hub\n4. Persist last-visited app state",
+        "content": "Build professional ecom CRUD system for inventory management",
+        "details": "Create enterprise-grade inventory management with: 1) Advanced product/variant creation wizards with bulk operations, 2) Professional editing interfaces with validation and preview, 3) Smart deletion with dependency checking, 4) Bulk import/export capabilities, 5) Advanced filtering and search, 6) Inventory tracking and alerts, 7) Professional UI/UX with data tables and forms",
         "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Fix Inventory Manager",
-        "details": "1. Resolve 401 errors on products/enhanced_product_variants\n2. Add pagination (limit 50) for instant loading\n3. Implement graceful empty/error states\n4. Ensure products grid loads in <2s with working filters",
+        "content": "Fix admin-hub routing navigation",
+        "details": "Update navigation tiles in admin-hub to point to correct Vercel app URLs instead of localhost",
         "status": "pending",
         "priority": "high"
       },
       "4": {
         "id": "4",
-        "content": "Fix Order Management",
-        "details": "1. Wire shipping rates button to shipping/rates function\n2. Wire create label button to shipping/create-label function\n3. Implement email dispatch function with plain HTML template\n4. Fix order status updates with optimistic UI\n5. Add admin role auth checks to shipping functions",
-        "status": "pending",
-        "priority": "high"
-      },
-      "5": {
-        "id": "5",
-        "content": "Fix User Profiles",
-        "details": "1. Fix profile loading stuck on 'Loading your profile...'\n2. Auto-create profile row if doesn't exist (server-side with service-role)\n3. Add 5s timeout and retry mechanism\n4. Replace spinner lock with readable error messages and retry button\n5. Ensure 200/4xx responses instead of 500s",
-        "status": "pending",
-        "priority": "high"
-      },
-      "6": {
-        "id": "6",
-        "content": "Fix Wedding Portal (Demo-ready)",
-        "details": "1. Make join call tolerant of profile create failures\n2. Surface exact function errors to UI instead of 500s\n3. Fix profile-sync function to use anon for reads, service-role for writes\n4. Ensure DEMO2025 code works for demo purposes",
+        "content": "Complete remaining V1 launch tasks",
+        "details": "Edge functions fixes, CORS headers, app-specific fixes for order-management, user-profiles, wedding-portal, and ENV.md documentation",
         "status": "pending",
         "priority": "medium"
-      },
-      "7": {
-        "id": "7",
-        "content": "Create ENV.md Documentation",
-        "details": "1. Document all required environment variables\n2. List server vs client variable requirements\n3. Include RLS policy specifications\n4. Document Edge Function contracts",
-        "status": "pending",
-        "priority": "medium"
-      },
-      "8": {
-        "id": "8",
-        "content": "V1 Acceptance Testing",
-        "details": "1. Admin Hub: Navigate to apps and back\n2. Inventory Manager: Products grid loads with filters\n3. Order Management: Rates → Label → Email → Status updates\n4. User Profiles: Sign in → profile loads or shows friendly error\n5. Wedding/Groomsmen: Demo functionality works\n6. All apps respond with proper status codes",
-        "status": "pending",
-        "priority": "high"
       }
     }
   }

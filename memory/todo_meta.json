@@ -3,38 +3,31 @@
     "Coordinator": {
       "1": {
         "id": "1",
-        "content": "Database Schema Implementation",
-        "details": "Create vendor mirror tables (vendor_products, vendor_variants, vendor_images, vendor_inventory_levels), import decision tracking, product overrides, and live inventory views. Add vendor mapping columns to existing product_variants table.",
-        "status": "completed",
+        "content": "Implement Selective Product Import System",
+        "details": "Build the import functionality to move selected products from vendor_* tables to main products table with full data transfer including images, while maintaining vendor inventory sync",
+        "status": "pending",
         "priority": "high"
       },
       "2": {
         "id": "2",
-        "content": "Shopify API Integration Routes",
-        "details": "Implement 6 API routes: /api/vendor-shopify/sync (GraphQL catalog), /api/vendor-shopify/inventory (REST inventory), /api/vendor-shopify/webhooks (HMAC verified), /api/vendor-shopify/import (selective import), /api/product-overrides (admin edits), /api/checkout/validate (stock validation)",
-        "status": "completed",
+        "content": "Enhance Vendor Inbox UI for Import Selection",
+        "details": "Add multi-select checkboxes, import button, and product preview functionality to the vendor inbox interface",
+        "status": "pending",
         "priority": "high"
       },
       "3": {
         "id": "3",
-        "content": "Admin Dashboard - Vendor Inbox UI",
-        "details": "Create new 'Vendor Inbox' card showing count from v_vendor_inbox_count view. Build click-through table displaying vendor products with multi-select import functionality, stage/skip actions, and live inventory display.",
-        "status": "completed",
-        "priority": "high"
+        "content": "Implement Professional Inventory Sync Strategy",
+        "details": "Create both scheduled sync (twice weekly) and manual refresh button for inventory updates with vendor stock levels",
+        "status": "pending",
+        "priority": "medium"
       },
       "4": {
         "id": "4",
-        "content": "Real-Time Inventory & Checkout Integration",
-        "details": "Integrate live vendor inventory into existing product pages and checkout flow. Implement inventory reservations to prevent overselling during checkout process.",
-        "status": "completed",
-        "priority": "medium"
-      },
-      "5": {
-        "id": "5",
-        "content": "Automation & Security Setup",
-        "details": "Edge functions and cron jobs deployed. User needs to add Shopify environment variables to Supabase dashboard to complete automation setup.",
-        "status": "in_progress",
-        "priority": "medium"
+        "content": "Test Import Workflow & Data Integrity",
+        "details": "Verify complete import process works correctly with proper image handling, data mapping, and inventory sync functionality",
+        "status": "pending",
+        "priority": "high"
       }
     }
   }

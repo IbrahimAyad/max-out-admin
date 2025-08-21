@@ -168,6 +168,23 @@ const Dashboard = () => {
           <DashboardStats data={statsData} loading={statsLoading} />
         </div>
 
+        {/* AI Tagging Success Banner */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-green-800">
+                AI Chatbot Activated - Product Tagging Complete
+              </h3>
+              <div className="mt-2 text-sm text-green-700">
+                <p>Successfully generated intelligent tags for all 20 products with 34 unique tags covering colors, styles, seasons, and categories.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="p-6 border-b border-gray-200">

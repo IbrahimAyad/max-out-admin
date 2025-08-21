@@ -220,21 +220,43 @@ const ProductDetails: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* Tags */}
+                {/* Product Tags */}
                 {product.tags && product.tags.length > 0 && (
                   <div className="mt-6">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Tags</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">AI-Generated Tags</h4>
                     <div className="flex flex-wrap gap-2">
-                      {product.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                        >
-                          <Tag className="h-3 w-3 mr-1" />
-                          {tag}
-                        </span>
-                      ))}
+                      {product.tags.map((tag, index) => {
+                        // Color code tags by category
+                        const getTagColor = (tag: string) => {
+                          if (['navy', 'black', 'white', 'grey', 'beige', 'brown', 'burgundy', 'green', 'blue', 'red'].includes(tag)) {
+                            return 'bg-red-100 text-red-800'
+                          }
+                          if (['formal', 'business', 'casual', 'statement', 'classic', 'modern', 'vintage'].includes(tag)) {
+                            return 'bg-blue-100 text-blue-800'
+                          }
+                          if (['spring', 'summer', 'autumn', 'winter'].includes(tag)) {
+                            return 'bg-green-100 text-green-800'
+                          }
+                          if (['slim', 'regular', 'relaxed'].includes(tag)) {
+                            return 'bg-purple-100 text-purple-800'
+                          }
+                          return 'bg-gray-100 text-gray-800'
+                        }
+                        
+                        return (
+                          <span
+                            key={index}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTagColor(tag)}`}
+                          >
+                            <Tag className="h-3 w-3 mr-1" />
+                            {tag}
+                          </span>
+                        )
+                      })}
                     </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {product.tags.length} tags generated for AI chatbot search and filtering
+                    </p>
                   </div>
                 )}
               </div>

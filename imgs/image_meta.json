@@ -1,0 +1,548 @@
+[
+  {
+    "query": "Professional fashion warehouse inventory management scene for business application",
+    "image_info": {
+      "url": "https://pallitegroup.com/wp-content/uploads/2024/08/image-4.png",
+      "file_path": "/workspace/imgs/professional_fashion_ecommerce_warehouse_inventory.jpg",
+      "img_format": "PNG",
+      "mode": "RGB",
+      "file_size": 874750,
+      "width": 1024,
+      "height": 576,
+      "total_pixels": 589824,
+      "basic_score": 0.9128611931012249
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 88.0,
+      "clarity_score": 92.0,
+      "watermark_score": 100.0,
+      "overall_score": 89.0,
+      "explanation": "The image is highly relevant, depicting a fashion warehouse with abundant inventory, suitable for e-commerce and business applications. It clearly shows a professional setting. Clarity is excellent, and there are no watermarks. While it shows inventory, it's more of a static scene than an active 'management' process, which slightly lowers its 'management scene' aspect of the prompt.",
+      "file_name": "professional_fashion_ecommerce_warehouse_inventory.jpg",
+      "caption": "A wide-angle, well-lit photograph inside a professional fashion e-commerce warehouse, showcasing numerous cardboard boxes stacked high with organized clothing inventory, primarily denim jeans and other garments, neatly folded and prepared for distribution. The warehouse features concrete floors and visible metal beams in the ceiling, indicating an industrial setting. Pallets are used to elevate some stacks of boxes, suggesting efficient storage and logistics operations for inventory management.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional fashion warehouse inventory management scene for business application",
+    "image_info": {
+      "url": "http://static1.squarespace.com/static/590eeff5b8a79b2147a783be/590ef147e6f2e1fda30e84c5/660ce9ca3b58b905d9dd9d85/1712124732342/lovall-warehouse-3.jpg?format=1500w",
+      "file_path": "/workspace/imgs/professional_ecommerce_warehouse_inventory.jpg",
+      "img_format": "WEBP",
+      "mode": "RGB",
+      "file_size": 103644,
+      "width": 800,
+      "height": 360,
+      "total_pixels": 288000,
+      "basic_score": 0.7669587041747034
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 75.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 90.0,
+      "explanation": "The image clearly depicts a professional, large-scale warehouse with extensive inventory, highly relevant for e-commerce and inventory management scenes. The clarity, lighting, and composition are excellent, and there are no watermarks. However, it lacks specific visual cues to identify it as a 'fashion' warehouse, making it less precise for that part of the query.",
+      "file_name": "professional_ecommerce_warehouse_inventory.jpg",
+      "caption": "An expansive, brightly lit professional warehouse interior, showcasing rows upon rows of stacked cardboard boxes and organized yellow bins, indicating a large and well-managed inventory. The facility features high ceilings, industrial lighting, and a visible mezzanine level also filled with goods, ideal for illustrating large-scale e-commerce fulfillment or logistics operations.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional fashion warehouse inventory management scene for business application",
+    "image_info": {
+      "url": "https://www.waredock.com/wp-content/uploads/2023/03/BB4FA8E4-8508-4152-AE87-24A3FBA88378.jpeg",
+      "file_path": "/workspace/imgs/professional_warehouse_inventory_storage.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 262750,
+      "width": 980,
+      "height": 603,
+      "total_pixels": 590940,
+      "basic_score": 0.8922923312290496
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 80.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 90.0,
+      "explanation": "The image clearly depicts a professional, well-organized warehouse with abundant inventory, aligning well with the 'warehouse inventory professional' and 'business application' aspects of the query and prompt. However, it lacks specific visual cues that confirm it's for 'fashion' or 'ecommerce,' as the boxes are generic. The image quality is excellent, with high clarity and good composition.",
+      "file_name": "professional_warehouse_inventory_storage.jpg",
+      "caption": "A wide-angle view of a clean, modern warehouse aisle featuring tall, multi-tiered metal shelving units stretching into the distance. The shelves are neatly organized with numerous brown cardboard boxes, many labeled 'FRAGILE' and with barcodes, indicating efficient inventory storage and management. Overhead industrial lighting illuminates the concrete floor and racks, while a faint forklift is visible at the far end of the aisle, suggesting active logistics operations. This scene represents a professional and well-maintained storage facility suitable for various business and e-commerce applications.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional high-quality image of a luxury navy business suit for an enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.bucco.us/wp-content/uploads/2024/04/Wednesday.jpg",
+      "file_path": "/workspace/imgs/luxury-navy-double-breasted-suit-menswear-professional.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 484630,
+      "width": 740,
+      "height": 925,
+      "total_pixels": 684500,
+      "basic_score": 0.9193365185759598
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 95.0,
+      "clarity_score": 90.0,
+      "watermark_score": 100.0,
+      "overall_score": 92.0,
+      "explanation": "The image is highly relevant to the search query, featuring a professional man in a luxury navy double-breasted suit. The clarity and resolution are excellent, showcasing the details of the attire. There are no watermarks. While the setting is an artist's studio rather than a traditional office, it complements the 'luxury' aspect and does not detract from the 'business professional' appearance of the suit itself. It's a high-quality, well-composed image suitable for inventory systems.",
+      "file_name": "luxury-navy-double-breasted-suit-menswear-professional.jpg",
+      "caption": "A stylish man in a meticulously tailored navy blue double-breasted suit, paired with a light blue patterned shirt, dark red tie, and a white pocket square, standing confidently in an artist's studio. He wears brown leather dress shoes and a classic watch, exuding luxury and professionalism. The background features an easel with a painting, various art supplies like brushes and paints on a rustic table, and a woven basket, creating an atmosphere of sophisticated creativity.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional high-quality image of a luxury navy business suit for an enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.bucco.us/wp-content/uploads/2024/05/Wednesday-4.jpg",
+      "file_path": "/workspace/imgs/luxury_navy_mens_business_suit_professional.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 360670,
+      "width": 740,
+      "height": 925,
+      "total_pixels": 684500,
+      "basic_score": 0.9111671766648798
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 95.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is highly relevant, perfectly showcasing a professional, high-quality navy suit that aligns with luxury menswear for business. Clarity is excellent, and there are no watermarks. The composition is professional and ideal for an inventory system.",
+      "file_name": "luxury_navy_mens_business_suit_professional.jpg",
+      "caption": "A stylish young man stands confidently, modeling a well-fitted dark navy business suit with a light blue button-down shirt and a patterned dark blue tie. A white pocket square adds a touch of sophistication. The background is a minimalist concrete wall with a rustic wooden beam and a decorative woven hammock, providing a contemporary and refined setting for this professional menswear image.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional high-quality image of a luxury navy business suit for an enterprise inventory management system",
+    "image_info": {
+      "url": "https://img4.dhresource.com/webp/m/f3/albu/jc/m/04/bf3924af-29bc-4bd3-8bde-3b4658f87585.jpg",
+      "file_path": "/workspace/imgs/luxury-navy-mens-business-suit-professional.jpg",
+      "img_format": "WEBP",
+      "mode": "RGB",
+      "file_size": 15434,
+      "width": 800,
+      "height": 800,
+      "total_pixels": 640000,
+      "basic_score": 0.8896576055247697
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 100.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is highly relevant, perfectly matching 'luxury menswear formal suit navy business professional' as specified in the search query and prompt. It demonstrates excellent clarity, sharpness, and professional lighting. There are no watermarks, and the overall composition is clean and suitable for an enterprise inventory system, showcasing the suit effectively.",
+      "file_name": "luxury-navy-mens-business-suit-professional.jpg",
+      "caption": "A full-body studio shot of a well-groomed man modeling a dark navy blue luxury business suit, paired with a crisp white dress shirt and a textured blue tie secured with a tie bar. He stands confidently with his hands in his pockets, looking directly at the camera. The tailored suit features a classic notch lapel and a two-button closure, exuding a polished and professional aesthetic against a clean, dark gray background.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Professional high-quality image of a luxury navy business suit for an enterprise inventory management system",
+    "image_info": {
+      "url": "https://cdn.shopify.com/s/files/1/0291/6266/8110/files/essential-mens-suit-collection-display_1024x1024.png?v=1735728519",
+      "file_path": "/workspace/imgs/Luxury_Menswear_Formal_Navy_Business_Suits.jpg",
+      "img_format": "PNG",
+      "mode": "RGB",
+      "file_size": 852454,
+      "width": 1024,
+      "height": 574,
+      "total_pixels": 587776,
+      "basic_score": 0.9124857687893267
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 90.0,
+      "clarity_score": 98.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is highly relevant to the search query and prompt, showcasing multiple high-quality luxury business suits, including prominent navy options. The clarity is excellent, and there are no watermarks. The overall presentation is professional and well-suited for an enterprise inventory management system.",
+      "file_name": "Luxury_Menswear_Formal_Navy_Business_Suits.jpg",
+      "caption": "A professional, high-quality image showcasing five luxury men's business suits on mannequins against a clean white background. The collection features various shades of blue and grey, including prominent navy and checked blue suits, all impeccably styled with dress shirts, ties, and pocket squares, embodying modern business professional and formal menswear.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Modern professional dashboard interface for enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.expertappdevs.com/sitebucket/blog/20250616135719-10-best-enterprise-dashboard-ui-examples-expert-insights.webp",
+      "file_path": "/workspace/imgs/modern_enterprise_dashboard_analytics_ui.jpg",
+      "img_format": "WEBP",
+      "mode": "RGBA",
+      "file_size": 62528,
+      "width": 1200,
+      "height": 628,
+      "total_pixels": 753600,
+      "basic_score": 0.9118662306478114
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 90.0,
+      "clarity_score": 95.0,
+      "watermark_score": 60.0,
+      "overall_score": 85.0,
+      "explanation": "The image is highly relevant, depicting a modern and professional enterprise dashboard UI with analytical components like revenue growth charts and product sales data. While it doesn't explicitly state 'inventory management system,' it presents elements that would be crucial for such a system (total products, top product sales). The clarity is excellent, with sharp details and readable text. A watermark is present in the top right corner, reducing the watermark score. Overall, it's a high-quality visual representation of a modern business dashboard.",
+      "file_name": "modern_enterprise_dashboard_analytics_ui.jpg",
+      "caption": "A professionally designed modern enterprise dashboard user interface (UI) concept, featuring key performance indicators such as total revenue, transactions, products, and customers. The dashboard includes a 'Revenue Growth' line chart and a 'Top Product Sales' donut chart, along with a navigation sidebar for various modules like Dashboard, Leaderboard, Shipment, Administration, Library, Maps, and Support. The overall aesthetic is clean, intuitive, and suitable for business analytics and data visualization in an enterprise setting.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Modern professional dashboard interface for enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.rib-software.com/app/uploads/2024/06/procurement-kpi-dashboard.webp",
+      "file_path": "/workspace/imgs/modern_enterprise_analytics_dashboard_ui.jpg",
+      "img_format": "WEBP",
+      "mode": "RGB",
+      "file_size": 29034,
+      "width": 1168,
+      "height": 880,
+      "total_pixels": 1027840,
+      "basic_score": 0.9367036989394857
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 90.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image perfectly depicts a modern, professional enterprise dashboard with comprehensive analytics. While the prompt specified 'inventory management system', this dashboard's focus on supplier compliance and procurement is highly relevant to broader enterprise resource planning and supply chain functions, making it an excellent match for the 'enterprise dashboard analytics modern UI professional' query. The image quality and design are outstanding.",
+      "file_name": "modern_enterprise_analytics_dashboard_ui.jpg",
+      "caption": "A comprehensive view of a modern and professional enterprise analytics dashboard, displaying various key performance indicators (KPIs) related to supplier compliance and procurement. The interface features a clean user experience with multiple data visualizations, including total suppliers, contracted rates, partner status (Gold, Silver, Bronze), financial metrics like total spending and savings, average procurement cycle times, and contract compliance rates broken down by supplier category. The design is sleek, functional, and visually appealing for enterprise-level data analysis.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Modern professional dashboard interface for enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.expertappdevs.com/sitebucket/blog/civicsync-dashboard-example.webp",
+      "file_path": "/workspace/imgs/modern_professional_analytics_dashboard_civic_sync.jpg",
+      "img_format": "WEBP",
+      "mode": "RGBA",
+      "file_size": 52912,
+      "width": 1200,
+      "height": 793,
+      "total_pixels": 951600,
+      "basic_score": 0.9378943139141449
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 65.0,
+      "clarity_score": 95.0,
+      "watermark_score": 50.0,
+      "overall_score": 80.0,
+      "explanation": "The image provides a clear, modern, and professional dashboard interface with analytics, aligning well with the aesthetic requirements of the prompt and search query. However, the specific content relates to civic issues and government services rather than enterprise inventory management. A visible watermark is present at the bottom.",
+      "file_name": "modern_professional_analytics_dashboard_civic_sync.jpg",
+      "caption": "A sleek, modern dark-themed digital dashboard interface titled 'CivicSync Government Service Efficiency Dashboard,' showcasing civic issue analytics. The dashboard includes key performance indicators like 'Total Issues,' 'Total Votes,' and 'Open Reports,' alongside a donut chart displaying 'Issues by Category' (Road, Water, Sanitation) and a line graph showing 'Daily Issue Reports' over the last seven days. The professional user interface features clear data visualization and a clean layout suitable for enterprise analytics.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Modern professional dashboard interface for enterprise inventory management system",
+    "image_info": {
+      "url": "https://www.expertappdevs.com/sitebucket/blog/enterprise-dashboard-design-trends.webp",
+      "file_path": "/workspace/imgs/modern_enterprise_dashboard_trends_analytics_ui.jpg",
+      "img_format": "WEBP",
+      "mode": "RGBA",
+      "file_size": 63602,
+      "width": 1200,
+      "height": 702,
+      "total_pixels": 842400,
+      "basic_score": 0.9285036086642274
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 70.0,
+      "clarity_score": 100.0,
+      "watermark_score": 85.0,
+      "overall_score": 95.0,
+      "explanation": "The image is highly professional, clear, and showcases modern UI trends relevant to enterprise dashboards and analytics. However, it displays conceptual trends rather than an actual dashboard interface, and it doesn't specifically relate to an 'inventory management system' as requested by the prompt. A small brand logo is present in the top right.",
+      "file_name": "modern_enterprise_dashboard_trends_analytics_ui.jpg",
+      "caption": "A conceptual infographic titled 'Enterprise Dashboard Trends' featuring seven key concepts: AI-Augmented Dashboards, Voice-Activated Interfaces, Modular Analytics Blocks, Predictive Alerts & Early Warning Systems, Privacy-by-Design Views, Hyper-Personalized Dashboards for Executives, and Responsive Across Touchpoints. Each trend is represented by a distinct icon within a modern, rounded white card against a dark, tech-inspired background.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Luxury silk bow tie accessories for high-end fashion inventory management",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/81DWyFAcE5L._UY1000_.jpg",
+      "file_path": "/workspace/imgs/luxury_navy_silk_formal_bow_tie_menswear_accessory.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 65791,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.923575261073651
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 98.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is exceptionally relevant to the search query and prompt, clearly displaying a luxury, handmade, 100% silk formal bow tie, ideal for high-end fashion inventory. The clarity, lighting, and professional product-shot presentation are excellent, with no distracting watermarks.",
+      "file_name": "luxury_navy_silk_formal_bow_tie_menswear_accessory.jpg",
+      "caption": "A high-quality studio shot of a dark navy blue (midnight blue) pre-tied formal bow tie, crafted from 100% silk, featuring a subtle ribbed texture. The adjustable menswear accessory includes a 'JOHN WILLIAM clothing' label, indicating its handmade and luxury origin. Presented on a clean white background, it's ideal for product catalogs and high-end fashion inventory.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Luxury silk bow tie accessories for high-end fashion inventory management",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/71DQInzylGL._UY1000_.jpg",
+      "file_path": "/workspace/imgs/luxury_black_silk_bow_tie_cummerbund_pocket_square_set_formal_menswear.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 64737,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.9234685470359203
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 98.0,
+      "clarity_score": 100.0,
+      "watermark_score": 100.0,
+      "overall_score": 98.0,
+      "explanation": "The image is highly relevant to both the search query and prompt, showcasing luxury silk-like formal menswear accessories (bow tie, pocket square, and cummerbund). It is exceptionally clear, well-lit, and professionally composed on a clean white background, making it perfect for high-end fashion inventory management. There are no visible watermarks.",
+      "file_name": "luxury_black_silk_bow_tie_cummerbund_pocket_square_set_formal_menswear.jpg",
+      "caption": "A high-quality studio photograph featuring a luxurious black silk bow tie, a matching black silk pocket square, and a pleated black silk cummerbund. These elegant formal menswear accessories are neatly arranged on a pristine white background, showcasing their texture and sophisticated design, suitable for high-end fashion inventory and e-commerce listings.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Luxury silk bow tie accessories for high-end fashion inventory management",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/618CYphf-rL._UY1000_.jpg",
+      "file_path": "/workspace/imgs/black_silk_formal_bow_ties_luxury_menswear.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 31304,
+      "width": 875,
+      "height": 1000,
+      "total_pixels": 875000,
+      "basic_score": 0.9059635705789667
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 95.0,
+      "clarity_score": 98.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is highly relevant, depicting black formal bow ties that appear to be silk, aligning perfectly with 'luxury menswear' and 'high-end fashion inventory management' due to its clean, isolated product shot style. Clarity and resolution are excellent, and there are no watermarks. The overall professional quality and composition make it ideal for product catalogs.",
+      "file_name": "black_silk_formal_bow_ties_luxury_menswear.jpg",
+      "caption": "A studio shot showcasing two black formal bow ties on a clean white background, one perfectly tied and the other in its untied, self-tie form. The smooth, lustrous fabric, likely silk, reflects light subtly, highlighting its luxurious texture. This professional product photograph emphasizes the classic elegance and versatility of essential menswear accessories, ideal for high-end fashion inventory and e-commerce displays.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Luxury silk bow tie accessories for high-end fashion inventory management",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/81f3zdoOl-L._UY1000_.jpg",
+      "file_path": "/workspace/imgs/luxury_navy_silk_pre_tied_bow_tie_infographic.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 115568,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.9285038257094144
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 95.0,
+      "clarity_score": 90.0,
+      "watermark_score": 70.0,
+      "overall_score": 85.0,
+      "explanation": "The image is highly relevant to the search query and prompt, showcasing a luxury silk bow tie with clear details on its material, features (pre-tied, handmade), and value. The clarity and presentation are excellent for conveying product attributes. However, there is clear branding/watermarking at the bottom and on the product label itself, which slightly reduces the watermark score. Overall, it's a high-quality, informative image suitable for high-end fashion product display and inventory attribute documentation.",
+      "file_name": "luxury_navy_silk_pre_tied_bow_tie_infographic.jpg",
+      "caption": "A high-quality infographic displaying a dark navy blue pre-tied silk bow tie with an adjustable strap, highlighting key features such as its 100% pure woven silk material, handmade quality, and value proposition. The image includes detailed text descriptions and illustrative icons, suitable for luxury menswear product listings.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Luxury silk bow tie accessories for high-end fashion inventory management",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/71hUc9+1JnL._UY1000_.jpg",
+      "file_path": "/workspace/imgs/Man-Luxury-Bow-Tie-Menswear-Fashion.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 213328,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.9374821372247776
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 70.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 90.0,
+      "explanation": "The image features a man in a formal outfit with a bow tie, aligning well with 'formal bow tie' and 'luxury menswear'. However, it's not explicitly clear if the bow tie is 'silk', and the image format is a lifestyle shot rather than a product shot suitable for 'inventory management'. Clarity, lighting, and composition are excellent, and there are no watermarks.",
+      "file_name": "Man-Luxury-Bow-Tie-Menswear-Fashion.jpg",
+      "caption": "A stylish young man dressed in sophisticated smart casual attire, featuring a dark blue bow tie, a teal dress shirt, a navy blue textured blazer, and light brown khaki pants with a matching leather belt. He stands confidently against a minimalist concrete wall, holding a smartphone, representing contemporary luxury menswear and formal accessory fashion.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Elegant white formal dress shirt for professional fashion ecommerce inventory",
+    "image_info": {
+      "url": "https://i.ebayimg.com/images/g/CIkAAOSwvj1lKDsU/s-l1200.jpg",
+      "file_path": "/workspace/imgs/elegant-white-pinstripe-dress-shirt-french-cuffs-menswear.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 281399,
+      "width": 1200,
+      "height": 1200,
+      "total_pixels": 1440000,
+      "basic_score": 0.8936514907825598
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 100.0,
+      "clarity_score": 100.0,
+      "watermark_score": 100.0,
+      "overall_score": 98.0,
+      "explanation": "The image is perfectly relevant to the search query and prompt, showcasing an elegant white formal dress shirt with luxury details ideal for business and professional wear. The clarity, lighting, and composition are outstanding, making it highly suitable for e-commerce inventory. There are no watermarks present.",
+      "file_name": "elegant-white-pinstripe-dress-shirt-french-cuffs-menswear.jpg",
+      "caption": "An elegantly folded white formal dress shirt for men, featuring subtle pinstripes, a sophisticated spread collar with a black and white gingham inner lining, and classic French cuffs adorned with a stylish black and silver cufflink. This luxurious menswear piece is perfect for professional business attire and formal occasions, showcased on a dark background for clear product presentation.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Elegant white formal dress shirt for professional fashion ecommerce inventory",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/41bKJpRwaeL._UY1000_.jpg",
+      "file_path": "/workspace/imgs/elegant_white_formal_dress_shirt_menswear_ecommerce.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 30050,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.9199055552284127
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 98.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 95.0,
+      "explanation": "The image is an excellent match for the search query and prompt, clearly displaying an elegant white formal dress shirt on a male model. The clarity, lighting, and composition are highly professional, making it ideal for e-commerce inventory. There are no watermarks.",
+      "file_name": "elegant_white_formal_dress_shirt_menswear_ecommerce.jpg",
+      "caption": "A confident male model showcasing a crisp, well-fitted white formal dress shirt with a spread collar and long sleeves, paired with dark trousers and a brown leather belt. The image is captured against a clean, bright white background, emphasizing the shirt's quality and elegance, making it perfect for professional fashion e-commerce inventory or luxury menswear collections.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Elegant white formal dress shirt for professional fashion ecommerce inventory",
+    "image_info": {
+      "url": "https://i.ebayimg.com/images/g/L1wAAOSwkLllKDsV/s-l1200.jpg",
+      "file_path": "/workspace/imgs/elegant_white_pinstripe_dress_shirt_mens_luxury_ecommerce.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 414751,
+      "width": 1111,
+      "height": 1111,
+      "total_pixels": 1234321,
+      "basic_score": 0.9377257948422227
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 98.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 97.0,
+      "explanation": "The image is highly relevant, perfectly showcasing an elegant white formal dress shirt suitable for luxury menswear and business. Clarity is excellent, capturing fine details like pinstripes, fabric texture, and the brand label. There are no watermarks, and the overall professional presentation makes it ideal for e-commerce inventory.",
+      "file_name": "elegant_white_pinstripe_dress_shirt_mens_luxury_ecommerce.jpg",
+      "caption": "A close-up view of an elegant men's white dress shirt featuring subtle black pinstripes, a classic pointed collar, and a black and white gingham pattern lining the inside of the collar and button placket. The visible tag indicates 'Business to Business 100% Egyptian Cotton,' emphasizing its luxury quality. A silver cufflink with intricate detailing is visible on the sleeve, completing the sophisticated look.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Elegant white formal dress shirt for professional fashion ecommerce inventory",
+    "image_info": {
+      "url": "https://m.media-amazon.com/images/I/41EhRgt3+kL._UY1000_.jpg",
+      "file_path": "/workspace/imgs/white_pleated_mandarin_collar_mens_dress_shirt.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 39754,
+      "width": 1000,
+      "height": 1000,
+      "total_pixels": 1000000,
+      "basic_score": 0.9209121099718514
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 88.0,
+      "clarity_score": 95.0,
+      "watermark_score": 100.0,
+      "overall_score": 92.0,
+      "explanation": "The image is a clear, professional product shot of a white dress shirt, featuring elegant pleats and a modern mandarin collar, making it highly suitable for luxury menswear and fashion e-commerce. While the mandarin collar style diverges slightly from traditional 'formal business' attire, the overall presentation is crisp, well-lit, and free of watermarks, ideal for inventory.",
+      "file_name": "white_pleated_mandarin_collar_mens_dress_shirt.jpg",
+      "caption": "A pristine white long-sleeved men's dress shirt, featuring a distinctive pleated bib front and a stylish mandarin collar with a subtle black trim. This elegant shirt is designed for a slim fit, making it ideal for formal events, semi-formal occasions, or a sophisticated business casual look within professional fashion settings. Presented on a clean white background, highlighting its crisp details and modern aesthetic.",
+      "recommend": true,
+      "error": ""
+    }
+  },
+  {
+    "query": "Elegant white formal dress shirt for professional fashion ecommerce inventory",
+    "image_info": {
+      "url": "https://cdn.bannerbuzz.com/media/catalog/product/c/u/custom-dress-shirt-off_white-bb_1_.jpg",
+      "file_path": "/workspace/imgs/mens_white_formal_dress_shirt_cup_o_joe_ecommerce.jpg",
+      "img_format": "JPEG",
+      "mode": "RGB",
+      "file_size": 102337,
+      "width": 1120,
+      "height": 1020,
+      "total_pixels": 1142400,
+      "basic_score": 0.9233696608182911
+    },
+    "llm_score": {
+      "success": true,
+      "relevance_score": 90.0,
+      "clarity_score": 95.0,
+      "watermark_score": 90.0,
+      "overall_score": 90.0,
+      "explanation": "The image is highly relevant, depicting a white formal dress shirt for menswear, suitable for business and e-commerce inventory. Clarity is excellent, with sharp details and professional lighting against a clean white background. The visible 'CUP O' JOE' logo is part of the product's branding, which is appropriate for e-commerce photography, and is not a superimposed watermark. The overall quality and composition are very professional.",
+      "file_name": "mens_white_formal_dress_shirt_cup_o_joe_ecommerce.jpg",
+      "caption": "A professionally shot image of a man wearing a crisp white formal dress shirt with a subtle 'CUP O' JOE' logo embroidered on the left chest pocket, against a clean white background. The man is captured adjusting his cuff, highlighting the fit and design of the long-sleeved shirt. Ideal for luxury menswear e-commerce and professional fashion inventory.",
+      "recommend": true,
+      "error": ""
+    }
+  }
+]

@@ -270,22 +270,6 @@ const CreateProduct: React.FC = () => {
     }
   }
 
-  const addTag = (tag: string) => {
-    if (tag && !formData.tags.includes(tag)) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tag]
-      }))
-    }
-  }
-
-  const removeTag = (tag: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(t => t !== tag)
-    }))
-  }
-
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       setFormData(prev => ({

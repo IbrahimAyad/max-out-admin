@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { 
   BarChart3, 
   ShoppingCart, 
@@ -9,8 +9,10 @@ import {
   Settings, 
   Bell,
   LogOut,
-  Menu
+  Menu,
+  Shield
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface LayoutProps {
   children: ReactNode
@@ -34,6 +36,19 @@ const navigation: NavigationItem[] = [
 ]
 
 export function Layout({ children }: LayoutProps) {
+  const { user, signOut, loading } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true)
+      await signOut()
+    } catch (error) {
+      console.error('Sign out error:', error)
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
       {/* Sidebar */}
@@ -103,14 +118,26 @@ export function Layout({ children }: LayoutProps) {
               
               <div className="flex items-center space-x-3">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">kct.admin@business.com</p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.email || 'Admin User'}
+                  </p>
+                  <div className="flex items-center space-x-1">
+                    <Shield className="h-3 w-3 text-green-500" aria-hidden="true" />
+                    <p className="text-xs text-gray-500">Administrator</p>
+                  </div>
                 </div>
                 <button 
-                  className="text-gray-400 hover:text-gray-500"
-                  aria-label="Logout"
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                  className="text-gray-400 hover:text-gray-500 disabled:opacity-50 transition-colors"
+                  aria-label="Sign out"
+                  title="Sign out"
                 >
-                  <LogOut className="h-5 w-5" aria-hidden="true" />
+                  {isSigningOut ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                  ) : (
+                    <LogOut className="h-5 w-5" aria-hidden="true" />
+                  )}
                 </button>
               </div>
             </div>

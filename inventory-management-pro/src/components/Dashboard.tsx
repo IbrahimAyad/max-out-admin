@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
@@ -24,6 +24,7 @@ import ProductTable from './ProductTable'
 import BulkActions from './BulkActions'
 import FilterPanel from './FilterPanel'
 import ExportImport from './ExportImport'
+import analytics from '../lib/analytics'
 
 const Dashboard = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
@@ -75,6 +76,14 @@ const Dashboard = () => {
     queryKey: ['categories'],
     queryFn: productQueries.getCategories
   })
+
+  // Track dashboard page view on load
+  useEffect(() => {
+    analytics.trackPageView({
+      page_path: '/dashboard',
+      page_title: 'Dashboard - Inventory Management'
+    })
+  }, [])
 
   const handleSearch = (value: string) => {
     setSearchTerm(value)

@@ -22,6 +22,7 @@ import {
 import { productQueries, variantQueries } from '../lib/queries'
 import { Product, ProductVariant, supabase } from '../lib/supabase'
 import ImageUpload from './ImageUpload'
+import analytics from '../lib/analytics'
 
 interface ProductFormData {
   // Basic Info
@@ -125,6 +126,13 @@ const EditProduct: React.FC = () => {
   // Initialize form data when product loads
   useEffect(() => {
     if (product) {
+      // Track product edit start
+      analytics.trackProductEdit(id!, product.name)
+      analytics.trackPageView({
+        page_path: `/products/${id}/edit`,
+        page_title: `Edit Product: ${product.name}`
+      })
+
       setFormData({
         name: product.name || '',
         description: product.description || '',
@@ -241,6 +249,14 @@ const EditProduct: React.FC = () => {
       return updatedProduct
     },
     onSuccess: (product) => {
+      // Track successful product update
+      analytics.trackProductUpdate(id!, {
+        name: formData.name,
+        category: formData.category,
+        status: formData.status,
+        variant_count: formData.variants.length
+      })
+      
       toast.success('Product updated successfully!')
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['product', id] })

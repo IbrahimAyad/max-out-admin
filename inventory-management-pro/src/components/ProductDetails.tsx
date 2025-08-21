@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
@@ -22,6 +22,8 @@ import {
 } from 'lucide-react'
 import { productQueries, variantQueries } from '../lib/queries'
 import { formatPrice, formatDate, getStockStatusColor, getProductStatusColor } from '../lib/supabase'
+import analytics from '../lib/analytics'
+import recommendations from '../lib/recommendations'
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -33,6 +35,24 @@ const ProductDetails: React.FC = () => {
     queryFn: () => productQueries.getProduct(id!),
     enabled: !!id
   })
+
+  // Fetch recommendations for this product
+  const { data: recommendedProducts } = useQuery({
+    queryKey: ['recommendations', id],
+    queryFn: () => recommendations.getProductRecommendations(id!),
+    enabled: !!id
+  })
+
+  // Track product view when component loads
+  useEffect(() => {
+    if (product && id) {
+      analytics.trackProductView(id, product.name)
+      analytics.trackPageView({
+        page_path: `/products/${id}`,
+        page_title: `Product: ${product.name}`
+      })
+    }
+  }, [product, id])
 
   const deleteProductMutation = useMutation({
     mutationFn: () => productQueries.deleteProduct(id!),
@@ -345,7 +365,7 @@ const ProductDetails: React.FC = () => {
 
             {/* Product Image */}
             {product.primary_image && (
-              <div className="bg-white shadow rounded-lg">
+              <div className="bg-white shadow rounded-lg mb-6">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">
                     Product Image
@@ -357,6 +377,70 @@ const ProductDetails: React.FC = () => {
                     alt={product.name}
                     className="w-full h-64 object-cover rounded-lg"
                   />
+                </div>
+              </div>
+            )}
+
+            {/* Smart Recommendations */}
+            {recommendedProducts && recommendedProducts.length > 0 && (
+              <div className="bg-white shadow rounded-lg">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-indigo-600" />
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Smart Recommendations
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">AI-powered product suggestions</p>
+                </div>
+                <div className="px-6 py-6">
+                  <div className="space-y-4">
+                    {recommendedProducts.slice(0, 3).map((rec) => (
+                      <div key={rec.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="flex-shrink-0">
+                          {rec.recommended_product?.primary_image ? (
+                            <img
+                              src={rec.recommended_product.primary_image}
+                              alt={rec.recommended_product.name}
+                              className="w-12 h-12 object-cover rounded-md"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+                              <Package className="h-6 w-6 text-gray-500" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Link
+                            to={`/products/${rec.recommended_product_id}`}
+                            className="text-sm font-medium text-gray-900 hover:text-indigo-600"
+                            onClick={() => analytics.trackEvent({
+                              event_type: 'recommendation_click',
+                              product_id: rec.recommended_product_id,
+                              properties: {
+                                source_product_id: id,
+                                recommendation_type: rec.recommendation_type,
+                                recommendation_score: rec.recommendation_score
+                              }
+                            })}
+                          >
+                            {rec.recommended_product?.name}
+                          </Link>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {rec.recommendation_reason}
+                          </p>
+                          <div className="flex items-center mt-2">
+                            <span className="text-sm font-medium text-indigo-600">
+                              {rec.recommended_product?.base_price ? formatPrice(rec.recommended_product.base_price) : 'Price TBA'}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-2">
+                              {Math.round(rec.recommendation_score * 100)}% match
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { EnhancedProductsPage } from './components/EnhancedProductsPage'
-import { Layout } from './components/Layout'
+import { AuthProvider } from './contexts/AuthContext'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AppContent } from './components/AppContent'
 
 function App() {
   useEffect(() => {
@@ -48,20 +49,19 @@ function App() {
   }, [])
 
   return (
-    <>
-      {/* Main Application */}
-      <Layout>
-        <EnhancedProductsPage />
-      </Layout>
-      
-      {/* Accessibility Skip Link */}
-      <a 
-        href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 z-50 bg-blue-600 text-white p-2 rounded"
-      >
-        Skip to main content
-      </a>
-    </>
+    <AuthProvider>
+      <ProtectedRoute>
+        <AppContent />
+        
+        {/* Accessibility Skip Link */}
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 z-50 bg-blue-600 text-white p-2 rounded"
+        >
+          Skip to main content
+        </a>
+      </ProtectedRoute>
+    </AuthProvider>
   )
 }
 

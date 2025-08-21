@@ -1,12 +1,15 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Search, Filter, Plus, Package, AlertTriangle, CheckCircle, XCircle, MoreHorizontal, Edit, Eye, ShoppingCart, Download } from 'lucide-react'
 import { useInventoryProducts, useDefinitions } from '@/hooks/useInventory'
+import { useAnalytics } from '@/hooks/useAnalytics'
 import { type EnhancedProduct } from '@/lib/supabase'
 import { ProductSizeMatrix } from './ProductSizeMatrix'
 import { ProductColorGrid } from './ProductColorGrid'
 import { BulkInventoryModal } from './BulkInventoryModal'
 import { AddProductModal } from './AddProductModal'
+import { EditProductModal } from './EditProductModal'
 import { ExportModal } from './ExportModal'
+import { SmartFeaturesDisplay } from './SmartFeaturesDisplay'
 
 type FilterCategory = 'all' | 'suits' | 'shirts' | 'accessories'
 type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
@@ -18,6 +21,7 @@ export function EnhancedProductsPage() {
   const [stockFilter, setStockFilter] = useState<StockFilter>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [selectedProduct, setSelectedProduct] = useState<EnhancedProduct | null>(null)
+  const [editingProduct, setEditingProduct] = useState<EnhancedProduct | null>(null)
   const [showBulkModal, setShowBulkModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
@@ -25,6 +29,12 @@ export function EnhancedProductsPage() {
 
   const { products, loading, error, refetch } = useInventoryProducts()
   const { sizes, colors } = useDefinitions()
+  const { trackPageView, trackEvent } = useAnalytics()
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackPageView('/products', 'Inventory Products')
+  }, [])
 
   // Filter products based on search and filters
   const filteredProducts = useMemo(() => {
@@ -135,7 +145,16 @@ export function EnhancedProductsPage() {
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                // Track search behavior
+                if (e.target.value.length > 2) {
+                  trackEvent('search', {
+                    search_query: e.target.value,
+                    page_section: 'product_inventory'
+                  })
+                }
+              }}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -147,7 +166,15 @@ export function EnhancedProductsPage() {
               <span className="text-sm font-medium text-gray-700">Category:</span>
               <select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as FilterCategory)}
+                onChange={(e) => {
+                  const newCategory = e.target.value as FilterCategory
+                  setCategoryFilter(newCategory)
+                  trackEvent('filter_applied', {
+                    filter_type: 'category',
+                    filter_value: newCategory,
+                    page_section: 'product_inventory'
+                  })
+                }}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Categories</option>
@@ -161,7 +188,15 @@ export function EnhancedProductsPage() {
               <span className="text-sm font-medium text-gray-700">Stock:</span>
               <select
                 value={stockFilter}
-                onChange={(e) => setStockFilter(e.target.value as StockFilter)}
+                onChange={(e) => {
+                  const newStock = e.target.value as StockFilter
+                  setStockFilter(newStock)
+                  trackEvent('filter_applied', {
+                    filter_type: 'stock',
+                    filter_value: newStock,
+                    page_section: 'product_inventory'
+                  })
+                }}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Stock Levels</option>
@@ -175,7 +210,15 @@ export function EnhancedProductsPage() {
               <span className="text-sm font-medium text-gray-700">View:</span>
               <div className="flex border border-gray-300 rounded-md">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => {
+                    const newViewMode = 'grid'
+                    setViewMode(newViewMode)
+                    trackEvent('navigation_click', {
+                      navigation_target: 'view_mode',
+                      view_mode: newViewMode,
+                      page_section: 'product_inventory'
+                    })
+                  }}
                   className={`px-3 py-2 text-sm ${
                     viewMode === 'grid'
                       ? 'bg-blue-50 text-blue-600 border-r border-gray-300'
@@ -185,7 +228,15 @@ export function EnhancedProductsPage() {
                   Grid
                 </button>
                 <button
-                  onClick={() => setViewMode('table')}
+                  onClick={() => {
+                    const newViewMode = 'table'
+                    setViewMode(newViewMode)
+                    trackEvent('navigation_click', {
+                      navigation_target: 'view_mode',
+                      view_mode: newViewMode,
+                      page_section: 'product_inventory'
+                    })
+                  }}
                   className={`px-3 py-2 text-sm ${
                     viewMode === 'table'
                       ? 'bg-blue-50 text-blue-600'
@@ -204,6 +255,12 @@ export function EnhancedProductsPage() {
           Showing {filteredProducts.length} of {products.length} products
         </div>
       </div>
+
+      {/* Smart AI Features */}
+      <SmartFeaturesDisplay 
+        currentCategory={categoryFilter !== 'all' ? categoryFilter : undefined}
+        className="mb-8"
+      />
 
       {/* Products Grid/Table */}
       {viewMode === 'grid' ? (
@@ -257,7 +314,19 @@ export function EnhancedProductsPage() {
                     >
                       {isExpanded ? 'Hide Matrix' : 'Show Matrix'}
                     </button>
-                    <button className="px-3 py-2 bg-gray-50 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100">
+                    <button 
+                      onClick={() => {
+                        setEditingProduct(product)
+                        trackEvent('navigation_click', {
+                          navigation_target: 'edit_product',
+                          product_id: product.id.toString(),
+                          product_name: product.name,
+                          page_section: 'product_grid'
+                        })
+                      }}
+                      className="px-3 py-2 bg-gray-50 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100 flex items-center"
+                      title="Edit Product"
+                    >
                       <Edit className="h-4 w-4" />
                     </button>
                   </div>
@@ -335,7 +404,19 @@ export function EnhancedProductsPage() {
                           <button className="text-blue-600 hover:text-blue-900">
                             <Eye className="h-4 w-4" />
                           </button>
-                          <button className="text-gray-600 hover:text-gray-900">
+                          <button 
+                            onClick={() => {
+                              setEditingProduct(product)
+                              trackEvent('navigation_click', {
+                                navigation_target: 'edit_product',
+                                product_id: product.id.toString(),
+                                product_name: product.name,
+                                page_section: 'product_table'
+                              })
+                            }}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Edit Product"
+                          >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button className="text-green-600 hover:text-green-900">
@@ -365,6 +446,14 @@ export function EnhancedProductsPage() {
         <AddProductModal
           onClose={() => setShowAddModal(false)}
           onAdd={refetch}
+        />
+      )}
+
+      {editingProduct && (
+        <EditProductModal
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSave={refetch}
         />
       )}
 

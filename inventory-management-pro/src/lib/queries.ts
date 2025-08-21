@@ -328,13 +328,12 @@ export const analyticsQueries = {
 export const vendorQueries = {
   // Get vendor inbox count
   getVendorInboxCount: async () => {
-    const { data, error } = await supabase
-      .from('v_vendor_inbox_count')
-      .select('inbox_count')
-      .single()
+    const { data, error } = await supabase.functions.invoke('vendor-inbox-count', {
+      body: {}
+    })
 
     if (error) throw error
-    return data as VendorInboxCount
+    return data.data as VendorInboxCount
   },
 
   // Get vendor inbox items
@@ -351,43 +350,19 @@ export const vendorQueries = {
     status?: string
     decision?: string
   } = {}) => {
-    let query = supabase
-      .from('v_vendor_inbox')
-      .select('*', { count: 'exact' })
-
-    // Search filter
-    if (search) {
-      query = query.or(`title.ilike.%${search}%,category.ilike.%${search}%`)
-    }
-
-    // Status filter
-    if (status) {
-      query = query.eq('status', status)
-    }
-
-    // Decision filter
-    if (decision) {
-      query = query.eq('decision', decision)
-    }
-
-    // Default sorting by creation date
-    query = query.order('created_at', { ascending: false })
-
-    // Pagination
-    const from = (page - 1) * limit
-    const to = from + limit - 1
-    query = query.range(from, to)
-
-    const { data, error, count } = await query
+    // Use edge function with POST body
+    const { data, error } = await supabase.functions.invoke('vendor-inbox-items', {
+      body: {
+        page,
+        limit,
+        search,
+        status,
+        decision
+      }
+    })
 
     if (error) throw error
-
-    return {
-      items: data as VendorInboxItem[],
-      total: count || 0,
-      totalPages: Math.ceil((count || 0) / limit),
-      currentPage: page
-    }
+    return data.data
   },
 
   // Update vendor import decision

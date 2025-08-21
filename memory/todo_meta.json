@@ -24,9 +24,9 @@
       },
       "4": {
         "id": "4",
-        "content": "Test Import Workflow & Data Integrity",
-        "details": "Verify complete import process works correctly with proper image handling, data mapping, and inventory sync functionality",
-        "status": "pending",
+        "content": "Fix Critical Import System Issues",
+        "details": "1. CORS errors on inventory sync endpoints 2. Missing images during import 3. Import button disappearing on bulk selection 4. No success feedback/notifications 5. Inventory data not syncing to main product table 6. Add duplicate tracking system",
+        "status": "completed",
         "priority": "high"
       }
     }

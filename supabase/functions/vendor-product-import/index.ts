@@ -46,6 +46,34 @@ Deno.serve(async (req) => {
 
         const imported = [];
         const errors = [];
+        const skipped = [];
+
+        // First, check for duplicate products to prevent re-import
+        const duplicateCheckResponse = await fetch(`${supabaseUrl}/rest/v1/products?select=id,name,additional_info&additional_info->>shopify_product_id=in.(${productIds.join(',')})`, {
+            headers
+        });
+        
+        const existingProducts = duplicateCheckResponse.ok ? await duplicateCheckResponse.json() : [];
+        const existingProductIds = new Set(existingProducts.map(p => parseInt(p.additional_info?.shopify_product_id)).filter(Boolean));
+        
+        console.log(`Found ${existingProducts.length} existing products that would be duplicates`);
+        
+        // Filter out products that already exist unless options.allowDuplicates is true
+        const productsToImport = productIds.filter(id => {
+            if (existingProductIds.has(id)) {
+                if (!options.allowDuplicates) {
+                    skipped.push({
+                        shopify_product_id: id,
+                        reason: 'Already imported - duplicate found',
+                        existing_product_id: existingProducts.find(p => parseInt(p.additional_info?.shopify_product_id) === id)?.id
+                    });
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        console.log(`${productsToImport.length} products will be imported after duplicate check`);
 
         // Helper function to generate unique handle
         const generateUniqueHandle = async (baseHandle) => {
@@ -67,18 +95,50 @@ Deno.serve(async (req) => {
             }
         };
 
-        // Helper function to download and upload image
+        // Helper function to download and upload image with retries
         const processImage = async (imageUrl, productId, position, altText = '') => {
             try {
                 console.log(`Processing image: ${imageUrl}`);
                 
-                // Download image
-                const imageResponse = await fetch(imageUrl);
-                if (!imageResponse.ok) {
-                    throw new Error(`Failed to download image: ${imageResponse.status}`);
+                // Download image with timeout and retries
+                let imageResponse;
+                let retries = 3;
+                
+                while (retries > 0) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                        
+                        imageResponse = await fetch(imageUrl, { 
+                            signal: controller.signal,
+                            headers: {
+                                'User-Agent': 'KCT-Inventory-Importer/1.0'
+                            }
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        if (imageResponse.ok) break;
+                        throw new Error(`HTTP ${imageResponse.status}: ${imageResponse.statusText}`);
+                    } catch (error) {
+                        retries--;
+                        console.warn(`Image download attempt failed (${retries} retries left):`, error.message);
+                        if (retries === 0) throw error;
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+                    }
                 }
                 
                 const imageBlob = await imageResponse.blob();
+                
+                // Validate image type and size
+                if (!imageBlob.type.startsWith('image/')) {
+                    throw new Error(`Invalid image type: ${imageBlob.type}`);
+                }
+                
+                if (imageBlob.size > 10 * 1024 * 1024) { // 10MB limit
+                    throw new Error(`Image too large: ${imageBlob.size} bytes`);
+                }
+                
                 const imageBuffer = await imageBlob.arrayBuffer();
                 
                 // Generate unique filename
@@ -86,35 +146,56 @@ Deno.serve(async (req) => {
                 const fileName = `${productId}-${position}-${Date.now()}.${fileExtension}`;
                 const filePath = `imported/${fileName}`;
                 
-                // Upload to Supabase Storage
-                const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/product-images/${filePath}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${serviceRoleKey}`,
-                        'Content-Type': imageBlob.type
-                    },
-                    body: imageBuffer
-                });
+                // Upload to Supabase Storage with retries
+                let uploadAttempts = 3;
+                let uploadResponse;
                 
-                if (!uploadResponse.ok) {
-                    const errorText = await uploadResponse.text();
-                    throw new Error(`Upload failed: ${uploadResponse.status} - ${errorText}`);
+                while (uploadAttempts > 0) {
+                    try {
+                        uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/product-images/${filePath}`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${serviceRoleKey}`,
+                                'Content-Type': imageBlob.type
+                            },
+                            body: imageBuffer
+                        });
+                        
+                        if (uploadResponse.ok) break;
+                        
+                        const errorText = await uploadResponse.text();
+                        throw new Error(`Upload failed: ${uploadResponse.status} - ${errorText}`);
+                    } catch (error) {
+                        uploadAttempts--;
+                        console.warn(`Image upload attempt failed (${uploadAttempts} attempts left):`, error.message);
+                        if (uploadAttempts === 0) throw error;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
                 }
                 
                 // Get public URL
                 const publicUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${filePath}`;
                 
                 console.log(`Image uploaded successfully: ${publicUrl}`);
-                return publicUrl;
+                return {
+                    url: publicUrl,
+                    originalUrl: imageUrl,
+                    size: imageBlob.size,
+                    type: imageBlob.type
+                };
                 
             } catch (error) {
-                console.error(`Image processing failed for ${imageUrl}:`, error);
-                return null; // Continue without the image
+                console.error(`Image processing failed for ${imageUrl}:`, error.message);
+                return {
+                    error: error.message,
+                    originalUrl: imageUrl,
+                    url: null
+                };
             }
         };
 
         // Process each product
-        for (const shopifyProductId of productIds) {
+        for (const shopifyProductId of productsToImport) {
             try {
                 console.log(`Processing product ID: ${shopifyProductId}`);
                 
@@ -244,28 +325,34 @@ Deno.serve(async (req) => {
                 // Process images if enabled
                 let imageCount = 0;
                 let primaryImageUrl = null;
+                const imageResults = [];
                 
                 if (options.downloadImages !== false && vendorImages.length > 0) {
                     console.log('Processing images...');
                     
                     for (const vendorImage of vendorImages) {
                         try {
-                            const uploadedImageUrl = await processImage(
+                            const imageResult = await processImage(
                                 vendorImage.src,
                                 productId,
                                 vendorImage.position,
                                 vendorImage.alt
                             );
                             
-                            if (uploadedImageUrl) {
+                            imageResults.push(imageResult);
+                            
+                            if (imageResult.url) {
                                 // Save to product_images table
                                 const imageData = {
                                     product_id: productId,
-                                    image_url: uploadedImageUrl,
+                                    image_url: imageResult.url,
                                     alt_text: vendorImage.alt || '',
                                     position: vendorImage.position,
                                     width: vendorImage.width,
-                                    height: vendorImage.height
+                                    height: vendorImage.height,
+                                    original_url: imageResult.originalUrl,
+                                    file_size: imageResult.size,
+                                    file_type: imageResult.type
                                 };
                                 
                                 const createImageResponse = await fetch(`${supabaseUrl}/rest/v1/product_images`, {
@@ -277,12 +364,22 @@ Deno.serve(async (req) => {
                                 if (createImageResponse.ok) {
                                     imageCount++;
                                     if (vendorImage.position === 1) {
-                                        primaryImageUrl = uploadedImageUrl;
+                                        primaryImageUrl = imageResult.url;
                                     }
+                                    console.log(`Successfully saved image ${imageCount}: ${imageResult.url}`);
+                                } else {
+                                    console.error(`Failed to save image record:`, await createImageResponse.text());
                                 }
+                            } else if (imageResult.error) {
+                                console.error(`Failed to process image ${vendorImage.src}: ${imageResult.error}`);
                             }
                         } catch (imageError) {
                             console.error(`Error processing image:`, imageError);
+                            imageResults.push({
+                                error: imageError.message,
+                                originalUrl: vendorImage.src,
+                                url: null
+                            });
                         }
                     }
                     
@@ -324,6 +421,8 @@ Deno.serve(async (req) => {
                     title: productData.name,
                     variants_count: variantCount,
                     images_count: imageCount,
+                    images_processed: imageResults.length,
+                    images_failed: imageResults.filter(r => r.error).length,
                     handle: uniqueHandle
                 });
                 
@@ -341,7 +440,11 @@ Deno.serve(async (req) => {
         const summary = {
             total_requested: productIds.length,
             successfully_imported: imported.length,
-            failed: errors.length
+            skipped_duplicates: skipped.length,
+            failed: errors.length,
+            total_images_processed: imported.reduce((sum, p) => sum + (p.images_processed || 0), 0),
+            total_images_failed: imported.reduce((sum, p) => sum + (p.images_failed || 0), 0),
+            total_variants_created: imported.reduce((sum, p) => sum + (p.variants_count || 0), 0)
         };
         
         console.log('Import completed:', summary);
@@ -349,6 +452,7 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({
             success: true,
             imported,
+            skipped,
             errors,
             summary
         }), {

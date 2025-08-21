@@ -422,7 +422,7 @@ export const vendorQueries = {
 
   // Manual inventory refresh
   refreshInventory: async (options: { productIds?: number[], refreshType?: 'all' | 'selected' } = {}) => {
-    const { data, error } = await supabase.functions.invoke('admin-refresh-inventory', {
+    const { data, error } = await supabase.functions.invoke('manual-inventory-refresh', {
       body: {
         productIds: options.productIds,
         refreshType: options.refreshType || 'all'
@@ -435,7 +435,7 @@ export const vendorQueries = {
 
   // Get inventory sync status
   getInventorySyncStatus: async () => {
-    const { data, error } = await supabase.functions.invoke('admin-inventory-sync-status')
+    const { data, error } = await supabase.functions.invoke('inventory-sync-status')
 
     if (error) throw error
     return data

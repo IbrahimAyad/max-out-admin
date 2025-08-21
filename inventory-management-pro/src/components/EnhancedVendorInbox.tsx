@@ -142,24 +142,88 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
       }
     },
     onSuccess: (data) => {
-      const { imported, errors, summary } = data.data
+      const { imported, skipped, errors, summary } = data.data
       
       setSelectedProducts([])
       refetch()
       queryClient.invalidateQueries({ queryKey: ['vendor-inbox-count'] })
       
-      // Show success/error toasts
-      if (summary.successful > 0) {
-        toast.success(
-          `Successfully imported ${summary.successful} product${summary.successful > 1 ? 's' : ''}!`,
-          { duration: 4000 }
+      // Show detailed success notifications
+      if (summary.successfully_imported > 0) {
+        const importedNames = imported.slice(0, 3).map(p => p.title).join(', ')
+        const additionalCount = summary.successfully_imported - 3
+        
+        let successMessage = `Successfully imported ${summary.successfully_imported} product${summary.successfully_imported > 1 ? 's' : ''}!`
+        
+        if (summary.successfully_imported <= 3) {
+          successMessage = `Successfully imported: ${importedNames}`
+        } else {
+          successMessage = `Successfully imported: ${importedNames}${additionalCount > 0 ? ` and ${additionalCount} more` : ''}`
+        }
+        
+        // Add summary details
+        const details = []
+        if (summary.total_variants_created) details.push(`${summary.total_variants_created} variants`)
+        if (summary.total_images_processed) details.push(`${summary.total_images_processed} images`)
+        
+        if (details.length > 0) {
+          successMessage += ` (${details.join(', ')})`
+        }
+        
+        toast.success(successMessage, { 
+          duration: 6000,
+          position: 'top-center',
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontWeight: '500'
+          }
+        })
+      }
+      
+      // Show skipped duplicates notification
+      if (summary.skipped_duplicates > 0) {
+        const skippedNames = skipped.slice(0, 2).map(p => `ID: ${p.shopify_product_id}`).join(', ')
+        const additionalSkipped = summary.skipped_duplicates - 2
+        
+        let skippedMessage = `Skipped ${summary.skipped_duplicates} duplicate product${summary.skipped_duplicates > 1 ? 's' : ''}: ${skippedNames}`
+        if (additionalSkipped > 0) {
+          skippedMessage += ` and ${additionalSkipped} more`
+        }
+        skippedMessage += ' (already imported)'
+        
+        toast.success(skippedMessage, { 
+          duration: 5000,
+          style: {
+            background: '#F59E0B',
+            color: 'white'
+          }
+        })
+      }
+      
+      // Show image processing warnings if any
+      if (summary.total_images_failed > 0) {
+        toast(
+          `${summary.total_images_failed} image${summary.total_images_failed > 1 ? 's' : ''} failed to download. Products imported without these images.`,
+          {
+            duration: 5000,
+            icon: '⚠️',
+            style: {
+              background: '#F97316',
+              color: 'white'
+            }
+          }
         )
       }
       
+      // Show errors if any
       if (summary.failed > 0) {
         toast.error(
-          `Failed to import ${summary.failed} product${summary.failed > 1 ? 's' : ''}. Please try again.`,
-          { duration: 5000 }
+          `Failed to import ${summary.failed} product${summary.failed > 1 ? 's' : ''}. Please check the logs and try again.`,
+          { 
+            duration: 7000,
+            position: 'top-center'
+          }
         )
       }
     },
@@ -204,21 +268,38 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
       refetch()
       queryClient.invalidateQueries({ queryKey: ['inventory-sync-status'] })
       
-      const summary = data?.data?.summary || { successful: 0, failed: 0, totalUpdated: 0 }
+      const summary = data?.data?.summary || { successful: 0, failed: 0, totalUpdated: 0, inventoryItemsUpdated: 0 }
       
-      if (summary.totalUpdated > 0) {
-        toast.success(
-          `Successfully refreshed inventory for ${summary.totalUpdated} product${summary.totalUpdated > 1 ? 's' : ''}!`,
-          { duration: 4000 }
-        )
+      // Show detailed success notification
+      if (summary.inventoryItemsUpdated > 0) {
+        let message = `Successfully refreshed inventory for ${summary.successful} product${summary.successful > 1 ? 's' : ''}!`
+        message += ` Updated ${summary.inventoryItemsUpdated} inventory level${summary.inventoryItemsUpdated > 1 ? 's' : ''} from vendor.`
+        
+        toast.success(message, { 
+          duration: 5000,
+          position: 'top-center',
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontWeight: '500'
+          }
+        })
+      } else if (summary.successful > 0) {
+        toast.success(`Inventory refresh completed - all ${summary.successful} product${summary.successful > 1 ? 's were' : ' was'} already up to date!`, { 
+          duration: 3000,
+          position: 'top-center'
+        })
       } else {
-        toast.success('Inventory refresh completed - all products were up to date!', { duration: 3000 })
+        toast.success('Inventory refresh completed!', { duration: 3000 })
       }
       
       if (summary.failed > 0) {
         toast.error(
-          `Failed to refresh ${summary.failed} product${summary.failed > 1 ? 's' : ''}. Please check the logs.`,
-          { duration: 5000 }
+          `Failed to refresh inventory for ${summary.failed} product${summary.failed > 1 ? 's' : ''}. Please check the logs for details.`,
+          { 
+            duration: 5000,
+            position: 'top-center'
+          }
         )
       }
     },
@@ -255,8 +336,9 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
   }
 
   const handleSelectAll = (selected: boolean) => {
+    const availableItems = inboxData?.items.filter(item => item.decision !== 'imported') || []
     setSelectedProducts(
-      selected ? (inboxData?.items.map(item => item.shopify_product_id) || []) : []
+      selected ? availableItems.map(item => item.shopify_product_id) : []
     )
   }
 
@@ -648,11 +730,11 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
                   <input
                     type="checkbox"
                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    checked={selectedProducts.length === inboxData.items.length && inboxData.items.length > 0}
+                    checked={inboxData.items.filter(item => item.decision !== 'imported').length > 0 && selectedProducts.length === inboxData.items.filter(item => item.decision !== 'imported').length}
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900">Select All Products</span>
-                  <span className="ml-2 text-xs text-gray-500">({inboxData.items.length} items)</span>
+                  <span className="ml-3 text-sm font-medium text-gray-900">Select All Available Products</span>
+                  <span className="ml-2 text-xs text-gray-500">({inboxData.items.filter(item => item.decision !== 'imported').length} available of {inboxData.items.length} total)</span>
                 </div>
               </div>
               <div className="divide-y divide-gray-200">
@@ -668,8 +750,9 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
                       <div className="flex items-center">
                         <input
                           type="checkbox"
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           checked={isSelected}
+                          disabled={item.decision === 'imported'}
                           onChange={(e) => handleSelectProduct(item.shopify_product_id, e.target.checked)}
                         />
                         <div className="ml-4 flex-shrink-0">
@@ -700,6 +783,13 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
                                 )}
                                 {getStatusBadge(item.status)}
                                 {getDecisionBadge(item.decision)}
+                                {/* Duplicate detection indicator */}
+                                {item.decision === 'imported' && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                    <XCircle className="h-3 w-3 mr-1" />
+                                    Already Imported
+                                  </span>
+                                )}
                               </div>
                               <div className="flex items-center space-x-4 text-xs text-gray-500">
                                 <span className="flex items-center">
@@ -822,8 +912,8 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
       {/* Import Preview Modal */}
       {showImportPreview && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-60">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Eye className="h-5 w-5 text-indigo-600 mr-2" />
@@ -838,8 +928,8 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
               </div>
             </div>
             
-            <div className="px-6 py-4">
-              <div className="mb-4">
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="px-6 py-4 flex-shrink-0">
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center p-3 bg-indigo-50 rounded-lg">
                     <p className="text-2xl font-bold text-indigo-600">{totalEstimatedData.products}</p>
@@ -856,44 +946,55 @@ const EnhancedVendorInbox: React.FC<VendorInboxProps> = ({ onClose }) => {
                 </div>
               </div>
               
-              <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
-                <div className="divide-y divide-gray-200">
-                  {getImportPreviewData().map((item) => (
-                    <div key={item.productId} className="px-4 py-3 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
-                          <p className="text-xs text-gray-500">
-                            {item.category} • {item.variants} variants • {item.images} images
-                          </p>
-                        </div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {item.price ? formatPrice(item.price) : 'No Price'}
+              <div className="flex-1 overflow-hidden px-6">
+                <div className="h-full overflow-y-auto border border-gray-200 rounded-lg">
+                  <div className="divide-y divide-gray-200">
+                    {getImportPreviewData().map((item) => (
+                      <div key={item.productId} className="px-4 py-3 hover:bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {item.category} • {item.variants} variants • {item.images} images
+                            </p>
+                          </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {item.price ? formatPrice(item.price) : 'No Price'}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                This will import all selected products with their variants and images into your inventory.
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowImportPreview(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmImport}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Import {totalEstimatedData.products} Product{totalEstimatedData.products !== 1 ? 's' : ''}
-                </button>
+            {/* Fixed Footer with Import Button - Always Visible */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex-shrink-0">
+              <div className="flex flex-col space-y-3">
+                <p className="text-sm text-gray-600">
+                  This will import all selected products with their variants and images into your inventory.
+                </p>
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-gray-500">
+                    {totalEstimatedData.products} products • {totalEstimatedData.variants} variants • {totalEstimatedData.images} images
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setShowImportPreview(false)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmImport}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Import {totalEstimatedData.products} Product{totalEstimatedData.products !== 1 ? 's' : ''}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -349,7 +349,52 @@ async function processInventoryBatch(productIds, shopifyDomain, shopifyToken, sh
         throw new Error(`Failed to update inventory levels: ${errorText}`);
     }
 
-    console.log(`Updated ${flatUpdates.length} inventory levels for manual refresh batch`);
+    // Also sync inventory to main product_variants table for imported products
+    const syncMainInventoryPromises = flatUpdates.map(async (update) => {
+        try {
+            // Find matching imported product variants by vendor_inventory_item_id
+            const variantsResponse = await fetch(
+                `${supabaseUrl}/rest/v1/enhanced_product_variants?select=id&vendor_inventory_item_id=eq.${update.inventory_item_id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${serviceRoleKey}`,
+                        'apikey': serviceRoleKey
+                    }
+                }
+            );
+            
+            if (variantsResponse.ok) {
+                const matchingVariants = await variantsResponse.json();
+                
+                // Update each matching variant's inventory
+                const updatePromises = matchingVariants.map(variant =>
+                    fetch(`${supabaseUrl}/rest/v1/enhanced_product_variants?id=eq.${variant.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${serviceRoleKey}`,
+                            'apikey': serviceRoleKey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            inventory_quantity: update.available,
+                            available_quantity: update.available,
+                            stock_status: update.available > 0 ? 'in_stock' : 'out_of_stock',
+                            last_inventory_update: update.last_change_at
+                        })
+                    })
+                );
+                
+                await Promise.all(updatePromises);
+                console.log(`Updated ${matchingVariants.length} product variants for inventory item ${update.inventory_item_id}`);
+            }
+        } catch (error) {
+            console.error(`Failed to sync inventory to main product table for item ${update.inventory_item_id}:`, error);
+        }
+    });
+
+    await Promise.all(syncMainInventoryPromises);
+    console.log(`Updated ${flatUpdates.length} inventory levels and synced to main product table for manual refresh batch`);
+    
     return { inventoryUpdates: flatUpdates.length };
 }
 

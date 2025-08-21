@@ -418,5 +418,26 @@ export const vendorQueries = {
 
     if (error) throw error
     return data
+  },
+
+  // Manual inventory refresh
+  refreshInventory: async (options: { productIds?: number[], refreshType?: 'all' | 'selected' } = {}) => {
+    const { data, error } = await supabase.functions.invoke('admin-refresh-inventory', {
+      body: {
+        productIds: options.productIds,
+        refreshType: options.refreshType || 'all'
+      }
+    })
+
+    if (error) throw error
+    return data
+  },
+
+  // Get inventory sync status
+  getInventorySyncStatus: async () => {
+    const { data, error } = await supabase.functions.invoke('admin-inventory-sync-status')
+
+    if (error) throw error
+    return data
   }
 }

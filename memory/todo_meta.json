@@ -5,21 +5,21 @@
         "id": "1",
         "content": "Implement Selective Product Import System",
         "details": "Build the import functionality to move selected products from vendor_* tables to main products table with full data transfer including images, while maintaining vendor inventory sync",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Enhance Vendor Inbox UI for Import Selection",
         "details": "Add multi-select checkboxes, import button, and product preview functionality to the vendor inbox interface",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Implement Professional Inventory Sync Strategy",
         "details": "Create both scheduled sync (twice weekly) and manual refresh button for inventory updates with vendor stock levels",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       },
       "4": {

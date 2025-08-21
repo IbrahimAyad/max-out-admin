@@ -24,7 +24,7 @@ import ProductTable from './ProductTable'
 import BulkActions from './BulkActions'
 import FilterPanel from './FilterPanel'
 import ExportImport from './ExportImport'
-import VendorInbox from './VendorInbox'
+import EnhancedVendorInbox from './EnhancedVendorInbox'
 import analytics from '../lib/analytics'
 
 const Dashboard = () => {
@@ -279,9 +279,9 @@ const Dashboard = () => {
         />
       )}
 
-      {/* Vendor Inbox Modal */}
+      {/* Enhanced Vendor Inbox Modal */}
       {showVendorInbox && (
-        <VendorInbox
+        <EnhancedVendorInbox
           onClose={() => setShowVendorInbox(false)}
         />
       )}

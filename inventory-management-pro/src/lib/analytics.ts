@@ -40,9 +40,12 @@ class AnalyticsService {
       await supabase
         .from('analytics_page_views')
         .insert({
-          ...pageView,
+          page_path: pageView.page_path,
+          page_title: pageView.page_title,
           session_id: this.sessionId,
-          timestamp: new Date().toISOString()
+          user_id: pageView.user_id,
+          referrer: pageView.referrer
+          // created_at will be set automatically by the database
         })
     } catch (error) {
       console.warn('Failed to track page view:', error)
@@ -54,9 +57,17 @@ class AnalyticsService {
       await supabase
         .from('analytics_events')
         .insert({
-          ...event,
           session_id: this.sessionId,
-          timestamp: new Date().toISOString()
+          customer_id: event.user_id,
+          event_type: event.event_type,
+          event_data: {
+            page_path: event.page_path,
+            product_id: event.product_id,
+            collection_id: event.collection_id,
+            ...event.properties
+          },
+          page_url: event.page_path
+          // created_at will be set automatically by the database
         })
     } catch (error) {
       console.warn('Failed to track event:', error)
@@ -117,7 +128,7 @@ class AnalyticsService {
       const { data: pageViews } = await supabase
         .from('analytics_page_views')
         .select('*')
-        .gte('timestamp', weekAgo)
+        .gte('created_at', weekAgo)
 
       // Get product performance
       const { data: productPerformance } = await supabase
@@ -129,11 +140,11 @@ class AnalyticsService {
       const { data: recentEvents } = await supabase
         .from('analytics_events')
         .select('*')
-        .gte('timestamp', weekAgo)
-        .order('timestamp', { ascending: false })
+        .gte('created_at', weekAgo)
+        .order('created_at', { ascending: false })
         .limit(100)
 
-      const todayViews = pageViews?.filter(pv => pv.timestamp?.startsWith(today)).length || 0
+      const todayViews = pageViews?.filter(pv => pv.created_at?.startsWith(today)).length || 0
       const weekViews = pageViews?.length || 0
       const productViews = recentEvents?.filter(e => e.event_type === 'product_view').length || 0
       const productEdits = recentEvents?.filter(e => e.event_type === 'product_edit').length || 0

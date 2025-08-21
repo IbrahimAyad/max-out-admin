@@ -12,17 +12,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        // Parse the incoming request
-        const requestData = await req.json();
-        const { productIds, mode = 'batch' } = requestData;
-
-        if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
-            throw new Error('productIds array is required and must not be empty');
-        }
-
-        console.log(`Starting manual inventory refresh for ${productIds.length} products in ${mode} mode`);
-
-        // Get environment variables
+        // Get environment variables first
         const SHOPIFY_STORE_DOMAIN = Deno.env.get('SHOPIFY_STORE_DOMAIN');
         const SHOPIFY_ADMIN_TOKEN = Deno.env.get('SHOPIFY_ADMIN_TOKEN');
         const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
@@ -35,6 +25,24 @@ Deno.serve(async (req) => {
         if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
             throw new Error('Missing Supabase configuration');
         }
+
+        // Parse the incoming request
+        const requestData = await req.json();
+        const { productIds, mode = 'batch', refreshType = 'selected' } = requestData;
+
+        let targetProductIds = productIds;
+
+        // Handle "refresh all" case
+        if (refreshType === 'all' || !productIds || !Array.isArray(productIds) || productIds.length === 0) {
+            console.log('Fetching all product IDs for refresh all operation');
+            targetProductIds = await getAllProductIds(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+            
+            if (!targetProductIds || targetProductIds.length === 0) {
+                throw new Error('No products found in the database to refresh');
+            }
+        }
+
+        console.log(`Starting manual inventory refresh for ${targetProductIds.length} products in ${mode} mode (refresh type: ${refreshType})`);
 
         // Create sync log entry
         const syncLogId = await createSyncLog(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, 'manual', 'admin');
@@ -49,7 +57,7 @@ Deno.serve(async (req) => {
         });
 
         // Process the inventory refresh
-        const result = await processor.processInventoryRefresh(productIds, mode);
+        const result = await processor.processInventoryRefresh(targetProductIds, mode);
 
         // Update sync log as completed
         await updateSyncLog(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, syncLogId, {
@@ -393,4 +401,27 @@ async function updateSyncLog(supabaseUrl: string, serviceRoleKey: string, logId:
     if (!response.ok) {
         console.warn('Failed to update sync log:', await response.text());
     }
+}
+
+// Helper function to get all product IDs from the database
+async function getAllProductIds(supabaseUrl: string, serviceRoleKey: string): Promise<number[]> {
+    const response = await fetch(
+        `${supabaseUrl}/rest/v1/vendor_variants?select=shopify_product_id&shopify_product_id=not.is.null`,
+        {
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch product IDs: ${response.statusText}`);
+    }
+
+    const variants = await response.json();
+    const uniqueProductIds = [...new Set(variants.map((v: any) => v.shopify_product_id))].filter(id => id != null);
+    
+    console.log(`Found ${uniqueProductIds.length} unique products to refresh`);
+    return uniqueProductIds;
 }

@@ -24,8 +24,43 @@
       },
       "4": {
         "id": "4",
-        "content": "Test and verify all fixes are working properly",
-        "details": "Confirm that suits and vests show correct variants, and that manual product updates work without authentication errors",
+        "content": "Investigate existing database schema for analytics and collections",
+        "details": "Check current Supabase tables to identify existing analytics tracking (views, clicks) and collections/recommendations infrastructure that might already be in place",
+        "status": "pending",
+        "priority": "high"
+      },
+      "5": {
+        "id": "5",
+        "content": "Implement AI-powered product recommendations system",
+        "details": "Create intelligent recommendation engine that can suggest products based on user behavior, product similarities, and purchase patterns",
+        "status": "pending",
+        "priority": "high"
+      },
+      "6": {
+        "id": "6",
+        "content": "Build custom collections management system",
+        "details": "Implement functionality for creating and managing custom product collections, both manually curated and AI-generated",
+        "status": "pending",
+        "priority": "high"
+      },
+      "7": {
+        "id": "7",
+        "content": "Add analytics tracking for views and clicks",
+        "details": "Implement comprehensive analytics system to track product views, clicks, user engagement, and generate insights",
+        "status": "pending",
+        "priority": "high"
+      },
+      "8": {
+        "id": "8",
+        "content": "Develop analytics dashboard and UI components",
+        "details": "Create user interface for viewing analytics, managing collections, and displaying AI recommendations",
+        "status": "pending",
+        "priority": "medium"
+      },
+      "9": {
+        "id": "9",
+        "content": "Test and verify all fixes and new features",
+        "details": "Confirm that suits/vests show correct variants, manual product updates work, analytics tracking functions, and AI recommendations are working properly",
         "status": "pending",
         "priority": "medium"
       }

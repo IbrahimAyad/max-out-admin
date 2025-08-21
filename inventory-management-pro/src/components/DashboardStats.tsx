@@ -1,4 +1,5 @@
 import React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Package,
   TrendingUp,
@@ -7,8 +8,10 @@ import {
   ShoppingCart,
   DollarSign,
   Archive,
-  CheckCircle
+  CheckCircle,
+  Inbox
 } from 'lucide-react'
+import { vendorQueries } from '../lib/queries'
 
 interface DashboardStatsProps {
   data?: {
@@ -25,9 +28,17 @@ interface DashboardStatsProps {
     }
   }
   loading: boolean
+  onVendorInboxClick?: () => void
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
+const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading, onVendorInboxClick }) => {
+  // Fetch vendor inbox count
+  const { data: vendorInboxData, isLoading: vendorInboxLoading } = useQuery({
+    queryKey: ['vendor-inbox-count'],
+    queryFn: vendorQueries.getVendorInboxCount,
+    refetchInterval: 30000 // Refetch every 30 seconds
+  })
+
   const stats = [
     {
       name: 'Total Products',
@@ -35,7 +46,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
       change: '+4.75%',
       changeType: 'positive',
       icon: Package,
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      clickable: false
     },
     {
       name: 'Active Products',
@@ -43,7 +55,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
       change: '+12.02%',
       changeType: 'positive',
       icon: CheckCircle,
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      clickable: false
     },
     {
       name: 'Total Variants',
@@ -51,7 +64,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
       change: '+2.15%',
       changeType: 'positive',
       icon: ShoppingCart,
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      clickable: false
     },
     {
       name: 'Available Inventory',
@@ -59,7 +73,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
       change: '-0.28%',
       changeType: 'negative',
       icon: Archive,
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      clickable: false
     },
     {
       name: 'Low Stock Alerts',
@@ -67,19 +82,22 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
       change: '+5.4%',
       changeType: 'negative',
       icon: AlertTriangle,
-      color: 'bg-red-500'
+      color: 'bg-red-500',
+      clickable: false
     },
     {
-      name: 'Draft Products',
-      value: data?.productsByStatus?.draft || 0,
-      change: '+1.3%',
+      name: 'Vendor Inbox',
+      value: vendorInboxLoading ? 0 : (vendorInboxData?.inbox_count || 0),
+      change: 'New Items',
       changeType: 'neutral',
-      icon: TrendingUp,
-      color: 'bg-yellow-500'
+      icon: Inbox,
+      color: 'bg-indigo-500',
+      clickable: true,
+      onClick: onVendorInboxClick
     }
   ]
 
-  if (loading) {
+  if (loading || vendorInboxLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {[...Array(6)].map((_, i) => (
@@ -106,10 +124,16 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {stats.map((stat) => {
         const Icon = stat.icon
+        const CardWrapper = stat.clickable ? 'button' : 'div'
         return (
-          <div
+          <CardWrapper
             key={stat.name}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            onClick={stat.clickable ? stat.onClick : undefined}
+            className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition-all duration-200 ${
+              stat.clickable 
+                ? 'hover:shadow-md hover:bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2' 
+                : 'hover:shadow-md'
+            }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -123,25 +147,33 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ data, loading }) => {
               </div>
             </div>
             <div className="mt-4 flex items-center">
-              <span
-                className={`text-sm font-medium ${
-                  stat.changeType === 'positive'
-                    ? 'text-green-600'
-                    : stat.changeType === 'negative'
-                    ? 'text-red-600'
-                    : 'text-gray-600'
-                }`}
-              >
-                {stat.changeType === 'positive' ? (
-                  <TrendingUp className="h-4 w-4 inline mr-1" />
-                ) : stat.changeType === 'negative' ? (
-                  <TrendingDown className="h-4 w-4 inline mr-1" />
-                ) : null}
-                {stat.change}
-              </span>
-              <span className="text-sm text-gray-500 ml-2">vs last month</span>
+              {stat.clickable ? (
+                <span className="text-sm font-medium text-indigo-600">
+                  {stat.change}
+                </span>
+              ) : (
+                <>
+                  <span
+                    className={`text-sm font-medium ${
+                      stat.changeType === 'positive'
+                        ? 'text-green-600'
+                        : stat.changeType === 'negative'
+                        ? 'text-red-600'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    {stat.changeType === 'positive' ? (
+                      <TrendingUp className="h-4 w-4 inline mr-1" />
+                    ) : stat.changeType === 'negative' ? (
+                      <TrendingDown className="h-4 w-4 inline mr-1" />
+                    ) : null}
+                    {stat.change}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-2">vs last month</span>
+                </>
+              )}
             </div>
-          </div>
+          </CardWrapper>
         )
       })}
     </div>

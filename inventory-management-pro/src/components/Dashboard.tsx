@@ -24,6 +24,7 @@ import ProductTable from './ProductTable'
 import BulkActions from './BulkActions'
 import FilterPanel from './FilterPanel'
 import ExportImport from './ExportImport'
+import VendorInbox from './VendorInbox'
 import analytics from '../lib/analytics'
 
 const Dashboard = () => {
@@ -45,6 +46,7 @@ const Dashboard = () => {
   })
   const [showFilters, setShowFilters] = useState(false)
   const [showExportImport, setShowExportImport] = useState(false)
+  const [showVendorInbox, setShowVendorInbox] = useState(false)
 
   // Fetch products
   const {
@@ -165,7 +167,11 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Stats */}
         <div className="mb-8">
-          <DashboardStats data={statsData} loading={statsLoading} />
+          <DashboardStats 
+            data={statsData} 
+            loading={statsLoading} 
+            onVendorInboxClick={() => setShowVendorInbox(true)}
+          />
         </div>
 
         {/* AI Tagging Success Banner */}
@@ -270,6 +276,13 @@ const Dashboard = () => {
         <ExportImport
           onClose={() => setShowExportImport(false)}
           onRefresh={refetchProducts}
+        />
+      )}
+
+      {/* Vendor Inbox Modal */}
+      {showVendorInbox && (
+        <VendorInbox
+          onClose={() => setShowVendorInbox(false)}
         />
       )}
     </div>

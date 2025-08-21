@@ -1,5 +1,23 @@
 import { supabase, Product, ProductVariant, ProductWithVariants } from './supabase'
 
+// Vendor Inbox interfaces
+interface VendorInboxItem {
+  shopify_product_id: number
+  title: string
+  category: string | null
+  price: number | null
+  inventory: number | null
+  variants: number
+  status: string
+  created_at: string
+  image_src: string | null
+  decision: string
+}
+
+interface VendorInboxCount {
+  inbox_count: number
+}
+
 // Product queries
 export const productQueries = {
   // Get all products with pagination and filtering
@@ -300,6 +318,103 @@ export const analyticsQueries = {
       .select('last_inventory_update, available_quantity, stock_status')
       .gte('last_inventory_update', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
       .order('last_inventory_update', { ascending: true })
+
+    if (error) throw error
+    return data
+  }
+}
+
+// Vendor Inbox queries
+export const vendorQueries = {
+  // Get vendor inbox count
+  getVendorInboxCount: async () => {
+    const { data, error } = await supabase
+      .from('v_vendor_inbox_count')
+      .select('inbox_count')
+      .single()
+
+    if (error) throw error
+    return data as VendorInboxCount
+  },
+
+  // Get vendor inbox items
+  getVendorInboxItems: async ({
+    page = 1,
+    limit = 20,
+    search = '',
+    status = '',
+    decision = ''
+  }: {
+    page?: number
+    limit?: number
+    search?: string
+    status?: string
+    decision?: string
+  } = {}) => {
+    let query = supabase
+      .from('v_vendor_inbox')
+      .select('*', { count: 'exact' })
+
+    // Search filter
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,category.ilike.%${search}%`)
+    }
+
+    // Status filter
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    // Decision filter
+    if (decision) {
+      query = query.eq('decision', decision)
+    }
+
+    // Default sorting by creation date
+    query = query.order('created_at', { ascending: false })
+
+    // Pagination
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+    query = query.range(from, to)
+
+    const { data, error, count } = await query
+
+    if (error) throw error
+
+    return {
+      items: data as VendorInboxItem[],
+      total: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    }
+  },
+
+  // Update vendor import decision
+  updateImportDecision: async (productIds: number[], decision: 'staged' | 'skipped' | 'imported') => {
+    const updates = productIds.map(id => ({
+      shopify_product_id: id,
+      decision,
+      decided_at: new Date().toISOString()
+    }))
+
+    const { data, error } = await supabase
+      .from('vendor_import_decisions')
+      .upsert(updates)
+      .select()
+
+    if (error) throw error
+    return data
+  },
+
+  // Import vendor products
+  importVendorProducts: async (productIds: number[], overrides: Record<number, any> = {}) => {
+    const { data, error } = await supabase.functions.invoke('vendor-shopify-import', {
+      body: {
+        productIds,
+        overrides
+      }
+    })
 
     if (error) throw error
     return data

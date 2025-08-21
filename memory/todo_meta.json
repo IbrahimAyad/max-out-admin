@@ -5,35 +5,35 @@
         "id": "1",
         "content": "Database Schema Implementation",
         "details": "Create vendor mirror tables (vendor_products, vendor_variants, vendor_images, vendor_inventory_levels), import decision tracking, product overrides, and live inventory views. Add vendor mapping columns to existing product_variants table.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "2": {
         "id": "2",
         "content": "Shopify API Integration Routes",
         "details": "Implement 6 API routes: /api/vendor-shopify/sync (GraphQL catalog), /api/vendor-shopify/inventory (REST inventory), /api/vendor-shopify/webhooks (HMAC verified), /api/vendor-shopify/import (selective import), /api/product-overrides (admin edits), /api/checkout/validate (stock validation)",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "3": {
         "id": "3",
         "content": "Admin Dashboard - Vendor Inbox UI",
         "details": "Create new 'Vendor Inbox' card showing count from v_vendor_inbox_count view. Build click-through table displaying vendor products with multi-select import functionality, stage/skip actions, and live inventory display.",
-        "status": "pending",
+        "status": "completed",
         "priority": "high"
       },
       "4": {
         "id": "4",
         "content": "Real-Time Inventory & Checkout Integration",
         "details": "Integrate live vendor inventory into existing product pages and checkout flow. Implement inventory reservations to prevent overselling during checkout process.",
-        "status": "pending",
+        "status": "completed",
         "priority": "medium"
       },
       "5": {
         "id": "5",
         "content": "Automation & Security Setup",
-        "details": "Set up cron jobs (nightly catalog sync, 15-min inventory sync), implement webhook security (HMAC verification), add admin auth protection to all API routes, and configure environment variables.",
-        "status": "pending",
+        "details": "Edge functions and cron jobs deployed. User needs to add Shopify environment variables to Supabase dashboard to complete automation setup.",
+        "status": "in_progress",
         "priority": "medium"
       }
     }

@@ -44,8 +44,10 @@ export interface ProductVariant {
   inventory_quantity?: number;
   allow_backorders?: boolean;
   weight?: number;
-  option1?: string; // Size
-  option2?: string; // Color
+  size?: string; // Size field from enhanced_product_variants
+  color?: string; // Color field from enhanced_product_variants
+  option1?: string; // Size (legacy Shopify compatibility)
+  option2?: string; // Color (legacy Shopify compatibility)
   option3?: string; // Piece count (2 or 3 for suits)
   available?: boolean;
   available_quantity?: number;

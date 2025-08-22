@@ -155,15 +155,6 @@ function AdminDashboard() {
 
   const unreadCount = unreadNotifications.data?.data?.length || 0
 
-  const handleWeddingClick = () => {
-    setCurrentView('wedding')
-  }
-
-  const handleInventoryClick = () => {
-    // Redirect to the enhanced inventory manager application
-    window.open('https://max-out-inventory-manager.vercel.app', '_blank')
-  }
-
   const handleBackToDashboard = () => {
     setCurrentView('dashboard')
   }
@@ -200,10 +191,7 @@ function AdminDashboard() {
               {/* Left Column */}
               <div className="space-y-8">
                 <DashboardOverview />
-                <QuickNavigation 
-                  onWeddingClick={handleWeddingClick}
-                  onInventoryClick={handleInventoryClick}
-                />
+                <QuickNavigation />
               </div>
               
               {/* Right Column */}

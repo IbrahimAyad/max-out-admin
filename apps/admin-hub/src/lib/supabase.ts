@@ -29,112 +29,147 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 // Admin Hub API functions
 export const adminHubAPI = {
   getDashboardOverview: async () => {
-    // Return mock data since edge functions don't exist
-    return {
-      data: {
-        total_orders: 24,
-        pending_orders: 8,
-        revenue_today: 1250.00,
-        active_customers: 156
+    // Use the actual edge function
+    try {
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/dashboard-overview', {
+        method: 'GET'
+      })
+      if (error) {
+        console.error('Dashboard overview error:', error)
+        throw error
+      }
+      return data
+    } catch (error) {
+      console.error('Dashboard overview failed:', error)
+      // Fallback: return mock data if edge function fails
+      return {
+        data: {
+          todayRevenue: 0,
+          todayOrdersCount: 0,
+          pendingOrdersCount: 0,
+          unreadNotificationsCount: 0,
+          urgentNotificationsCount: 0,
+          lowStockAlertsCount: 0
+        }
       }
     }
   },
 
   getNotifications: async (params: { limit?: number; priority?: string; unread_only?: boolean } = {}) => {
-    // Return mock notifications since edge functions don't exist
-    const mockNotifications = [
-      {
-        id: '1',
-        title: 'New Order Received',
-        message: 'Order #1234 from John Smith needs attention',
-        priority: 'high',
-        read: false,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Low Stock Alert',
-        message: 'Black Tuxedo (Size 42R) is running low',
-        priority: 'medium',
-        read: false,
-        created_at: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        id: '3',
-        title: 'Wedding Consultation',
-        message: 'Wedding consultation scheduled for tomorrow',
-        priority: 'normal',
-        read: true,
-        created_at: new Date(Date.now() - 7200000).toISOString()
+    // Use the actual edge function
+    try {
+      let endpoint = 'admin-hub-api/notifications';
+      const queryParams = new URLSearchParams();
+      
+      if (params.limit) {
+        queryParams.append('limit', params.limit.toString());
       }
-    ]
-    
-    let filtered = mockNotifications
-    if (params.unread_only) {
-      filtered = filtered.filter(n => !n.read)
+      if (params.priority) {
+        queryParams.append('priority', params.priority);
+      }
+      if (params.unread_only) {
+        queryParams.append('unread_only', 'true');
+      }
+      
+      if (queryParams.toString()) {
+        endpoint += '?' + queryParams.toString();
+      }
+      
+      const { data, error } = await supabaseAdmin.functions.invoke(endpoint, {
+        method: 'GET'
+      });
+      
+      if (error) {
+        console.error('Notifications error:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Notifications failed:', error);
+      // Return empty array as fallback
+      return { data: [] };
     }
-    if (params.priority) {
-      filtered = filtered.filter(n => n.priority === params.priority)
-    }
-    if (params.limit) {
-      filtered = filtered.slice(0, params.limit)
-    }
-    
-    return { data: filtered }
   },
 
   getQuickStats: async () => {
-    // Return mock stats since edge functions don't exist
-    return {
-      data: {
-        orders_today: 12,
-        revenue_today: 850.00,
-        pending_shipments: 6,
-        low_stock_items: 3
+    try {
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/quick-stats', {
+        method: 'GET'
+      })
+      if (error) {
+        console.error('Quick stats error:', error)
+        throw error
+      }
+      return data
+    } catch (error) {
+      console.error('Quick stats failed:', error)
+      // Fallback: return mock data
+      return {
+        data: {
+          weeklyRevenue: 0,
+          weeklyOrdersCount: 0,
+          totalCustomers: 0,
+          processingQueueLength: 0
+        }
       }
     }
   },
 
   getRecentActivity: async () => {
-    // Return mock activity since edge functions don't exist
-    return {
-      data: [
-        {
-          id: '1',
-          type: 'order',
-          title: 'New Order #1234',
-          description: 'John Smith placed an order for Wedding Tuxedo',
-          timestamp: new Date().toISOString(),
-          status: 'new'
-        },
-        {
-          id: '2',
-          type: 'inventory',
-          title: 'Stock Updated',
-          description: 'Black Suit (42R) inventory updated to 15 units',
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          status: 'completed'
-        },
-        {
-          id: '3',
-          type: 'customer',
-          title: 'Consultation Booked',
-          description: 'Wedding consultation scheduled for David & Sarah',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          status: 'scheduled'
+    try {
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/recent-activity', {
+        method: 'GET'
+      })
+      if (error) {
+        console.error('Recent activity error:', error)
+        throw error
+      }
+      return data
+    } catch (error) {
+      console.error('Recent activity failed:', error)
+      // Fallback: return mock data
+      return {
+        data: {
+          recentOrders: [],
+          recentNotifications: []
         }
-      ]
+      }
     }
   },
 
   markNotificationRead: async (notificationId: string) => {
-    // Mock response since edge functions don't exist
-    return { data: { success: true, notification_id: notificationId } }
+    try {
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/mark-notification-read', {
+        method: 'POST',
+        body: { notification_id: notificationId }
+      });
+      
+      if (error) {
+        console.error('Mark notification read error:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Mark notification read failed:', error);
+      throw error;
+    }
   },
 
   markAllNotificationsRead: async () => {
-    // Mock response since edge functions don't exist
-    return { data: { success: true, marked_count: 3 } }
+    try {
+      const { data, error } = await supabaseAdmin.functions.invoke('admin-hub-api/mark-all-notifications-read', {
+        method: 'POST'
+      });
+      
+      if (error) {
+        console.error('Mark all notifications read error:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Mark all notifications read failed:', error);
+      throw error;
+    }
   }
 }
 

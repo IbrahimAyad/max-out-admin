@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { inventoryService, type EnhancedProductVariant, type Product } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function useInventory() {
+  const { user } = useAuth()
   const [variants, setVariants] = useState<EnhancedProductVariant[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -54,9 +56,13 @@ export function useInventory() {
   }
 
   useEffect(() => {
-    loadVariants()
-    loadProducts()
-  }, [])
+    if (user) {
+      loadVariants()
+      loadProducts()
+    } else {
+      setLoading(false)
+    }
+  }, [user])
 
   return {
     variants,
@@ -72,6 +78,7 @@ export function useInventory() {
 }
 
 export function useLowStockAlerts() {
+  const { user } = useAuth()
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -88,8 +95,12 @@ export function useLowStockAlerts() {
   }
 
   useEffect(() => {
-    loadAlerts()
-  }, [])
+    if (user) {
+      loadAlerts()
+    } else {
+      setLoading(false)
+    }
+  }, [user])
 
   return {
     alerts,

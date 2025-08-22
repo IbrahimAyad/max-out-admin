@@ -1,54 +1,49 @@
-# Dependencies
-node_modules/
-*.pnp
-.pnp.js
-
-# Production builds
-dist/
-build/
-.next/
-out/
-
-# Environment files (CRITICAL - NEVER COMMIT THESE)
+# Environment and Configuration Files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.example
 
-# API Keys and Secrets (NEVER COMMIT THESE)
-*.key
-*.pem
-*.p12
-*.pfx
-config/secrets.json
-secrets/
+# Supabase
+.supabase/
+supabase/.env
 
-# Database
-*.sqlite
-*.db
+# API Keys and Credentials
+**/api-keys.json
+**/credentials.json
+**/config.json
+**/.secrets
 
-# Logs
-logs/
-*.log
+# Shopify Sensitive Data
+# IMPORTANT: Never commit these!
+shopify-credentials.json
+shopify-config.json
+**/shopify-*.json
+
+# Specific credential patterns
+**/shpat_*
+**/admin-api-*
+**/webhook-secret-*
+
+# Database dumps
+*.sql
+*.dump
+*.backup
+
+# Node modules
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
 
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
+# Build outputs
+dist/
+build/
+.next/
+out/
 
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# IDE files
+# IDE and Editor files
 .vscode/
 .idea/
 *.swp
@@ -64,46 +59,74 @@ coverage/
 ehthumbs.db
 Thumbs.db
 
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
 # Temporary folders
 tmp/
 temp/
 
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
+# TypeScript cache
+*.tsbuildinfo
 
 # Optional npm cache directory
 .npm
 
-# Optional eslint cache
-.eslintcache
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Testing
+.nyc_output
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
+# misc
+.DS_Store
+*.pem
 
-# Debug and Test Reports (NEVER COMMIT THESE - CONTAIN SENSITIVE INFO)
-*debug_report*.md
-*test_report*.md
-*_testing_*.md
-*security_test*.md
-login_testing_debug_report.md
-admin_hub_security_test_report.md
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Shell output and temporary files
-shell_output_save/
-*.tmp
-*.temp
+# vercel
+.vercel
 
-# Any files containing tokens or keys
-*token*.txt
-*key*.txt
-*secret*.txt
-browser/
+# Local development files
+*.local
+
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z

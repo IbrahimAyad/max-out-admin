@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
-import { Search, Filter, Download, Plus, AlertTriangle, Package, Shirt, Palette } from 'lucide-react'
+import { Search, Filter, Download, Plus, AlertTriangle, Package, Shirt, Palette, LogOut, User } from 'lucide-react'
 import { useInventory } from '@/hooks/useInventory'
+import { useAuth } from '@/contexts/AuthContext'
 import { ProductVariantCard } from './ProductVariantCard'
 import { SizeMatrixView } from './SizeMatrixView'
 import { BulkEditModal } from './BulkEditModal'
@@ -14,6 +15,7 @@ type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
 
 export function EnhancedInventoryManager() {
   const { variants, products, loading, error, loadVariants, updateVariant, bulkUpdate } = useInventory()
+  const { user, signOut } = useAuth()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all')
@@ -146,6 +148,28 @@ export function EnhancedInventoryManager() {
 
   return (
     <div className="space-y-6">
+      {/* User Header */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2 rounded-full">
+              <User className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-medium text-gray-900">Welcome back!</h2>
+              <p className="text-sm text-gray-600">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={signOut}
+            className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="text-sm">Sign Out</span>
+          </button>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

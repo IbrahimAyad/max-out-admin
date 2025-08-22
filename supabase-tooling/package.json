@@ -1,0 +1,14 @@
+{
+  "name": "supabase-tooling",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Supabase database tooling for direct operations",
+  "main": "supabaseClient.js",
+  "scripts": {
+    "test": "node testConnection.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "dotenv": "^16.4.5"
+  }
+}

@@ -1,6 +1,7 @@
 {
   "name": "kct-ecosystem",
   "version": "1.0.0",
+  "type": "module",
   "description": "KCT Menswear Complete Ecosystem - Monorepo",
   "private": true,
   "workspaces": [
@@ -41,5 +42,9 @@
     "url": "https://github.com/IbrahimAyad/max-out-admin.git"
   },
   "author": "MiniMax Agent",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
+    "dotenv": "^17.2.1"
+  }
 }

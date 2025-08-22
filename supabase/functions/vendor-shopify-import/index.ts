@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
             throw new Error('productIds array is required and must not be empty');
         }
 
-        console.log(`Starting import for ${productIds.length} products:`, productIds);
+        console.log(`Starting grouped import for ${productIds.length} products:`, productIds);
 
         // Get Supabase configuration
         const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -30,89 +30,41 @@ Deno.serve(async (req) => {
             throw new Error('Supabase configuration missing');
         }
 
+        // Fetch all vendor data in one go for efficient processing
+        const vendorData = await fetchAllVendorData(productIds, supabaseUrl, serviceRoleKey);
+        
+        // Group products by base_product_code + color for proper variant grouping
+        const productGroups = groupProductsByColorVariant(vendorData);
+        
+        console.log(`Grouped ${productIds.length} vendor products into ${Object.keys(productGroups).length} main products`);
+
         const importResults = [];
         const errors = [];
 
-        // Process each product ID
-        for (const productId of productIds) {
+        // Process each product group
+        for (const [groupKey, groupData] of Object.entries(productGroups)) {
             try {
-                console.log(`Processing product ID: ${productId}`);
-
-                // Fetch the vendor product record
-                const productResponse = await fetch(`${supabaseUrl}/rest/v1/vendor_products?shopify_product_id=eq.${productId}&select=*`, {
-                    headers: {
-                        'Authorization': `Bearer ${serviceRoleKey}`,
-                        'apikey': serviceRoleKey,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!productResponse.ok) {
-                    throw new Error(`Failed to fetch vendor product ${productId}: ${productResponse.statusText}`);
-                }
-
-                const productData = await productResponse.json();
+                console.log(`Processing product group: ${groupKey}`);
                 
-                if (!productData || productData.length === 0) {
-                    throw new Error(`Vendor product ${productId} not found`);
-                }
-
-                const vendorProduct = productData[0];
-                console.log(`Found vendor product:`, vendorProduct.title);
-
-                // Fetch all variants for this product
-                const variantsResponse = await fetch(`${supabaseUrl}/rest/v1/vendor_variants?shopify_product_id=eq.${productId}&select=*`, {
-                    headers: {
-                        'Authorization': `Bearer ${serviceRoleKey}`,
-                        'apikey': serviceRoleKey,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!variantsResponse.ok) {
-                    throw new Error(`Failed to fetch variants for product ${productId}: ${variantsResponse.statusText}`);
-                }
-
-                const variantsData = await variantsResponse.json();
-                console.log(`Found ${variantsData.length} variants for product ${productId}`);
-
-                // Fetch product images
-                const imagesResponse = await fetch(`${supabaseUrl}/rest/v1/vendor_images?shopify_product_id=eq.${productId}&select=*`, {
-                    headers: {
-                        'Authorization': `Bearer ${serviceRoleKey}`,
-                        'apikey': serviceRoleKey,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!imagesResponse.ok) {
-                    throw new Error(`Failed to fetch images for product ${productId}: ${imagesResponse.statusText}`);
-                }
-
-                const imagesData = await imagesResponse.json();
-                console.log(`Found ${imagesData.length} images for product ${productId}`);
-
-                // Now process the import for this product
-                const importResult = await importProduct({
-                    vendorProduct,
-                    variants: variantsData,
-                    images: imagesData,
+                const importResult = await importProductGroup({
+                    groupKey,
+                    groupData,
                     supabaseUrl,
                     serviceRoleKey
                 });
 
                 importResults.push({
-                    vendorProductId: productId,
+                    groupKey,
                     success: true,
                     result: importResult
                 });
 
-                console.log(`Successfully imported product ${productId}`);
+                console.log(`Successfully imported product group: ${groupKey}`);
 
             } catch (error) {
-                console.error(`Error importing product ${productId}:`, error);
+                console.error(`Error importing product group ${groupKey}:`, error);
                 errors.push({
-                    vendorProductId: productId,
+                    groupKey,
                     error: error.message
                 });
             }
@@ -124,8 +76,8 @@ Deno.serve(async (req) => {
                 imported: importResults,
                 errors: errors,
                 summary: {
-                    total: productIds.length,
-                    successful: importResults.length,
+                    totalVendorProducts: productIds.length,
+                    productGroupsCreated: importResults.length,
                     failed: errors.length
                 }
             }
@@ -152,40 +104,160 @@ Deno.serve(async (req) => {
     }
 });
 
-// Helper function to import a single product
-async function importProduct({ vendorProduct, variants, images, supabaseUrl, serviceRoleKey }) {
-        // Generate a unique handle
-        let baseHandle = vendorProduct.handle || vendorProduct.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        let uniqueHandle = baseHandle;
-        
-        // Check if handle already exists and generate unique one if needed
-        const handleCheckResponse = await fetch(`${supabaseUrl}/rest/v1/products?handle=eq.${uniqueHandle}&select=id`, {
+// Fetch all vendor data efficiently
+async function fetchAllVendorData(productIds, supabaseUrl, serviceRoleKey) {
+    const vendorData = {};
+    
+    // Fetch all products
+    const productIdsParam = productIds.join(',');
+    
+    const [productsResponse, variantsResponse, imagesResponse, inventoryResponse] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/vendor_products?shopify_product_id=in.(${productIdsParam})&select=*`, {
             headers: {
                 'Authorization': `Bearer ${serviceRoleKey}`,
                 'apikey': serviceRoleKey
             }
-        });
+        }),
+        fetch(`${supabaseUrl}/rest/v1/vendor_variants?shopify_product_id=in.(${productIdsParam})&select=*`, {
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey
+            }
+        }),
+        fetch(`${supabaseUrl}/rest/v1/vendor_images?shopify_product_id=in.(${productIdsParam})&select=*`, {
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey
+            }
+        }),
+        fetch(`${supabaseUrl}/rest/v1/vendor_inventory_levels?select=*`, {
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey
+            }
+        })
+    ]);
+
+    const [products, variants, images, inventory] = await Promise.all([
+        productsResponse.json(),
+        variantsResponse.json(),
+        imagesResponse.json(),
+        inventoryResponse.json()
+    ]);
+
+    // Organize the data by product ID
+    for (const product of products) {
+        const productId = product.shopify_product_id;
+        vendorData[productId] = {
+            product,
+            variants: variants.filter(v => v.shopify_product_id === productId),
+            images: images.filter(i => i.shopify_product_id === productId),
+            inventory: {}
+        };
         
-        if (handleCheckResponse.ok) {
-            const existingProducts = await handleCheckResponse.json();
-            if (existingProducts.length > 0) {
-                // Product with this handle already exists, append timestamp to make it unique
-                uniqueHandle = `${baseHandle}-${Date.now()}`;
-                console.log(`Handle collision detected, using unique handle: ${uniqueHandle}`);
+        // Map inventory by inventory_item_id
+        const productVariants = vendorData[productId].variants;
+        for (const variant of productVariants) {
+            const inventoryLevel = inventory.find(inv => inv.inventory_item_id === variant.inventory_item_id);
+            if (inventoryLevel) {
+                vendorData[productId].inventory[variant.inventory_item_id] = inventoryLevel.available || 0;
             }
         }
+    }
+    
+    return vendorData;
+}
 
+// Group products by base_product_code + color for proper variant grouping
+function groupProductsByColorVariant(vendorData) {
+    const groups = {};
+    
+    for (const [productId, data] of Object.entries(vendorData)) {
+        const { product, variants } = data;
+        
+        // Extract base product code from SKU (e.g., "KS001" from "KS001-RED-10")
+        const firstVariant = variants[0];
+        if (!firstVariant) continue;
+        
+        const baseSku = firstVariant.sku || '';
+        const baseProductCode = baseSku.match(/^([^-]+)/)?.[1] || product.handle;
+        
+        // Group by base product + color (option1 is typically color)
+        const colorCode = firstVariant.option1 || 'default';
+        const groupKey = `${baseProductCode}-${colorCode}`.toLowerCase();
+        
+        if (!groups[groupKey]) {
+            groups[groupKey] = {
+                baseProductCode,
+                colorCode,
+                colorName: firstVariant.option1 || 'Default',
+                title: product.title,
+                description: product.body_html || '',
+                category: product.product_type || 'General',
+                vendor: product.vendor || '',
+                tags: product.tags || [],
+                basePrice: Math.round(parseFloat(firstVariant.price) * 100),
+                variants: [],
+                images: [],
+                vendorProductIds: []
+            };
+        }
+        
+        // Add all variants and data to this group
+        groups[groupKey].variants.push(...variants);
+        groups[groupKey].images.push(...data.images);
+        groups[groupKey].vendorProductIds.push(productId);
+        
+        // Update inventory mapping
+        if (!groups[groupKey].inventory) {
+            groups[groupKey].inventory = {};
+        }
+        Object.assign(groups[groupKey].inventory, data.inventory);
+    }
+    
+    return groups;
+}
+
+// Import a product group (base product + color variants)
+async function importProductGroup({ groupKey, groupData, supabaseUrl, serviceRoleKey }) {
+    const { baseProductCode, colorCode, colorName, title, description, category, vendor, tags, basePrice, variants, images } = groupData;
+    
+    // Create the main product name with color
+    const productName = `${title} - ${colorName}`;
+    const handle = `${baseProductCode}-${colorCode}`.toLowerCase();
+    
+    console.log(`Creating main product: ${productName}`);
+    
+    // Check if product already exists
+    const existingProductResponse = await fetch(`${supabaseUrl}/rest/v1/products?handle=eq.${handle}&select=id`, {
+        headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey
+        }
+    });
+    
+    let mainProduct;
+    if (existingProductResponse.ok) {
+        const existingProducts = await existingProductResponse.json();
+        if (existingProducts.length > 0) {
+            mainProduct = existingProducts[0];
+            console.log(`Using existing product: ${mainProduct.id}`);
+        }
+    }
+    
+    if (!mainProduct) {
+        // Create new main product
         const productData = {
-            name: vendorProduct.title,
-            description: vendorProduct.body_html || '',
-            category: vendorProduct.product_type || 'General',
-            sku: vendorProduct.handle || `VENDOR-${vendorProduct.shopify_product_id}`,
-            base_price: variants.length > 0 ? Math.round(parseFloat(variants[0].price) * 100) : 0, // Use first variant price in cents
+            name: productName,
+            description: description,
+            category: category,
+            sku: `${baseProductCode}-${colorCode}`,
+            base_price: basePrice,
             status: 'active',
-            product_type: vendorProduct.product_type || 'general',
-            vendor: vendorProduct.vendor || '',
-            tags: vendorProduct.tags || [],
-            handle: uniqueHandle,
+            product_type: category,
+            vendor: vendor,
+            tags: tags,
+            handle: handle,
             visibility: true,
             featured: false,
             requires_shipping: true,
@@ -193,60 +265,68 @@ async function importProduct({ vendorProduct, variants, images, supabaseUrl, ser
             track_inventory: true,
             weight: 0,
             additional_info: {
-                shopify_product_id: vendorProduct.shopify_product_id,
-                vendor_product_id: vendorProduct.shopify_product_id,
-                import_source: 'vendor_shopify',
+                base_product_code: baseProductCode,
+                color_code: colorCode,
+                color_name: colorName,
+                vendor_product_ids: groupData.vendorProductIds,
+                import_source: 'vendor_shopify_grouped',
                 imported_at: new Date().toISOString()
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         };
 
-    console.log('Creating main product record:', productData.name);
+        const productResponse = await fetch(`${supabaseUrl}/rest/v1/products`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(productData)
+        });
 
-    const productResponse = await fetch(`${supabaseUrl}/rest/v1/products`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(productData)
-    });
+        if (!productResponse.ok) {
+            const errorText = await productResponse.text();
+            throw new Error(`Failed to create product: ${errorText}`);
+        }
 
-    if (!productResponse.ok) {
-        const errorText = await productResponse.text();
-        throw new Error(`Failed to create product: ${errorText}`);
+        const createdProducts = await productResponse.json();
+        mainProduct = createdProducts[0];
+        console.log(`Created main product: ${mainProduct.id}`);
     }
 
-    const createdProducts = await productResponse.json();
-    const newProduct = createdProducts[0];
-    console.log(`Created product with ID: ${newProduct.id}`);
-
-    // Step 2: Create product variants
+    // Create variants for all sizes
     const createdVariants = [];
+    let totalInventory = 0;
+    
     for (const vendorVariant of variants) {
+        const size = vendorVariant.option2 || 'Default';
+        const variantTitle = `${productName} - Size ${size}`;
+        
         const variantData = {
-            product_id: newProduct.id,
-            title: `${vendorProduct.title} - ${vendorVariant.option1 || 'Default'}`,
-            price: Math.round(parseFloat(vendorVariant.price) * 100), // Convert to cents
+            product_id: mainProduct.id,
+            title: variantTitle,
+            price: Math.round(parseFloat(vendorVariant.price) * 100),
             compare_at_price: vendorVariant.compare_at_price ? Math.round(parseFloat(vendorVariant.compare_at_price) * 100) : null,
             sku: vendorVariant.sku || '',
             barcode: vendorVariant.barcode || '',
-            inventory_quantity: 0, // Set to 0 initially, will be managed via inventory sync
+            inventory_quantity: groupData.inventory[vendorVariant.inventory_item_id] || 0,
             weight: 0,
-            option1: vendorVariant.option1,
-            option2: vendorVariant.option2,
+            option1: colorName, // Color
+            option2: size, // Size
             option3: vendorVariant.option3,
             available: true,
             allow_backorders: false,
-            vendor_inventory_item_id: vendorVariant.inventory_item_id, // Critical for inventory sync!
+            vendor_inventory_item_id: vendorVariant.inventory_item_id,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         };
-
-        console.log(`Creating variant: ${variantData.title}`);
+        
+        totalInventory += variantData.inventory_quantity;
+        
+        console.log(`Creating variant: ${variantTitle} (Qty: ${variantData.inventory_quantity})`);
 
         const variantResponse = await fetch(`${supabaseUrl}/rest/v1/product_variants`, {
             method: 'POST',
@@ -261,123 +341,172 @@ async function importProduct({ vendorProduct, variants, images, supabaseUrl, ser
 
         if (!variantResponse.ok) {
             const errorText = await variantResponse.text();
-            throw new Error(`Failed to create variant: ${errorText}`);
+            console.error(`Failed to create variant: ${errorText}`);
+            continue;
         }
 
         const createdVariantResponse = await variantResponse.json();
         createdVariants.push(createdVariantResponse[0]);
     }
 
-    console.log(`Created ${createdVariants.length} variants`);
+    console.log(`Created ${createdVariants.length} variants with total inventory: ${totalInventory}`);
 
-    // Step 3: Process and upload images
+    // Create or update main inventory record
+    await createOrUpdateInventory(mainProduct.id, totalInventory, supabaseUrl, serviceRoleKey);
+    
+    // Process images (take first image from the group)
     const createdImages = [];
-    for (let i = 0; i < images.length; i++) {
-        const vendorImage = images[i];
+    const primaryImage = images.find(img => img.position === 1) || images[0];
+    
+    if (primaryImage) {
         try {
-            console.log(`Processing image ${i + 1}/${images.length}: ${vendorImage.src}`);
-
-            // Download the image from the vendor URL
-            const imageResponse = await fetch(vendorImage.src);
-            if (!imageResponse.ok) {
-                console.error(`Failed to download image from ${vendorImage.src}`);
-                continue;
+            console.log(`Processing primary image: ${primaryImage.src}`);
+            
+            const imageResponse = await fetch(primaryImage.src);
+            if (imageResponse.ok) {
+                const imageBuffer = await imageResponse.arrayBuffer();
+                const imageData = new Uint8Array(imageBuffer);
+                
+                const imageExtension = primaryImage.src.split('.').pop()?.split('?')[0] || 'jpg';
+                const filename = `product-${mainProduct.id}-primary-${Date.now()}.${imageExtension}`;
+                
+                const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/product-images/${filename}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${serviceRoleKey}`,
+                        'Content-Type': imageResponse.headers.get('content-type') || 'image/jpeg',
+                        'x-upsert': 'true'
+                    },
+                    body: imageData
+                });
+                
+                if (uploadResponse.ok) {
+                    const publicUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${filename}`;
+                    
+                    const imageRecord = {
+                        product_id: mainProduct.id,
+                        image_url: publicUrl,
+                        alt_text: primaryImage.alt || productName,
+                        position: 1,
+                        width: primaryImage.width,
+                        height: primaryImage.height,
+                        vendor_image_id: primaryImage.shopify_image_id,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    const imageRecordResponse = await fetch(`${supabaseUrl}/rest/v1/products_images`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${serviceRoleKey}`,
+                            'apikey': serviceRoleKey,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify(imageRecord)
+                    });
+                    
+                    if (imageRecordResponse.ok) {
+                        const createdImageRecord = await imageRecordResponse.json();
+                        createdImages.push(createdImageRecord[0]);
+                        console.log(`Successfully uploaded and saved image: ${filename}`);
+                    }
+                }
             }
-
-            const imageBuffer = await imageResponse.arrayBuffer();
-            const imageData = new Uint8Array(imageBuffer);
-
-            // Generate a unique filename
-            const imageExtension = vendorImage.src.split('.').pop()?.split('?')[0] || 'jpg';
-            const filename = `product-${newProduct.id}-image-${i + 1}-${Date.now()}.${imageExtension}`;
-
-            // Upload to Supabase Storage
-            const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/product-images/${filename}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${serviceRoleKey}`,
-                    'Content-Type': imageResponse.headers.get('content-type') || 'image/jpeg',
-                    'x-upsert': 'true'
-                },
-                body: imageData
-            });
-
-            if (!uploadResponse.ok) {
-                const errorText = await uploadResponse.text();
-                console.error(`Failed to upload image: ${errorText}`);
-                continue;
-            }
-
-            // Get the public URL
-            const publicUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${filename}`;
-
-            // Create the products_images record
-            const imageRecord = {
-                product_id: newProduct.id,
-                image_url: publicUrl,
-                alt_text: vendorImage.alt || newProduct.name,
-                position: vendorImage.position || (i + 1),
-                width: vendorImage.width,
-                height: vendorImage.height,
-                vendor_image_id: vendorImage.shopify_image_id,
-                created_at: new Date().toISOString()
-            };
-
-            const imageRecordResponse = await fetch(`${supabaseUrl}/rest/v1/products_images`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${serviceRoleKey}`,
-                    'apikey': serviceRoleKey,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(imageRecord)
-            });
-
-            if (!imageRecordResponse.ok) {
-                const errorText = await imageRecordResponse.text();
-                console.error(`Failed to create image record: ${errorText}`);
-                continue;
-            }
-
-            const createdImageRecord = await imageRecordResponse.json();
-            createdImages.push(createdImageRecord[0]);
-            console.log(`Successfully uploaded and saved image: ${filename}`);
-
         } catch (error) {
-            console.error(`Error processing image ${vendorImage.src}:`, error);
+            console.error(`Error processing image:`, error);
         }
     }
 
-    console.log(`Created ${createdImages.length} image records`);
+    // Update vendor import decisions for all vendor products in this group
+    for (const vendorProductId of groupData.vendorProductIds) {
+        const importDecision = {
+            shopify_product_id: parseInt(vendorProductId),
+            decision: 'imported',
+            decided_at: new Date().toISOString(),
+            notes: `Grouped import: ${createdVariants.length} variants, total inventory: ${totalInventory}`
+        };
 
-    // Step 4: Update vendor_import_decisions table
-    const importDecision = {
-        vendor_product_id: vendorProduct.shopify_product_id,
-        product_id: newProduct.id,
-        decision: 'imported',
-        imported_at: new Date().toISOString(),
-        notes: `Imported ${variants.length} variants and ${createdImages.length} images`
+        await fetch(`${supabaseUrl}/rest/v1/vendor_import_decisions`, {
+            method: 'UPSERT',
+            headers: {
+                'Authorization': `Bearer ${serviceRoleKey}`,
+                'apikey': serviceRoleKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(importDecision)
+        });
+    }
+
+    return {
+        product: mainProduct,
+        variants: createdVariants,
+        images: createdImages,
+        totalInventory,
+        vendorProductIds: groupData.vendorProductIds
     };
+}
 
-    const decisionResponse = await fetch(`${supabaseUrl}/rest/v1/vendor_import_decisions`, {
+// Create or update inventory record
+async function createOrUpdateInventory(productId, totalQuantity, supabaseUrl, serviceRoleKey) {
+    console.log(`Creating/updating inventory for product ${productId} with quantity ${totalQuantity}`);
+    
+    // Check if inventory record already exists
+    const existingResponse = await fetch(`${supabaseUrl}/rest/v1/inventory?product_id=eq.${productId}&select=*`, {
+        headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey
+        }
+    });
+    
+    const inventoryData = {
+        product_id: productId,
+        quantity: totalQuantity,
+        reserved_quantity: 0,
+        available_quantity: totalQuantity,
+        low_stock_threshold: 10,
+        updated_at: new Date().toISOString()
+    };
+    
+    if (existingResponse.ok) {
+        const existingInventory = await existingResponse.json();
+        if (existingInventory.length > 0) {
+            // Update existing inventory
+            const updateResponse = await fetch(`${supabaseUrl}/rest/v1/inventory?product_id=eq.${productId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${serviceRoleKey}`,
+                    'apikey': serviceRoleKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inventoryData)
+            });
+            
+            if (updateResponse.ok) {
+                console.log(`Updated inventory for product ${productId}`);
+            } else {
+                console.error(`Failed to update inventory for product ${productId}`);
+            }
+            return;
+        }
+    }
+    
+    // Create new inventory record
+    inventoryData.created_at = new Date().toISOString();
+    
+    const createResponse = await fetch(`${supabaseUrl}/rest/v1/inventory`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${serviceRoleKey}`,
             'apikey': serviceRoleKey,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(importDecision)
+        body: JSON.stringify(inventoryData)
     });
-
-    if (!decisionResponse.ok) {
-        console.error('Failed to update import decisions table');
+    
+    if (createResponse.ok) {
+        console.log(`Created inventory record for product ${productId}`);
+    } else {
+        const errorText = await createResponse.text();
+        console.error(`Failed to create inventory for product ${productId}: ${errorText}`);
     }
-
-    return {
-        product: newProduct,
-        variants: createdVariants,
-        images: createdImages,
-        vendorProductId: vendorProduct.shopify_product_id
-    };
 }

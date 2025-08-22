@@ -32,7 +32,7 @@ const InventoryManagement: React.FC = () => {
 
         // Fetch all variants for these products
         const { data: variantsData, error: variantsError } = await supabase
-          .from('product_variants')
+          .from('enhanced_product_variants')
           .select('*');
 
         if (variantsError) throw variantsError;
@@ -135,8 +135,8 @@ const InventoryManagement: React.FC = () => {
   const handleStockUpdate = async (variantId: string, newQuantity: number) => {
     try {
       const { error } = await supabase
-        .from('product_variants')
-        .update({ stock_quantity: newQuantity })
+        .from('enhanced_product_variants')
+        .update({ inventory_quantity: newQuantity })
         .eq('id', variantId);
 
       if (error) throw error;
@@ -146,7 +146,7 @@ const InventoryManagement: React.FC = () => {
         return prevProducts.map(product => {
           const updatedVariants = product.variants.map(variant => {
             if (variant.id === variantId) {
-              return { ...variant, stock_quantity: newQuantity };
+              return { ...variant, inventory_quantity: newQuantity };
             }
             return variant;
           });

@@ -81,7 +81,154 @@ CREATE TABLE IF NOT EXISTS sizing_categories (
 );
 
 -- ==============================================
--- 5. TRIGGERS FOR AUTOMATIC STOCK STATUS UPDATES
+-- 5. VENDOR TABLES FOR SUPPLIER INTEGRATION
+-- ==============================================
+
+-- Vendor Products (from Shopify/external sources)
+CREATE TABLE IF NOT EXISTS vendor_products (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    shopify_product_id BIGINT UNIQUE,
+    handle VARCHAR(255),
+    title VARCHAR(500) NOT NULL,
+    body_html TEXT,
+    vendor VARCHAR(255),
+    product_type VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'active',
+    tags TEXT[],
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    synced_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vendor Product Variants
+CREATE TABLE IF NOT EXISTS vendor_variants (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    shopify_variant_id BIGINT UNIQUE,
+    shopify_product_id BIGINT REFERENCES vendor_products(shopify_product_id) ON DELETE CASCADE,
+    sku VARCHAR(255),
+    barcode VARCHAR(255),
+    price DECIMAL(10,2),
+    compare_at_price DECIMAL(10,2),
+    position INTEGER DEFAULT 1,
+    inventory_item_id BIGINT,
+    option1 VARCHAR(255), -- Size
+    option2 VARCHAR(255), -- Color
+    option3 VARCHAR(255), -- Additional option
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vendor Product Images
+CREATE TABLE IF NOT EXISTS vendor_images (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    shopify_image_id BIGINT UNIQUE,
+    shopify_product_id BIGINT REFERENCES vendor_products(shopify_product_id) ON DELETE CASCADE,
+    src TEXT NOT NULL,
+    alt TEXT,
+    position INTEGER DEFAULT 1,
+    width INTEGER,
+    height INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vendor Inventory Levels
+CREATE TABLE IF NOT EXISTS vendor_inventory_levels (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    inventory_item_id BIGINT UNIQUE NOT NULL,
+    location_id BIGINT,
+    available INTEGER DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vendor Import Decisions (tracking what's been imported)
+CREATE TABLE IF NOT EXISTS vendor_import_decisions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    shopify_product_id BIGINT REFERENCES vendor_products(shopify_product_id),
+    decision VARCHAR(50) CHECK (decision IN ('pending', 'approved', 'rejected', 'imported')),
+    decided_by UUID REFERENCES auth.users(id),
+    decided_at TIMESTAMP WITH TIME ZONE,
+    imported_product_id UUID REFERENCES products(id),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Product Overrides (customizations for vendor products)
+CREATE TABLE IF NOT EXISTS product_overrides (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    shopify_product_id BIGINT REFERENCES vendor_products(shopify_product_id),
+    title VARCHAR(500),
+    category VARCHAR(255),
+    price_override_strategy VARCHAR(50) CHECK (price_override_strategy IN ('markup_percentage', 'markup_fixed', 'fixed_price')),
+    price_value DECIMAL(10,2),
+    tags TEXT[],
+    visibility BOOLEAN DEFAULT true,
+    featured BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==============================================
+-- 6. VENDOR VIEWS FOR UI
+-- ==============================================
+
+-- Vendor Inbox Count View
+CREATE OR REPLACE VIEW v_vendor_inbox_count AS
+SELECT COUNT(*) as inbox_count
+FROM vendor_products vp
+LEFT JOIN vendor_import_decisions vid ON vp.shopify_product_id = vid.shopify_product_id
+WHERE (vid.decision IS NULL OR vid.decision = 'pending')
+AND vp.status = 'active';
+
+-- Vendor Inbox Items View
+CREATE OR REPLACE VIEW v_vendor_inbox AS
+SELECT 
+    vp.shopify_product_id,
+    vp.title,
+    vp.product_type as category,
+    MIN(vv.price) as price,
+    COUNT(vv.id) as variants,
+    vp.status,
+    vp.created_at,
+    (SELECT vi.src FROM vendor_images vi WHERE vi.shopify_product_id = vp.shopify_product_id ORDER BY vi.position LIMIT 1) as image_src,
+    COALESCE(vid.decision, 'pending') as decision
+FROM vendor_products vp
+LEFT JOIN vendor_variants vv ON vp.shopify_product_id = vv.shopify_product_id
+LEFT JOIN vendor_import_decisions vid ON vp.shopify_product_id = vid.shopify_product_id
+WHERE vp.status = 'active'
+GROUP BY vp.shopify_product_id, vp.title, vp.product_type, vp.status, vp.created_at, vid.decision
+ORDER BY vp.created_at DESC;
+
+-- Vendor Inbox Variants View (detailed variant-level view)
+CREATE OR REPLACE VIEW v_vendor_inbox_variants AS
+SELECT 
+    vv.shopify_variant_id,
+    vv.shopify_product_id,
+    vv.sku,
+    vp.title || CASE 
+        WHEN vv.option2 IS NOT NULL AND vv.option1 IS NOT NULL THEN ' - ' || vv.option2 || ' ' || vv.option1
+        WHEN vv.option1 IS NOT NULL THEN ' - ' || vv.option1
+        ELSE ''
+    END as title,
+    COALESCE(vv.option2, 'Default') as color_name,
+    COALESCE(vv.option1, 'One Size') as size,
+    vv.option2 as color_code,
+    vp.title as product_title,
+    vp.product_type as category,
+    vv.price,
+    COALESCE(vil.available, 0) as inventory_quantity,
+    vp.status,
+    vp.created_at,
+    (SELECT vi.src FROM vendor_images vi WHERE vi.shopify_product_id = vp.shopify_product_id ORDER BY vi.position LIMIT 1) as image_src,
+    COALESCE(vid.decision, 'pending') as decision,
+    vid.decided_at
+FROM vendor_variants vv
+JOIN vendor_products vp ON vv.shopify_product_id = vp.shopify_product_id
+LEFT JOIN vendor_inventory_levels vil ON vv.inventory_item_id = vil.inventory_item_id
+LEFT JOIN vendor_import_decisions vid ON vp.shopify_product_id = vid.shopify_product_id
+WHERE vp.status = 'active'
+-- ==============================================
+-- 7. TRIGGERS FOR AUTOMATIC STOCK STATUS UPDATES
 -- ==============================================
 CREATE OR REPLACE FUNCTION update_stock_status()
 RETURNS TRIGGER AS $$
@@ -111,7 +258,7 @@ CREATE TRIGGER trigger_update_stock_status
     EXECUTE FUNCTION update_stock_status();
 
 -- ==============================================
--- 6. ROW LEVEL SECURITY (RLS) POLICIES
+-- 8. ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================
 
 -- Enable RLS on all tables
@@ -119,6 +266,12 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE enhanced_product_variants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE low_stock_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sizing_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vendor_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vendor_variants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vendor_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vendor_inventory_levels ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vendor_import_decisions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_overrides ENABLE ROW LEVEL SECURITY;
 
 -- Products table policies
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON products;
@@ -188,8 +341,110 @@ DROP POLICY IF EXISTS "Enable delete for authenticated users" ON sizing_categori
 CREATE POLICY "Enable delete for authenticated users" ON sizing_categories
     FOR DELETE USING (auth.role() = 'authenticated');
 
+-- Vendor products table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON vendor_products;
+CREATE POLICY "Enable read access for authenticated users" ON vendor_products
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON vendor_products;
+CREATE POLICY "Enable insert for authenticated users" ON vendor_products
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON vendor_products;
+CREATE POLICY "Enable update for authenticated users" ON vendor_products
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON vendor_products;
+CREATE POLICY "Enable delete for authenticated users" ON vendor_products
+    FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Vendor variants table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON vendor_variants;
+CREATE POLICY "Enable read access for authenticated users" ON vendor_variants
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON vendor_variants;
+CREATE POLICY "Enable insert for authenticated users" ON vendor_variants
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON vendor_variants;
+CREATE POLICY "Enable update for authenticated users" ON vendor_variants
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON vendor_variants;
+CREATE POLICY "Enable delete for authenticated users" ON vendor_variants
+    FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Vendor images table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON vendor_images;
+CREATE POLICY "Enable read access for authenticated users" ON vendor_images
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON vendor_images;
+CREATE POLICY "Enable insert for authenticated users" ON vendor_images
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON vendor_images;
+CREATE POLICY "Enable update for authenticated users" ON vendor_images
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON vendor_images;
+CREATE POLICY "Enable delete for authenticated users" ON vendor_images
+    FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Vendor inventory levels table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON vendor_inventory_levels;
+CREATE POLICY "Enable read access for authenticated users" ON vendor_inventory_levels
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON vendor_inventory_levels;
+CREATE POLICY "Enable insert for authenticated users" ON vendor_inventory_levels
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON vendor_inventory_levels;
+CREATE POLICY "Enable update for authenticated users" ON vendor_inventory_levels
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON vendor_inventory_levels;
+CREATE POLICY "Enable delete for authenticated users" ON vendor_inventory_levels
+    FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Vendor import decisions table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON vendor_import_decisions;
+CREATE POLICY "Enable read access for authenticated users" ON vendor_import_decisions
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON vendor_import_decisions;
+CREATE POLICY "Enable insert for authenticated users" ON vendor_import_decisions
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON vendor_import_decisions;
+CREATE POLICY "Enable update for authenticated users" ON vendor_import_decisions
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON vendor_import_decisions;
+CREATE POLICY "Enable delete for authenticated users" ON vendor_import_decisions
+    FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Product overrides table policies
+DROP POLICY IF EXISTS "Enable read access for authenticated users" ON product_overrides;
+CREATE POLICY "Enable read access for authenticated users" ON product_overrides
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable insert for authenticated users" ON product_overrides;
+CREATE POLICY "Enable insert for authenticated users" ON product_overrides
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable update for authenticated users" ON product_overrides;
+CREATE POLICY "Enable update for authenticated users" ON product_overrides
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Enable delete for authenticated users" ON product_overrides;
+CREATE POLICY "Enable delete for authenticated users" ON product_overrides
+    FOR DELETE USING (auth.role() = 'authenticated');
+
 -- ==============================================
--- 7. SAMPLE DATA FOR TESTING
+-- 9. SAMPLE DATA FOR TESTING
 -- ==============================================
 
 -- Insert sample sizing categories
@@ -207,6 +462,31 @@ INSERT INTO products (name, description, category, sku, base_price, track_invent
 ('White Dress Shirt', 'Classic white cotton dress shirt', 'Dress Shirts', 'KCT-SHIRT-001', 4900, true),
 ('Black Suspenders', 'Adjustable black suspenders', 'Suspenders', 'KCT-SUSP-001', 2900, true)
 ON CONFLICT (sku) DO NOTHING;
+
+-- Insert sample vendor products
+INSERT INTO vendor_products (shopify_product_id, handle, title, vendor, product_type, status) VALUES
+(9610532815161, 'stacy-adams-boys-5pc-suit-red', 'Stacy Adams Boy''s 5pc Solid Suit - Red', 'Stacy Adams', 'Boys-Suits', 'active'),
+(9610532749625, 'stacy-adams-boys-5pc-suit-grey', 'Stacy Adams Boy''s 5pc Solid Suit - Mid Grey', 'Stacy Adams', 'Boys-Suits', 'active'),
+(9610532716857, 'stacy-adams-boys-5pc-suit-white', 'Stacy Adams Boy''s 5pc Solid Suit - White', 'Stacy Adams', 'Boys-Suits', 'active')
+ON CONFLICT (shopify_product_id) DO NOTHING;
+
+-- Insert sample vendor variants
+INSERT INTO vendor_variants (shopify_variant_id, shopify_product_id, sku, price, option1, option2, inventory_item_id) VALUES
+(48839264878905, 9610532815161, 'SB282-RED-4', 79.95, '4', 'Red', 50839264878905),
+(48839264911673, 9610532815161, 'SB282-RED-5', 79.95, '5', 'Red', 50839264911673),
+(48839264944441, 9610532815161, 'SB282-RED-6', 79.95, '6', 'Red', 50839264944441),
+(48839264977209, 9610532815161, 'SB282-RED-7', 79.95, '7', 'Red', 50839264977209),
+(48839265009977, 9610532815161, 'SB282-RED-8', 79.95, '8', 'Red', 50839265009977)
+ON CONFLICT (shopify_variant_id) DO NOTHING;
+
+-- Insert sample vendor inventory levels
+INSERT INTO vendor_inventory_levels (inventory_item_id, available) VALUES
+(50839264878905, 35),
+(50839264911673, 42),
+(50839264944441, 28),
+(50839264977209, 31),
+(50839265009977, 32)
+ON CONFLICT (inventory_item_id) DO NOTHING;
 
 -- Insert sample variants (you may need to update product_id values)
 DO $$
@@ -247,14 +527,30 @@ BEGIN
 END $$;
 
 -- ==============================================
--- 8. INDEXES FOR PERFORMANCE
+-- 10. INDEXES FOR PERFORMANCE
 -- ==============================================
+-- Main table indexes
 CREATE INDEX IF NOT EXISTS idx_enhanced_product_variants_product_id ON enhanced_product_variants(product_id);
 CREATE INDEX IF NOT EXISTS idx_enhanced_product_variants_stock_status ON enhanced_product_variants(stock_status);
 CREATE INDEX IF NOT EXISTS idx_enhanced_product_variants_variant_type ON enhanced_product_variants(variant_type);
+CREATE INDEX IF NOT EXISTS idx_enhanced_product_variants_supplier_sku ON enhanced_product_variants(supplier_sku);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_products_track_inventory ON products(track_inventory);
 CREATE INDEX IF NOT EXISTS idx_low_stock_alerts_status ON low_stock_alerts(alert_status);
+
+-- Vendor table indexes
+CREATE INDEX IF NOT EXISTS idx_vendor_products_shopify_id ON vendor_products(shopify_product_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_products_status ON vendor_products(status);
+CREATE INDEX IF NOT EXISTS idx_vendor_products_vendor ON vendor_products(vendor);
+CREATE INDEX IF NOT EXISTS idx_vendor_variants_shopify_product_id ON vendor_variants(shopify_product_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_variants_shopify_variant_id ON vendor_variants(shopify_variant_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_variants_sku ON vendor_variants(sku);
+CREATE INDEX IF NOT EXISTS idx_vendor_variants_inventory_item_id ON vendor_variants(inventory_item_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_images_shopify_product_id ON vendor_images(shopify_product_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_inventory_levels_inventory_item_id ON vendor_inventory_levels(inventory_item_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_import_decisions_shopify_product_id ON vendor_import_decisions(shopify_product_id);
+CREATE INDEX IF NOT EXISTS idx_vendor_import_decisions_decision ON vendor_import_decisions(decision);
+CREATE INDEX IF NOT EXISTS idx_product_overrides_shopify_product_id ON product_overrides(shopify_product_id);
 
 -- ==============================================
 -- SETUP COMPLETE

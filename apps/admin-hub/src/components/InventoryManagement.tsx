@@ -94,7 +94,7 @@ const InventoryManagement: React.FC = () => {
       // Size filter
       if (filters.size) {
         const hasSizeVariant = product.variants.some(variant => 
-          variant.option1 === filters.size
+          variant.size === filters.size
         );
         if (!hasSizeVariant) return false;
       }
@@ -102,7 +102,7 @@ const InventoryManagement: React.FC = () => {
       // Color filter
       if (filters.color) {
         const hasColorVariant = product.variants.some(variant => 
-          variant.option2 === filters.color
+          variant.color === filters.color
         );
         if (!hasColorVariant) return false;
       }
@@ -110,7 +110,7 @@ const InventoryManagement: React.FC = () => {
       // Stock status filter
       if (filters.stockStatus !== 'all') {
         const variantsMatchingStockStatus = product.variants.filter(variant => {
-          const stockLevel = variant.stock_quantity || 0;
+          const stockLevel = variant.inventory_quantity || 0;
           
           switch (filters.stockStatus) {
             case 'in-stock':

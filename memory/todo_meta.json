@@ -4,7 +4,7 @@
       "1": {
         "id": "1",
         "content": "Fix Inventory Refresh Rate Limiting (HTTP 429)",
-        "details": "RESOLVED: Issue was actually a parameter validation bug (500 error), not rate limiting. Function now properly handles both 'refresh all' and 'refresh selected' operations with proper error handling and logging.",
+        "details": "COMPLETED: Enhanced vendor inbox to show variant-level data with individual size/color combinations and accurate inventory counts per variant. Inventory refresh function working correctly. UI now displays apparel-friendly format.",
         "status": "completed",
         "priority": "high"
       },

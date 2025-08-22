@@ -24,7 +24,7 @@ import ProductTable from './ProductTable'
 import BulkActions from './BulkActions'
 import FilterPanel from './FilterPanel'
 import ExportImport from './ExportImport'
-import EnhancedVendorInbox from './EnhancedVendorInbox'
+import VariantLevelVendorInbox from './VariantLevelVendorInbox'
 import analytics from '../lib/analytics'
 
 const Dashboard = () => {
@@ -279,9 +279,9 @@ const Dashboard = () => {
         />
       )}
 
-      {/* Enhanced Vendor Inbox Modal */}
+      {/* Variant-Level Vendor Inbox Modal */}
       {showVendorInbox && (
-        <EnhancedVendorInbox
+        <VariantLevelVendorInbox
           onClose={() => setShowVendorInbox(false)}
         />
       )}

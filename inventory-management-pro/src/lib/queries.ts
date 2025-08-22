@@ -14,6 +14,27 @@ interface VendorInboxItem {
   decision: string
 }
 
+// Enhanced Vendor Inbox interfaces for variant-level display
+interface VendorInboxVariant {
+  shopify_variant_id: number
+  shopify_product_id: number
+  sku: string
+  title: string // Full display title like "Product - Color Size X"
+  color_name: string
+  size: string
+  color_code: string
+  base_product_code: string
+  product_title: string
+  category: string | null
+  price: number | null
+  inventory_quantity: number | null
+  status: string
+  created_at: string
+  image_src: string | null
+  decision: string
+  decided_at: string | null
+}
+
 interface VendorInboxCount {
   inbox_count: number
 }
@@ -337,7 +358,7 @@ export const vendorQueries = {
     return data as VendorInboxCount
   },
 
-  // Get vendor inbox items
+  // Get vendor inbox items (LEGACY - product-level)
   getVendorInboxItems: async ({
     page = 1,
     limit = 20,
@@ -390,7 +411,62 @@ export const vendorQueries = {
     }
   },
 
-  // Update vendor import decision
+  // Get vendor inbox variants (ENHANCED - variant-level)
+  getVendorInboxVariants: async ({
+    page = 1,
+    limit = 20,
+    search = '',
+    status = '',
+    decision = ''
+  }: {
+    page?: number
+    limit?: number
+    search?: string
+    status?: string
+    decision?: string
+  } = {}) => {
+    let query = supabase
+      .from('v_vendor_inbox_variants')
+      .select('*', { count: 'exact' })
+
+    // Search filter - search across title, color, size, SKU
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,color_name.ilike.%${search}%,size.ilike.%${search}%,sku.ilike.%${search}%,category.ilike.%${search}%`)
+    }
+
+    // Status filter
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    // Decision filter
+    if (decision) {
+      query = query.eq('decision', decision)
+    }
+
+    // Default sorting by base product, color, then size
+    query = query.order('base_product_code', { ascending: true })
+      .order('color_code', { ascending: true })
+      .order('size', { ascending: true })
+
+    // Pagination
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+    query = query.range(from, to)
+
+    const { data, error, count } = await query
+
+    if (error) throw error
+
+    return {
+      items: data as VendorInboxVariant[],
+      total: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    }
+  },
+
+  // Update vendor import decision (works with both products and variants)
   updateImportDecision: async (productIds: number[], decision: 'staged' | 'skipped' | 'imported') => {
     const updates = productIds.map(id => ({
       shopify_product_id: id,
@@ -407,7 +483,23 @@ export const vendorQueries = {
     return data
   },
 
-  // Import vendor products
+  // Update variant import decision (for individual variant selections)
+  updateVariantImportDecision: async (variantIds: number[], decision: 'staged' | 'skipped' | 'imported') => {
+    // Get unique product IDs from the selected variants
+    const { data: variants, error: variantError } = await supabase
+      .from('vendor_variants')
+      .select('shopify_product_id')
+      .in('shopify_variant_id', variantIds)
+    
+    if (variantError) throw variantError
+    
+    const uniqueProductIds = [...new Set(variants.map(v => v.shopify_product_id))]
+    
+    // Update decisions for the products containing these variants
+    return vendorQueries.updateImportDecision(uniqueProductIds, decision)
+  },
+
+  // Import vendor products (enhanced to handle variant selections)
   importVendorProducts: async (productIds: number[], overrides: Record<number, any> = {}) => {
     const { data, error } = await supabase.functions.invoke('vendor-shopify-import', {
       body: {
@@ -418,6 +510,24 @@ export const vendorQueries = {
 
     if (error) throw error
     return data
+  },
+
+  // Import specific variants (for selective variant import)
+  importVendorVariants: async (variantIds: number[], overrides: Record<number, any> = {}) => {
+    // Get unique product IDs from the selected variants
+    const { data: variants, error: variantError } = await supabase
+      .from('vendor_variants')
+      .select('shopify_product_id')
+      .in('shopify_variant_id', variantIds)
+    
+    if (variantError) throw variantError
+    
+    const uniqueProductIds = [...new Set(variants.map(v => v.shopify_product_id))]
+    
+    // Import the products containing these variants
+    // Note: The import function will import all variants of selected products
+    // Future enhancement: modify import function to support specific variant selection
+    return vendorQueries.importVendorProducts(uniqueProductIds, overrides)
   },
 
   // Manual inventory refresh

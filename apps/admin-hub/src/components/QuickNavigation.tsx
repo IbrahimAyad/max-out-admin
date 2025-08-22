@@ -16,51 +16,47 @@ export function QuickNavigation({ className = '', onWeddingClick, onInventoryCli
       color: 'from-blue-500 to-blue-600'
     },
     {
-      title: 'Order Processing Dashboard', 
-      description: 'Operational workflows and fulfillment',
-      url: 'https://i55ibre0zen6.space.minimax.io',
+      title: 'Order Management', 
+      description: 'Order processing and fulfillment',
+      url: 'https://max-out-orders.vercel.app',
       icon: Package,
       color: 'from-green-500 to-green-600'
     },
     {
-      title: 'Wedding Management',
-      description: 'Wedding party coordination and formalwear',
-      onClick: onWeddingClick,
+      title: 'Wedding Portal',
+      description: 'Wedding party coordination and management',
+      url: 'https://max-out-wedding-portal.vercel.app',
       icon: Heart,
-      color: 'from-rose-500 to-rose-600',
-      isInternal: true
+      color: 'from-rose-500 to-rose-600'
     },
     {
-      title: 'Inventory Management',
-      description: 'Size-aware inventory tracking system',
-      onClick: onInventoryClick,
+      title: 'Enhanced Inventory Manager',
+      description: 'Advanced inventory with size matrix and analytics',
+      url: 'https://max-out-inventory-manager.vercel.app',
       icon: Layers,
-      color: 'from-purple-500 to-purple-600',
-      isInternal: true
+      color: 'from-purple-500 to-purple-600'
     }
   ]
 
   const quickActions = [
     {
-      title: 'View All Orders',
-      url: 'https://i55ibre0zen6.space.minimax.io/orders',
+      title: 'User Profiles',
+      url: 'https://max-out-user-profile.vercel.app',
       color: 'bg-gray-800 hover:bg-gray-700'
     },
     {
-      title: 'Inventory Management',
-      url: 'https://i55ibre0zen6.space.minimax.io/inventory',
-      color: 'bg-gray-800 hover:bg-gray-700',
-      onClick: onInventoryClick,
-      isInternal: true
-    },
-    {
-      title: 'Customer Analytics',
-      url: 'https://kei4wjdty1ey.space.minimax.io/customers',
+      title: 'Groomsmen Portal',
+      url: 'https://max-out-groomsmen.vercel.app',
       color: 'bg-gray-800 hover:bg-gray-700'
     },
     {
-      title: 'Revenue Reports',
-      url: 'https://kei4wjdty1ey.space.minimax.io/revenue',
+      title: 'Enhanced Inventory',
+      url: 'https://max-out-inventory-manager.vercel.app',
+      color: 'bg-gray-800 hover:bg-gray-700'
+    },
+    {
+      title: 'Order Management',
+      url: 'https://max-out-orders.vercel.app',
       color: 'bg-gray-800 hover:bg-gray-700'
     }
   ]

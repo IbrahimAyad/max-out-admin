@@ -8,7 +8,6 @@ import { RecentActivity } from './components/RecentActivity'
 import { WeddingManagement } from './components/WeddingManagement'
 import { AdminLogin } from './components/AdminLogin'
 import { UserMigrationTools } from './components/UserMigrationTools'
-import InventoryManagement from './components/InventoryManagement'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { useAdminQueries } from './hooks/useAdminQueries'
 
@@ -150,8 +149,8 @@ function AdminHeader({ onNotificationToggle, unreadCount, currentView, onBackCli
 
 function AdminDashboard() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
-  // Start with inventory view by default
-  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('inventory')
+  // Start with dashboard view by default
+  const [currentView, setCurrentView] = useState<'dashboard' | 'wedding' | 'settings' | 'inventory'>('dashboard')
   const { unreadNotifications } = useAdminQueries()
 
   const unreadCount = unreadNotifications.data?.data?.length || 0
@@ -161,7 +160,8 @@ function AdminDashboard() {
   }
 
   const handleInventoryClick = () => {
-    setCurrentView('inventory')
+    // Redirect to the enhanced inventory manager application
+    window.open('https://max-out-inventory-manager.vercel.app', '_blank')
   }
 
   const handleBackToDashboard = () => {
@@ -230,7 +230,18 @@ function AdminDashboard() {
             </div>
           </div>
         ) : currentView === 'inventory' ? (
-          <InventoryManagement />
+          // This should not be reached since inventory redirects externally
+          <div className="text-center py-12">
+            <p className="text-gray-600">Redirecting to Enhanced Inventory Manager...</p>
+            <a 
+              href="https://max-out-inventory-manager.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              Click here if not redirected automatically
+            </a>
+          </div>
         ) : (
           <WeddingManagement />
         )}
@@ -263,18 +274,6 @@ function App() {
 
 function AppContent() {
   const { user, loading } = useAuth()
-
-  // Special handling for direct access to inventory management
-  useEffect(() => {
-    // Check for ?bypass=true in URL
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('bypass') === 'true') {
-      // Force to inventory view with mock user
-      console.log('Direct inventory access - bypassing authentication')
-      localStorage.setItem('kct-test-user-session', 'true')
-      window.location.href = window.location.pathname // Remove query param
-    }
-  }, [])
 
   if (loading) {
     return (

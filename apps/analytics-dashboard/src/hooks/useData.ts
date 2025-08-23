@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseAdmin } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
@@ -115,7 +115,7 @@ export function useProducts(page = 1, limit = 20, search = '', category = '') {
   return useQuery({
     queryKey: ['products', page, limit, search, category],
     queryFn: async () => {
-      let query = supabase
+      let query = supabaseAdmin
         .from('products')
         .select('*, product_variants(count)')
         .range((page - 1) * limit, page * limit - 1)
@@ -146,7 +146,7 @@ export function useProduct(productId: string) {
   return useQuery({
     queryKey: ['product', productId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('products')
         .select('*, product_variants(*)')
         .eq('id', productId)
@@ -225,7 +225,7 @@ export function useCustomers(page = 1, limit = 20, search = '') {
   return useQuery({
     queryKey: ['customers', page, limit, search],
     queryFn: async () => {
-      let query = supabase
+      let query = supabaseAdmin
         .from('customers')
         .select('*')
         .range((page - 1) * limit, page * limit - 1)
@@ -245,7 +245,7 @@ export function useCustomers(page = 1, limit = 20, search = '') {
       // If the customers table count failed or returned 0, use fallback method
       if (!totalCount) {
         try {
-          const { count: customersCount, error: customersError } = await supabase
+          const { count: customersCount, error: customersError } = await supabaseAdmin
             .from('customers')
             .select('*', { count: 'exact', head: true })
 
@@ -282,7 +282,7 @@ export function useCustomer(customerId: string) {
   return useQuery({
     queryKey: ['customer', customerId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('customers')
         .select('*')
         .eq('id', customerId)

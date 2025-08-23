@@ -1,643 +1,336 @@
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { supabase, supabaseAdmin } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
-// Dashboard Stats Hook
+// Dashboard Analytics
 export function useDashboardStats() {
   return useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0]
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+      // Get today's orders
+      const { data: todayOrders, error: todayError } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .gte('created_at', today)
+        .eq('status', 'completed')
+
+      if (todayError) throw todayError
+
+      // Get yesterday's orders for comparison
+      const { data: yesterdayOrders, error: yesterdayError } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .gte('created_at', yesterday)
+        .lt('created_at', today)
+        .eq('status', 'completed')
+
+      if (yesterdayError) throw yesterdayError
+
+      // Get total orders count
+      const { count: totalOrders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+
+      if (ordersError) throw ordersError
+
+      // Get total customers count - handle potential table issues gracefully
+      let totalCustomers = 0
       try {
-        // Get current period data
-        const now = new Date()
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-        const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
-
-        // Get current period orders
-        const { data: currentOrders, error: currentOrdersError } = await supabase
-          .from('orders')
-          .select('total_amount, customer_id, created_at')
-          .gte('created_at', thirtyDaysAgo.toISOString())
-          .eq('status', 'completed')
-
-        if (currentOrdersError) throw currentOrdersError
-
-        // Get previous period orders for comparison
-        const { data: previousOrders, error: previousOrdersError } = await supabase
-          .from('orders')
-          .select('total_amount, customer_id')
-          .gte('created_at', sixtyDaysAgo.toISOString())
-          .lt('created_at', thirtyDaysAgo.toISOString())
-          .eq('status', 'completed')
-
-        if (previousOrdersError) throw previousOrdersError
-
-        // Calculate current metrics
-        const revenue = currentOrders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
-        const orders = currentOrders?.length || 0
-        const customers = new Set(currentOrders?.map(order => order.customer_id)).size
-
-        // Calculate previous metrics
-        const prevRevenue = previousOrders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
-        const prevOrders = previousOrders?.length || 0
-        const prevCustomers = new Set(previousOrders?.map(order => order.customer_id)).size
-
-        // Calculate percentage changes
-        const revenueChange = prevRevenue > 0 ? ((revenue - prevRevenue) / prevRevenue) * 100 : 0
-        const ordersChange = prevOrders > 0 ? ((orders - prevOrders) / prevOrders) * 100 : 0
-        const customersChange = prevCustomers > 0 ? ((customers - prevCustomers) / prevCustomers) * 100 : 0
-
-        // Get total products count
-        const { count: totalProducts, error: productsError } = await supabase
-          .from('enhanced_product_variants')
-          .select('*', { count: 'exact', head: true })
-
-        if (productsError) throw productsError
-
-        // Get products from previous period for comparison
-        const { count: prevProducts } = await supabase
-          .from('enhanced_product_variants')
-          .select('*', { count: 'exact', head: true })
-          .lt('created_at', thirtyDaysAgo.toISOString())
-
-        const products = totalProducts || 0
-        const productsChange = prevProducts ? ((products - prevProducts) / prevProducts) * 100 : 0
-
-        // Mock alerts and recent activity
-        const alerts = [
-          {
-            id: '1',
-            title: 'Low Inventory Alert',
-            description: '5 products are running low on stock',
-            type: 'warning' as const,
-            created_at: new Date().toISOString()
-          },
-          {
-            id: '2',
-            title: 'High Order Volume',
-            description: 'Orders increased by 25% this week',
-            type: 'info' as const,
-            created_at: new Date().toISOString()
-          }
-        ]
-
-        const recentActivity = [
-          {
-            id: '1',
-            description: 'New order #12345 received',
-            timestamp: '2 minutes ago',
-            type: 'order'
-          },
-          {
-            id: '2',
-            description: 'Product "Classic Navy Suit" updated',
-            timestamp: '15 minutes ago',
-            type: 'product'
-          },
-          {
-            id: '3',
-            description: 'Customer John Doe registered',
-            timestamp: '1 hour ago',
-            type: 'customer'
-          }
-        ]
-
-        return {
-          revenue,
-          revenueChange,
-          orders,
-          ordersChange,
-          customers,
-          customersChange,
-          products,
-          productsChange,
-          alerts,
-          recentActivity
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard stats:', error)
-        throw error
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
-  })
-}
-
-// Products Hook using enhanced_product_variants
-export function useProducts(
-  page = 1, 
-  limit = 20, 
-  search = '', 
-  category = '', 
-  status = '', 
-  sortBy = 'created_at'
-) {
-  return useQuery({
-    queryKey: ['products', page, limit, search, category, status, sortBy],
-    queryFn: async () => {
-      try {
-        let query = supabase
-          .from('enhanced_product_variants')
-          .select(`
-            id,
-            name,
-            category,
-            sku,
-            base_price,
-            status,
-            images,
-            created_at,
-            updated_at,
-            size,
-            color,
-            inventory_quantity
-          `, { count: 'exact' })
-
-        // Apply search filter
-        if (search) {
-          query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`)
-        }
-
-        // Apply category filter
-        if (category) {
-          query = query.eq('category', category)
-        }
-
-        // Apply status filter
-        if (status) {
-          query = query.eq('status', status)
-        }
-
-        // Apply sorting
-        const sortDirection = sortBy.startsWith('-') ? 'desc' : 'asc'
-        const sortField = sortBy.replace('-', '')
-        query = query.order(sortField, { ascending: sortDirection === 'asc' })
-
-        // Apply pagination
-        const from = (page - 1) * limit
-        const to = from + limit - 1
-        query = query.range(from, to)
-
-        const { data, error, count } = await query
-
-        if (error) throw error
-
-        // Group variants by product name and aggregate data
-        const productMap = new Map()
-        
-        data?.forEach((variant) => {
-          const productKey = variant.name
-          const existing = productMap.get(productKey)
-          
-          if (existing) {
-            // Aggregate inventory
-            existing.total_inventory = (existing.total_inventory || 0) + (variant.inventory_quantity || 0)
-            // Add variant to list
-            existing.variants = existing.variants || []
-            existing.variants.push(variant)
-          } else {
-            // Create new product entry
-            productMap.set(productKey, {
-              id: variant.id,
-              name: variant.name,
-              category: variant.category,
-              sku: variant.sku,
-              base_price: variant.base_price,
-              status: variant.status,
-              images: variant.images,
-              created_at: variant.created_at,
-              updated_at: variant.updated_at,
-              total_inventory: variant.inventory_quantity || 0,
-              variants: [variant]
-            })
-          }
-        })
-
-        const products = Array.from(productMap.values())
-
-        return {
-          products,
-          total: count || 0,
-          hasMore: (count || 0) > page * limit
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        throw error
-      }
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchOnWindowFocus: false
-  })
-}
-
-// Orders Hook
-export function useOrders(
-  page = 1, 
-  limit = 20, 
-  search = '', 
-  status = '', 
-  dateRange = '', 
-  sortBy = 'created_at'
-) {
-  return useQuery({
-    queryKey: ['orders', page, limit, search, status, dateRange, sortBy],
-    queryFn: async () => {
-      try {
-        let query = supabase
-          .from('orders')
-          .select(`
-            id,
-            order_number,
-            total_amount,
-            status,
-            customer_name,
-            customer_email,
-            customer_id,
-            payment_method,
-            shipping_method,
-            tracking_number,
-            items_count,
-            created_at,
-            updated_at
-          `, { count: 'exact' })
-
-        // Apply search filter
-        if (search) {
-          query = query.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,order_number.ilike.%${search}%,id.ilike.%${search}%`)
-        }
-
-        // Apply status filter
-        if (status) {
-          query = query.eq('status', status)
-        }
-
-        // Apply date range filter
-        if (dateRange) {
-          const now = new Date()
-          let startDate: Date
-          
-          switch (dateRange) {
-            case 'today':
-              startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-              break
-            case 'week':
-              startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-              break
-            case 'month':
-              startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-              break
-            case 'quarter':
-              startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-              break
-            case 'year':
-              startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
-              break
-            default:
-              startDate = new Date(0)
-          }
-          
-          query = query.gte('created_at', startDate.toISOString())
-        }
-
-        // Apply sorting
-        const sortDirection = sortBy.startsWith('-') ? 'desc' : 'asc'
-        const sortField = sortBy.replace('-', '')
-        query = query.order(sortField, { ascending: sortDirection === 'asc' })
-
-        // Apply pagination
-        const from = (page - 1) * limit
-        const to = from + limit - 1
-        query = query.range(from, to)
-
-        const { data, error, count } = await query
-
-        if (error) throw error
-
-        // Get status counts for the stats
-        const { data: allOrders } = await supabase
-          .from('orders')
-          .select('status')
-        
-        const statusCounts = (allOrders || []).reduce((acc: any, order) => {
-          acc[order.status] = (acc[order.status] || 0) + 1
-          return acc
-        }, {})
-
-        return {
-          orders: data || [],
-          total: count || 0,
-          hasMore: (count || 0) > page * limit,
-          statusCounts
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-        throw error
-      }
-    },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchOnWindowFocus: false
-  })
-}
-
-// Recent Orders Hook
-export function useRecentOrders(limit = 5) {
-  return useQuery({
-    queryKey: ['recent-orders', limit],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select(`
-            id,
-            total_amount,
-            status,
-            customer_name,
-            customer_email,
-            created_at
-          `)
-          .order('created_at', { ascending: false })
-          .limit(limit)
-
-        if (error) throw error
-
-        return data || []
-      } catch (error) {
-        console.error('Error fetching recent orders:', error)
-        throw error
-      }
-    },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchOnWindowFocus: false
-  })
-}
-
-// Customers Hook
-export function useCustomers(page = 1, limit = 20, search = '', sortBy = 'created_at') {
-  return useQuery({
-    queryKey: ['customers', page, limit, search, sortBy],
-    queryFn: async () => {
-      try {
-        let query = supabase
+        const { count: customersCount, error: customersError } = await supabase
           .from('customers')
-          .select(`
-            id,
-            name,
-            email,
-            phone,
-            address,
-            city,
-            state,
-            total_spent,
-            orders_count,
-            last_order_date,
-            created_at,
-            updated_at
-          `)
+          .select('*', { count: 'exact', head: true })
 
-        // Apply search filter
-        if (search) {
-          query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
-        }
+        if (customersError) {
+          console.warn('Customers table query failed, trying alternative approach:', customersError)
+          // Try counting distinct customer emails from orders as fallback
+          const { data: distinctCustomers, error: alternativeError } = await supabase
+            .from('orders')
+            .select('customer_email')
+            .not('customer_email', 'is', null)
 
-        // Apply sorting
-        const ascending = sortBy === 'name'
-        query = query.order(sortBy, { ascending })
-
-        // Apply pagination
-        const from = (page - 1) * limit
-        const to = from + limit - 1
-        query = query.range(from, to)
-
-        const { data, error, count } = await query
-
-        if (error) throw error
-
-        return {
-          customers: data || [],
-          total: count || 0,
-          hasMore: (count || 0) > page * limit
-        }
-      } catch (error) {
-        console.error('Error fetching customers:', error)
-        throw error
-      }
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchOnWindowFocus: false
-  })
-}
-
-// Reports Hook
-export function useReports(dateRange = 'month', reportType = 'sales') {
-  return useQuery({
-    queryKey: ['reports', dateRange, reportType],
-    queryFn: async () => {
-      try {
-        const now = new Date()
-        let startDate: Date
-        
-        switch (dateRange) {
-          case 'week':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-            break
-          case 'month':
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-            break
-          case 'quarter':
-            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-            break
-          case 'year':
-            startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
-            break
-          default:
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-        }
-
-        // Get orders data for the period
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('total_amount, created_at, customer_id, status')
-          .gte('created_at', startDate.toISOString())
-
-        if (ordersError) throw ordersError
-
-        const completedOrders = orders?.filter(order => order.status === 'completed') || []
-        const totalRevenue = completedOrders.reduce((sum, order) => sum + order.total_amount, 0)
-        const totalOrders = completedOrders.length
-        const uniqueCustomers = new Set(completedOrders.map(order => order.customer_id)).size
-        const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
-
-        // Get previous period for comparison
-        const periodLength = now.getTime() - startDate.getTime()
-        const prevStartDate = new Date(startDate.getTime() - periodLength)
-        const { data: prevOrders } = await supabase
-          .from('orders')
-          .select('total_amount, customer_id, status')
-          .gte('created_at', prevStartDate.toISOString())
-          .lt('created_at', startDate.toISOString())
-
-        const prevCompletedOrders = prevOrders?.filter(order => order.status === 'completed') || []
-        const prevRevenue = prevCompletedOrders.reduce((sum, order) => sum + order.total_amount, 0)
-        const prevOrdersCount = prevCompletedOrders.length
-        const prevCustomers = new Set(prevCompletedOrders.map(order => order.customer_id)).size
-        const prevAov = prevOrdersCount > 0 ? prevRevenue / prevOrdersCount : 0
-
-        const summary = {
-          totalRevenue,
-          revenueChange: prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue) * 100 : 0,
-          totalOrders,
-          ordersChange: prevOrdersCount > 0 ? ((totalOrders - prevOrdersCount) / prevOrdersCount) * 100 : 0,
-          newCustomers: uniqueCustomers,
-          customersChange: prevCustomers > 0 ? ((uniqueCustomers - prevCustomers) / prevCustomers) * 100 : 0,
-          avgOrderValue,
-          aovChange: prevAov > 0 ? ((avgOrderValue - prevAov) / prevAov) * 100 : 0
-        }
-
-        // Mock additional report data based on type
-        let reportData = {}
-        if (reportType === 'sales') {
-          reportData = {
-            salesData: {
-              topProducts: [
-                { name: 'Classic Navy Suit', category: 'Suits', quantity: 45, revenue: '$22,500' },
-                { name: 'Black Tuxedo', category: 'Tuxedos', quantity: 32, revenue: '$19,200' },
-                { name: 'Charcoal Blazer', category: 'Blazers', quantity: 28, revenue: '$11,200' }
-              ]
-            }
+          if (!alternativeError && distinctCustomers) {
+            const uniqueEmails = new Set(distinctCustomers.map(order => order.customer_email))
+            totalCustomers = uniqueEmails.size
           }
-        }
-
-        return {
-          summary,
-          ...reportData
+        } else {
+          totalCustomers = customersCount || 0
         }
       } catch (error) {
-        console.error('Error fetching reports:', error)
-        throw error
+        console.warn('Error getting customer count:', error)
+        totalCustomers = 0
+      }
+
+      // Get total products count
+      const { count: totalProducts, error: productsError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+
+      if (productsError) throw productsError
+
+      // Get recent orders
+      const { data: recentOrders, error: recentError } = await supabase
+        .from('orders')
+        .select('id, order_number, customer_email, total_amount, status, created_at')
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (recentError) throw recentError
+
+      // Get low stock products
+      const { data: lowStockProducts, error: stockError } = await supabase
+        .from('product_variants')
+        .select('id, sku, product_id, inventory_quantity, products(name)')
+        .lt('inventory_quantity', 10)
+        .order('inventory_quantity', { ascending: true })
+        .limit(5)
+
+      if (stockError) throw stockError
+
+      // Calculate revenue
+      const todayRevenue = todayOrders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
+      const yesterdayRevenue = yesterdayOrders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
+      const revenueChange = yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0
+
+      return {
+        todayRevenue,
+        revenueChange,
+        totalOrders: totalOrders || 0,
+        totalCustomers: totalCustomers,
+        totalProducts: totalProducts || 0,
+        recentOrders: recentOrders || [],
+        lowStockProducts: lowStockProducts || []
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchInterval: 30000, // Refetch every 30 seconds
   })
 }
 
-// Analytics Hook
-export function useAnalytics(timeframe = '30d', metric = 'revenue') {
+// Products
+export function useProducts(page = 1, limit = 20, search = '', category = '') {
   return useQuery({
-    queryKey: ['analytics', timeframe, metric],
+    queryKey: ['products', page, limit, search, category],
     queryFn: async () => {
-      try {
-        const now = new Date()
-        let startDate: Date
-        
-        switch (timeframe) {
-          case '7d':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-            break
-          case '30d':
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-            break
-          case '90d':
-            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-            break
-          case '365d':
-            startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
-            break
-          case 'ytd':
-            startDate = new Date(now.getFullYear(), 0, 1)
-            break
-          default:
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-        }
+      let query = supabaseAdmin
+        .from('products')
+        .select('*, product_variants(count)')
+        .range((page - 1) * limit, page * limit - 1)
+        .order('created_at', { ascending: false })
 
-        // Get orders data
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('total_amount, created_at, customer_id, status')
-          .gte('created_at', startDate.toISOString())
+      if (search) {
+        query = query.ilike('name', `%${search}%`)
+      }
 
-        if (ordersError) throw ordersError
+      if (category) {
+        query = query.eq('category', category)
+      }
 
-        const completedOrders = orders?.filter(order => order.status === 'completed') || []
-        const revenue = completedOrders.reduce((sum, order) => sum + order.total_amount, 0)
-        const ordersCount = completedOrders.length
-        const uniqueCustomers = new Set(completedOrders.map(order => order.customer_id)).size
+      const { data, error, count } = await query
 
-        // Get previous period for comparison
-        const periodLength = now.getTime() - startDate.getTime()
-        const prevStartDate = new Date(startDate.getTime() - periodLength)
-        const { data: prevOrders } = await supabase
-          .from('orders')
-          .select('total_amount, customer_id, status')
-          .gte('created_at', prevStartDate.toISOString())
-          .lt('created_at', startDate.toISOString())
+      if (error) throw error
 
-        const prevCompletedOrders = prevOrders?.filter(order => order.status === 'completed') || []
-        const prevRevenue = prevCompletedOrders.reduce((sum, order) => sum + order.total_amount, 0)
-        const prevOrdersCount = prevCompletedOrders.length
-        const prevCustomers = new Set(prevCompletedOrders.map(order => order.customer_id)).size
-
-        const kpis = {
-          revenue,
-          revenueChange: prevRevenue > 0 ? ((revenue - prevRevenue) / prevRevenue) * 100 : 0,
-          revenueTarget: revenue * 1.2, // 20% growth target
-          orders: ordersCount,
-          ordersChange: prevOrdersCount > 0 ? ((ordersCount - prevOrdersCount) / prevOrdersCount) * 100 : 0,
-          ordersTarget: ordersCount * 1.15, // 15% growth target
-          customers: uniqueCustomers,
-          customersChange: prevCustomers > 0 ? ((uniqueCustomers - prevCustomers) / prevCustomers) * 100 : 0,
-          customersTarget: uniqueCustomers * 1.25, // 25% growth target
-          conversionRate: 2.8, // Mock conversion rate
-          conversionChange: 0.3,
-          conversionTarget: 3.5
-        }
-
-        // Mock analytics data
-        const topProducts = [
-          { id: '1', name: 'Classic Navy Suit', category: 'Suits', revenue: 25000, sales: 50, growth: 15.2 },
-          { id: '2', name: 'Black Tuxedo', category: 'Tuxedos', revenue: 20000, sales: 35, growth: 8.7 },
-          { id: '3', name: 'Charcoal Blazer', category: 'Blazers', revenue: 15000, sales: 60, growth: 22.1 }
-        ]
-
-        const customerInsights = {
-          newCustomers: Math.floor(uniqueCustomers * 0.3),
-          newCustomersChange: 15.2,
-          returningCustomers: Math.floor(uniqueCustomers * 0.7),
-          returningCustomersChange: 8.7,
-          avgOrderValue: ordersCount > 0 ? revenue / ordersCount : 0,
-          aovChange: 12.5,
-          clv: ordersCount > 0 ? (revenue / ordersCount) * 3.2 : 0,
-          clvChange: 18.9
-        }
-
-        const trafficSources = [
-          { name: 'Direct', visitors: 15420, percentage: 45.2, color: '#3B82F6' },
-          { name: 'Search', visitors: 8932, percentage: 26.1, color: '#10B981' },
-          { name: 'Social', visitors: 5647, percentage: 16.5, color: '#F59E0B' },
-          { name: 'Email', visitors: 2845, percentage: 8.3, color: '#EF4444' },
-          { name: 'Referral', visitors: 1342, percentage: 3.9, color: '#8B5CF6' }
-        ]
-
-        const performance = {
-          pageLoadTime: 1247,
-          bounceRate: 34.2,
-          sessionDuration: '3m 42s',
-          pagesPerSession: 2.7
-        }
-
-        return {
-          kpis,
-          topProducts,
-          customerInsights,
-          trafficSources,
-          performance
-        }
-      } catch (error) {
-        console.error('Error fetching analytics:', error)
-        throw error
+      return {
+        products: data || [],
+        total: count || 0,
+        hasMore: (count || 0) > page * limit
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
+  })
+}
+
+export function useProduct(productId: string) {
+  return useQuery({
+    queryKey: ['product', productId],
+    queryFn: async () => {
+      const { data, error } = await supabaseAdmin
+        .from('products')
+        .select('*, product_variants(*)')
+        .eq('id', productId)
+        .maybeSingle()
+
+      if (error) throw error
+      return data
+    },
+    enabled: !!productId,
+  })
+}
+
+// Orders
+export function useOrders(page = 1, limit = 20, status = '', search = '') {
+  return useQuery({
+    queryKey: ['orders', page, limit, status, search],
+    queryFn: async () => {
+      let query = supabase
+        .from('orders')
+        .select('*')
+        .range((page - 1) * limit, page * limit - 1)
+        .order('created_at', { ascending: false })
+
+      if (status) {
+        query = query.eq('status', status)
+      }
+
+      if (search) {
+        query = query.or(`order_number.ilike.%${search}%,customer_email.ilike.%${search}%`)
+      }
+
+      const { data, error, count } = await query
+
+      if (error) throw error
+
+      return {
+        orders: data || [],
+        total: count || 0,
+        hasMore: (count || 0) > page * limit
+      }
+    },
+  })
+}
+
+export function useOrder(orderId: string) {
+  return useQuery({
+    queryKey: ['order', orderId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .maybeSingle()
+
+      if (error) throw error
+
+      // Get order items
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', orderId)
+
+      if (itemsError) throw itemsError
+
+      return {
+        ...data,
+        items: orderItems || []
+      }
+    },
+    enabled: !!orderId,
+  })
+}
+
+// Customers
+export function useCustomers(page = 1, limit = 20, search = '') {
+  return useQuery({
+    queryKey: ['customers', page, limit, search],
+    queryFn: async () => {
+      let query = supabaseAdmin
+        .from('customers')
+        .select('*')
+        .range((page - 1) * limit, page * limit - 1)
+        .order('created_at', { ascending: false })
+
+      if (search) {
+        query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
+      }
+
+      const { data, error, count } = await query
+
+      if (error) throw error
+
+      // Get total count using the same resilient approach as dashboard
+      let totalCount = count || 0
+      
+      // If the customers table count failed or returned 0, use fallback method
+      if (!totalCount) {
+        try {
+          const { count: customersCount, error: customersError } = await supabaseAdmin
+            .from('customers')
+            .select('*', { count: 'exact', head: true })
+
+          if (customersError || !customersCount) {
+            // Use fallback: count distinct customer emails from orders
+            const { data: distinctCustomers, error: alternativeError } = await supabase
+              .from('orders')
+              .select('customer_email')
+              .not('customer_email', 'is', null)
+
+            if (!alternativeError && distinctCustomers) {
+              const uniqueEmails = new Set(distinctCustomers.map(order => order.customer_email))
+              totalCount = uniqueEmails.size
+            }
+          } else {
+            totalCount = customersCount
+          }
+        } catch (error) {
+          console.warn('Error getting customer count:', error)
+          totalCount = 0
+        }
+      }
+
+      return {
+        customers: data || [],
+        total: totalCount,
+        hasMore: totalCount > page * limit
+      }
+    },
+  })
+}
+
+export function useCustomer(customerId: string) {
+  return useQuery({
+    queryKey: ['customer', customerId],
+    queryFn: async () => {
+      const { data, error } = await supabaseAdmin
+        .from('customers')
+        .select('*')
+        .eq('id', customerId)
+        .maybeSingle()
+
+      if (error) throw error
+
+      // Get customer orders
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('customer_email', data?.email)
+        .order('created_at', { ascending: false })
+
+      if (ordersError) throw ordersError
+
+      return {
+        ...data,
+        orders: orders || []
+      }
+    },
+    enabled: !!customerId,
+  })
+}
+
+// Mutations
+export function useUpdateOrderStatus() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .select()
+        .maybeSingle()
+
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      toast.success('Order status updated successfully')
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update order status')
+    },
   })
 }

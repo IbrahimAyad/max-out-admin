@@ -103,6 +103,7 @@ export const inventoryService = {
     stock_status?: string
     variant_type?: string
   } = {}) {
+    console.log('Fetching enhanced variants with filters:', filters)
     let query = supabase
       .from('enhanced_product_variants')
       .select('*')
@@ -118,19 +119,29 @@ export const inventoryService = {
       query = query.eq('variant_type', filters.variant_type)
     }
     
-    const { data, error } = await query
+    console.log('Executing query:', query)
+    const { data, error, count } = await query
     
-    if (error) throw error
+    console.log('Query result - Data:', data, 'Error:', error, 'Count:', count)
+    
+    if (error) {
+      console.error('Error fetching enhanced variants:', error)
+      throw error
+    }
     
     // Get product details for each variant
     if (data && data.length > 0) {
       const productIds = [...new Set(data.map(v => v.product_id))]
-      const { data: products } = await supabase
+      console.log('Fetching product details for product IDs:', productIds)
+      const { data: products, error: productsError } = await supabase
         .from('products')
         .select('id, name, category, sku')
         .in('id', productIds)
       
-      if (products) {
+      if (productsError) {
+        console.error('Error fetching product details:', productsError)
+      } else {
+        console.log('Product details:', products)
         const productMap = Object.fromEntries(products.map(p => [p.id, p]))
         data.forEach(variant => {
           variant.product = productMap[variant.product_id] || null
@@ -138,18 +149,25 @@ export const inventoryService = {
       }
     }
     
+    console.log('Returning variants:', data)
     return data as EnhancedProductVariant[]
   },
 
   // Get products with their variant counts
   async getProductsWithVariants() {
+    console.log('Fetching products with variants')
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .eq('track_inventory', true)
       .order('category', { ascending: true })
     
-    if (error) throw error
+    console.log('Products query result - Data:', data, 'Error:', error)
+    
+    if (error) {
+      console.error('Error fetching products:', error)
+      throw error
+    }
     return data as Product[]
   },
 

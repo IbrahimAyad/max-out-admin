@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabaseAdmin } from '../lib/supabase'
+import { supabase, supabaseAdmin } from '../lib/supabase'
 import toast from 'react-hot-toast'
 
 export interface AdminNotification {

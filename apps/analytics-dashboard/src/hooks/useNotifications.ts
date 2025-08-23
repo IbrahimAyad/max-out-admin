@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { supabaseAdmin } from '../lib/supabase'
 import toast from 'react-hot-toast'
 
 export interface AdminNotification {
@@ -42,7 +42,7 @@ export function useNotifications() {
   const notificationsQuery = useQuery({
     queryKey: ['admin-notifications'],
     queryFn: async (): Promise<AdminNotification[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('admin_notifications')
         .select('*')
         .order('created_at', { ascending: false })
@@ -58,7 +58,7 @@ export function useNotifications() {
   const statsQuery = useQuery({
     queryKey: ['notification-stats'],
     queryFn: async (): Promise<NotificationStats> => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('admin_notifications')
         .select('type, is_read, priority, created_at')
       
@@ -96,7 +96,7 @@ export function useNotifications() {
   // Mark notification as read
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('admin_notifications')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('id', notificationId)
@@ -116,7 +116,7 @@ export function useNotifications() {
   // Mark all notifications as read
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('admin_notifications')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('is_read', false)
@@ -137,7 +137,7 @@ export function useNotifications() {
   // Delete notification
   const deleteNotificationMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('admin_notifications')
         .delete()
         .eq('id', notificationId)

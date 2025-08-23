@@ -274,7 +274,7 @@ export default function Layout({ children }: LayoutProps) {
 
 // Notification Bell Component
 function NotificationBell() {
-  const [hasNotifications, setHasNotifications] = useState(true)
+  const [hasNotifications] = useState(true)
 
   return (
     <button className="relative p-2 rounded-md text-gray-400 hover:text-gray-600 touch-manipulation">

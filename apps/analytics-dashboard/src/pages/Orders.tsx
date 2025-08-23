@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useOrders } from '../hooks/useData'
 import { 
   Search, 
   ShoppingBag, 
-  Filter,
   Calendar,
   User,
   Package,
@@ -51,32 +50,6 @@ export default function Orders() {
     { value: 'total_amount', label: 'Order Value' },
     { value: 'customer_name', label: 'Customer Name' }
   ]
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const getStatusConfig = (status: string) => {
-    return statusOptions.find(option => option.value === status) || {
-      value: status,
-      label: status,
-      icon: AlertCircle,
-      color: 'bg-gray-100 text-gray-800'
-    }
-  }
 
   if (isLoading) {
     return (

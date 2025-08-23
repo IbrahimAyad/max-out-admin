@@ -1,4 +1,3 @@
-import React from 'react'
 import { useDashboardStats } from '../hooks/useData'
 import { 
   TrendingUp, 

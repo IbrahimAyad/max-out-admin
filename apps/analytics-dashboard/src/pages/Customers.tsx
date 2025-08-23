@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useCustomers } from '../hooks/useData'
 import { 
   Search, 
@@ -21,21 +21,6 @@ export default function Customers() {
   const limit = 20
 
   const { data, isLoading, error } = useCustomers(page, limit, search, sortBy)
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
 
   const sortOptions = [
     { value: 'created_at', label: 'Recently Added' },

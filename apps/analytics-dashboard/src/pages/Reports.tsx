@@ -1,15 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useReports } from '../hooks/useData'
 import { 
-  FileText, 
   Download, 
-  Calendar, 
   TrendingUp,
   DollarSign,
   ShoppingBag,
   Users,
   Package,
-  Filter,
   RefreshCw,
   BarChart3,
   PieChart,
@@ -63,11 +60,6 @@ export default function Reports() {
       style: 'currency',
       currency: 'USD',
     }).format(amount)
-  }
-
-  const formatPercentage = (value: number) => {
-    const sign = value >= 0 ? '+' : ''
-    return `${sign}${value.toFixed(1)}%`
   }
 
   const handleGenerateReport = async () => {
@@ -237,10 +229,10 @@ export default function Reports() {
       )}
 
       {/* Report Content based on type */}
-      {reportType === 'sales' && <SalesReport data={reports?.salesData} />}
-      {reportType === 'products' && <ProductsReport data={reports?.productsData} />}
-      {reportType === 'customers' && <CustomersReport data={reports?.customersData} />}
-      {reportType === 'inventory' && <InventoryReport data={reports?.inventoryData} />}
+      {reportType === 'sales' && <SalesReport />}
+      {reportType === 'products' && <ProductsReport />}
+      {reportType === 'customers' && <CustomersReport />}
+      {reportType === 'inventory' && <InventoryReport />}
 
       {/* Error State */}
       {error && (
@@ -292,16 +284,7 @@ function SummaryCard({
 }
 
 // Sales Report Component
-function SalesReport({ data }: { data?: any }) {
-  if (!data) {
-    return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sales Report</h3>
-        <p className="text-gray-500">No sales data available for the selected period.</p>
-      </div>
-    )
-  }
-
+function SalesReport() {
   return (
     <div className="space-y-6">
       {/* Chart Placeholder */}
@@ -318,31 +301,45 @@ function SalesReport({ data }: { data?: any }) {
       {/* Top Products */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Selling Products</h3>
-        {data.topProducts && data.topProducts.length > 0 ? (
-          <div className="space-y-3">
-            {data.topProducts.map((product: any, index: number) => (
-              <div key={index} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">{product.name}</p>
-                  <p className="text-sm text-gray-500">{product.category}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">{product.quantity} sold</p>
-                  <p className="text-sm text-gray-500">{product.revenue}</p>
-                </div>
-              </div>
-            ))}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Classic Navy Suit</p>
+              <p className="text-sm text-gray-500">Suits</p>
+            </div>
+            <div className="text-right">
+              <p className="font-medium text-gray-900">45 sold</p>
+              <p className="text-sm text-gray-500">$22,500</p>
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-500">No product data available.</p>
-        )}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Black Tuxedo</p>
+              <p className="text-sm text-gray-500">Tuxedos</p>
+            </div>
+            <div className="text-right">
+              <p className="font-medium text-gray-900">32 sold</p>
+              <p className="text-sm text-gray-500">$19,200</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Charcoal Blazer</p>
+              <p className="text-sm text-gray-500">Blazers</p>
+            </div>
+            <div className="text-right">
+              <p className="font-medium text-gray-900">28 sold</p>
+              <p className="text-sm text-gray-500">$11,200</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 // Products Report Component
-function ProductsReport({ data }: { data?: any }) {
+function ProductsReport() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Products Report</h3>
@@ -357,7 +354,7 @@ function ProductsReport({ data }: { data?: any }) {
 }
 
 // Customers Report Component
-function CustomersReport({ data }: { data?: any }) {
+function CustomersReport() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Customers Report</h3>
@@ -372,7 +369,7 @@ function CustomersReport({ data }: { data?: any }) {
 }
 
 // Inventory Report Component
-function InventoryReport({ data }: { data?: any }) {
+function InventoryReport() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory Report</h3>

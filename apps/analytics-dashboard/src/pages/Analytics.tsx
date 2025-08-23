@@ -1,14 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useAnalytics } from '../hooks/useData'
 import { 
-  TrendingUp, 
-  TrendingDown,
   BarChart3,
-  PieChart,
   LineChart,
   Target,
-  Calendar,
-  Filter,
   RefreshCw,
   Download,
   Zap,
@@ -50,11 +45,6 @@ export default function Analytics() {
       notation: amount >= 1000000 ? 'compact' : 'standard',
       maximumFractionDigits: amount >= 1000000 ? 1 : 0
     }).format(amount)
-  }
-
-  const formatPercentage = (value: number) => {
-    const sign = value >= 0 ? '+' : ''
-    return `${sign}${value.toFixed(1)}%`
   }
 
   const formatNumber = (num: number) => {

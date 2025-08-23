@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useProducts } from '../hooks/useData'
 import { getPrimaryImageFromProduct } from '../lib/supabase'
 import AddProductModal from '../components/AddProductModal'
@@ -6,7 +6,6 @@ import {
   Search, 
   Plus, 
   Package, 
-  Filter,
   Grid,
   List,
   Edit,
@@ -50,26 +49,6 @@ export default function Products() {
     { value: 'base_price', label: 'Price (Low to High)' },
     { value: 'updated_at', label: 'Recently Updated' }
   ]
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800'
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'archived':
-        return 'bg-gray-100 text-gray-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
 
   if (isLoading) {
     return (

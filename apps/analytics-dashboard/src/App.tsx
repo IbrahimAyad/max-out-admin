@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -19,108 +20,122 @@ import OrderManagementDashboard from './pages/OrderManagementDashboard';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 function App() {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Navigate to="/enhanced-dashboard" replace />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/enhanced-dashboard" element={
-              <ProtectedRoute>
-                <Layout>
-                  <EnhancedOrderDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/order-management" element={
-              <ProtectedRoute>
-                <Layout>
-                  <OrderManagementDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/orders" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Orders />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/orders/:id" element={
-              <ProtectedRoute>
-                <Layout>
-                  <OrderDetails />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/products" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Products />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/products/:id" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ProductDetails />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/customers" element={
-              <ProtectedRoute>
-                <Layout>
-                  <CustomerProfile />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/customers/:id" element={
-              <ProtectedRoute>
-                <Layout>
-                  <CustomerProfile />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/analytics" element={
-              <ProtectedRoute>
-                <Layout>
-                  <AnalyticsPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/reports" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Reports />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Navigate to="/enhanced-dashboard" replace />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/enhanced-dashboard" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <EnhancedOrderDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/order-management" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <OrderManagementDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Orders />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/orders/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <OrderDetails />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/products" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductDetails />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/products/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductDetails />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/customers" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CustomerProfile />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/customers/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CustomerProfile />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/analytics" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AnalyticsPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Reports />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </ErrorBoundary>
+    </QueryClientProvider>
   );
 }
 

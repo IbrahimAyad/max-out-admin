@@ -110,7 +110,7 @@ export function OrderDetailsView({
     }
   };
 
-  const getBundleGroups = () => {
+  const getBundleGroups = (): [string, { type: string; items: any[] }][] => {
     const bundles = orderItems.filter(item => item.is_bundle_item);
     const groups = bundles.reduce((acc, item) => {
       const bundleId = item.bundle_parent_id || item.id;
@@ -396,7 +396,7 @@ export function OrderDetailsView({
                               <span className="font-medium text-purple-700">Custom Measurements:</span>
                               <div className="text-gray-600">
                                 {Object.entries(item.custom_measurements).map(([key, value]) => (
-                                  <span key={key} className="mr-3">{key}: {value}</span>
+                                  <span key={key} className="mr-3">{key}: {String(value)}</span>
                                 ))}
                               </div>
                             </div>

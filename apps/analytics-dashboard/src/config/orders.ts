@@ -1,6 +1,7 @@
 // Updated order configuration for the enhanced workflow system
 
 export enum OrderStatus {
+  PENDING = 'pending',
   PENDING_PAYMENT = 'pending_payment',
   PAYMENT_CONFIRMED = 'payment_confirmed',
   PROCESSING = 'processing',
@@ -28,12 +29,32 @@ export enum OrderPriority {
   VIP_CUSTOMER = 'vip_customer'
 }
 
+export enum PriorityLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
+  WEDDING = 'wedding'
+}
+
+export enum ExceptionStatus {
+  OPEN = 'open',
+  IN_PROGRESS = 'in_progress',
+  RESOLVED = 'resolved',
+  CLOSED = 'closed',
+  ESCALATED = 'escalated'
+}
+
 export enum ProductSource {
   CORE_STRIPE = 'core_stripe',
   CATALOG_SUPABASE = 'catalog_supabase'
 }
 
 export enum CommunicationType {
+  EMAIL = 'email',
+  SMS = 'sms',
+  CALL = 'call',
+  SYSTEM = 'system',
   ORDER_CONFIRMATION = 'order_confirmation',
   PAYMENT_CONFIRMATION = 'payment_confirmation',
   PROCESSING_UPDATE = 'processing_update',
@@ -62,8 +83,11 @@ export interface Order {
   customer_email: string;
   customer_name: string;
   customer_phone?: string;
+  customer?: { name?: string; email?: string; first_name?: string; last_name?: string };
   order_status: OrderStatus;
+  status?: OrderStatus;
   order_priority: OrderPriority;
+  priority_level?: PriorityLevel;
   subtotal_amount: number;
   tax_amount: number;
   shipping_amount: number;
@@ -157,8 +181,10 @@ export interface CommunicationLog {
   customer_id?: string;
   communication_type: CommunicationType;
   communication_channel: CommunicationChannel;
+  direction?: 'inbound' | 'outbound';
   subject?: string;
   message_content: string;
+  content?: string;
   personalized_content?: Record<string, any>;
   recipient_email?: string;
   recipient_phone?: string;
@@ -168,6 +194,7 @@ export interface CommunicationLog {
   clicked_at?: string;
   delivery_status: string;
   customer_response?: string;
+  response_received?: boolean;
   response_received_at?: string;
   is_automated: boolean;
   automation_trigger?: string;
@@ -208,6 +235,10 @@ export interface OrderException {
   exception_type: string;
   exception_severity: string;
   exception_description: string;
+  status?: ExceptionStatus;
+  description?: string;
+  priority_level?: PriorityLevel;
+  assigned_to?: string;
   affects_delivery_date: boolean;
   estimated_delay_days?: number;
   customer_impact_level: string;
@@ -232,6 +263,9 @@ export interface OrderException {
 export interface ProcessingAnalytics {
   id: string;
   order_id: string;
+  processing_stage?: string;
+  stage_duration_minutes?: number;
+  automated?: boolean;
   payment_to_processing_minutes?: number;
   processing_to_production_minutes?: number;
   production_to_quality_minutes?: number;
@@ -257,6 +291,13 @@ export const DASHBOARD_CONFIG = {
   MAX_RECENT_ORDERS: 100,
   REFRESH_INTERVAL: 30000, // 30 seconds
   HIGH_PRIORITY_THRESHOLD: 3,
+  PRIORITY_COLORS: {
+    [PriorityLevel.LOW]: 'bg-gray-100 text-gray-800',
+    [PriorityLevel.MEDIUM]: 'bg-blue-100 text-blue-800',
+    [PriorityLevel.HIGH]: 'bg-orange-100 text-orange-800',
+    [PriorityLevel.URGENT]: 'bg-red-100 text-red-800',
+    [PriorityLevel.WEDDING]: 'bg-purple-100 text-purple-800'
+  },
   SLA_TARGETS: {
     STANDARD: 72, // hours
     RUSH: 24,
@@ -272,6 +313,7 @@ export const DASHBOARD_CONFIG = {
 
 // Order status colors for UI
 export const STATUS_COLORS = {
+  [OrderStatus.PENDING]: 'bg-gray-100 text-gray-800',
   [OrderStatus.PENDING_PAYMENT]: 'bg-yellow-100 text-yellow-800',
   [OrderStatus.PAYMENT_CONFIRMED]: 'bg-blue-100 text-blue-800',
   [OrderStatus.PROCESSING]: 'bg-blue-100 text-blue-800',

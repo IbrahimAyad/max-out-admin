@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, Mail, Phone, Calendar, User, Filter } from 'lucide-react';
-import { CommunicationLog, CommunicationType } from '../../config/orders';
+import { CommunicationLog, CommunicationType, CommunicationChannel } from '../../config/orders';
 
 interface CommunicationLogProps {
   communications: CommunicationLog[];
@@ -59,10 +59,20 @@ export function CommunicationLogComponent({ communications, onAddCommunication }
 
   const getTypeColor = (type: CommunicationType) => {
     const colors: Record<CommunicationType, string> = {
-      'email': 'bg-blue-100 text-blue-800',
-      'sms': 'bg-green-100 text-green-800',
-      'call': 'bg-purple-100 text-purple-800',
-      'system': 'bg-gray-100 text-gray-800'
+      [CommunicationType.EMAIL]: 'bg-blue-100 text-blue-800',
+      [CommunicationType.SMS]: 'bg-green-100 text-green-800',
+      [CommunicationType.CALL]: 'bg-purple-100 text-purple-800',
+      [CommunicationType.SYSTEM]: 'bg-gray-100 text-gray-800',
+      [CommunicationType.ORDER_CONFIRMATION]: 'bg-blue-100 text-blue-800',
+      [CommunicationType.PAYMENT_CONFIRMATION]: 'bg-green-100 text-green-800',
+      [CommunicationType.PROCESSING_UPDATE]: 'bg-yellow-100 text-yellow-800',
+      [CommunicationType.SHIPPING_NOTIFICATION]: 'bg-purple-100 text-purple-800',
+      [CommunicationType.DELIVERY_CONFIRMATION]: 'bg-green-100 text-green-800',
+      [CommunicationType.DELAY_NOTIFICATION]: 'bg-red-100 text-red-800',
+      [CommunicationType.EXCEPTION_ALERT]: 'bg-red-100 text-red-800',
+      [CommunicationType.REVIEW_REQUEST]: 'bg-blue-100 text-blue-800',
+      [CommunicationType.SATISFACTION_SURVEY]: 'bg-blue-100 text-blue-800',
+      [CommunicationType.CUSTOM_MESSAGE]: 'bg-gray-100 text-gray-800'
     };
     return colors[type];
   };
@@ -79,11 +89,17 @@ export function CommunicationLogComponent({ communications, onAddCommunication }
         order_id: newMessage.orderId,
         customer_id: newMessage.customerId,
         communication_type: newMessage.type,
+        communication_channel: CommunicationChannel.EMAIL,
         direction: newMessage.direction,
         subject: newMessage.subject,
         content: newMessage.content,
+        message_content: newMessage.content,
         sent_at: new Date().toISOString(),
-        response_received: false
+        delivery_status: 'sent',
+        is_automated: false,
+        response_received: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       });
       
       setNewMessage({

@@ -27,22 +27,22 @@ export function ExceptionManagement({
 
   const getStatusColor = (status: ExceptionStatus) => {
     const colors: Record<ExceptionStatus, string> = {
-      'open': 'bg-red-100 text-red-800',
-      'in_progress': 'bg-yellow-100 text-yellow-800',
-      'resolved': 'bg-green-100 text-green-800',
-      'escalated': 'bg-purple-100 text-purple-800'
+      [ExceptionStatus.OPEN]: 'bg-red-100 text-red-800',
+      [ExceptionStatus.IN_PROGRESS]: 'bg-yellow-100 text-yellow-800',
+      [ExceptionStatus.RESOLVED]: 'bg-green-100 text-green-800',
+      [ExceptionStatus.ESCALATED]: 'bg-purple-100 text-purple-800',
+      [ExceptionStatus.CLOSED]: 'bg-gray-100 text-gray-800'
     };
     return colors[status];
   };
 
   const getPriorityColor = (priority: PriorityLevel) => {
     const colors: Record<PriorityLevel, string> = {
-      'low': 'bg-gray-100 text-gray-800',
-      'medium': 'bg-blue-100 text-blue-800',
-      'high': 'bg-orange-100 text-orange-800',
-      'urgent': 'bg-red-100 text-red-800',
-      'wedding': 'bg-purple-100 text-purple-800',
-      'rush': 'bg-yellow-100 text-yellow-800'
+      [PriorityLevel.LOW]: 'bg-gray-100 text-gray-800',
+      [PriorityLevel.MEDIUM]: 'bg-blue-100 text-blue-800',
+      [PriorityLevel.HIGH]: 'bg-orange-100 text-orange-800',
+      [PriorityLevel.URGENT]: 'bg-red-100 text-red-800',
+      [PriorityLevel.WEDDING]: 'bg-purple-100 text-purple-800'
     };
     return colors[priority];
   };

@@ -179,22 +179,22 @@ export default function Products() {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Product
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Price
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Variants
                   </th>
-                  <th className="relative px-6 py-3">
+                  <th className="relative px-3 sm:px-6 py-3">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -376,60 +376,72 @@ function ProductRow({ product }: { product: any }) {
 
   return (
     <tr className="hover:bg-neutral-50">
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
-          <div className="flex-shrink-0 h-12 w-12">
+          <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12">
             {getPrimaryImageFromProduct(product) ? (
               <img
                 src={getPrimaryImageFromProduct(product) || ''}
                 alt={product.name}
-                className="h-12 w-12 rounded-md object-cover"
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-md object-cover"
               />
             ) : (
-              <div className="h-12 w-12 rounded-md bg-neutral-100 flex items-center justify-center">
-                <Package className="h-6 w-6 text-neutral-400" />
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-md bg-neutral-100 flex items-center justify-center">
+                <Package className="h-4 w-4 sm:h-6 sm:w-6 text-neutral-400" />
               </div>
             )}
           </div>
-          <div className="ml-4">
+          <div className="ml-2 sm:ml-4">
             <div className="text-sm font-medium text-neutral-900">
               {product.name}
             </div>
-            <div className="text-sm text-neutral-500">
+            <div className="text-xs sm:text-sm text-neutral-500">
               SKU: {product.sku}
+            </div>
+            {/* Show category on mobile (hidden on larger screens where it has its own column) */}
+            <div className="block sm:hidden text-xs text-neutral-400 mt-1">
+              {product.category}
             </div>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
         <div>
           <div>{product.category}</div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
         <div>
           <div>{formatCurrency(product.base_price)}</div>
+          {/* Show status on mobile (hidden on larger screens where it has its own column) */}
+          <div className="block md:hidden mt-1">
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+              getStatusColor(product.status)
+            }`}>
+              {product.status}
+            </span>
+          </div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           getStatusColor(product.status)
         }`}>
           {product.status}
         </span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+      <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
         {product.product_variants?.[0]?.count || 0}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <div className="flex items-center justify-end space-x-2">
+      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
           <Link
             to={`/products/${product.id}`}
-            className="text-black hover:text-neutral-700"
+            className="text-black hover:text-neutral-700 text-xs sm:text-sm"
           >
             View
           </Link>
-          <button className="text-black hover:text-neutral-700">
+          <button className="text-black hover:text-neutral-700 text-xs sm:text-sm">
             Edit
           </button>
         </div>

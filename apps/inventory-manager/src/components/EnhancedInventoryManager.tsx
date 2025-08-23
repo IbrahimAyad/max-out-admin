@@ -6,9 +6,10 @@ import { SizeMatrixView } from './SizeMatrixView'
 import { BulkEditModal } from './BulkEditModal'
 import { AddVariantModal } from './AddVariantModal'
 import { LowStockAlerts } from './LowStockAlerts'
+import { VendorInbox } from './VendorInbox'
 import type { EnhancedProductVariant } from '@/lib/supabase'
 
-type ViewMode = 'grid' | 'matrix' | 'alerts'
+type ViewMode = 'grid' | 'matrix' | 'alerts' | 'vendor'
 type FilterCategory = 'all' | 'Suits' | 'Dress Shirts' | 'Suspenders' | 'Vests' | 'Accessories'
 type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
 
@@ -171,181 +172,118 @@ export function EnhancedInventoryManager() {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <Package className="h-8 w-8 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Total Variants</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-              <div className="h-4 w-4 bg-green-600 rounded-full"></div>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">In Stock</p>
-              <p className="text-2xl font-bold text-green-600">{stats.inStock}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
-              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Low Stock</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.lowStock}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
-              <div className="h-4 w-4 bg-red-600 rounded-full"></div>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-              <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-purple-600 font-bold text-sm">$</span>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Total Value</p>
-              <p className="text-2xl font-bold text-purple-600">
-                ${(stats.totalValue / 100).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* View Mode Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setViewMode('grid')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
               viewMode === 'grid'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
             }`}
           >
-            <Package className="h-4 w-4 inline mr-2" />
             Grid View
           </button>
           <button
             onClick={() => setViewMode('matrix')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
               viewMode === 'matrix'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
             }`}
           >
-            <Shirt className="h-4 w-4 inline mr-2" />
             Size Matrix
           </button>
           <button
             onClick={() => setViewMode('alerts')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
               viewMode === 'alerts'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
             }`}
           >
-            <AlertTriangle className="h-4 w-4 inline mr-2" />
             Low Stock Alerts
+          </button>
+          <button
+            onClick={() => setViewMode('vendor')}
+            className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
+              viewMode === 'vendor'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+            }`}
+          >
+            Vendor Inbox
           </button>
         </nav>
       </div>
 
-      {/* Filters and Search */}
-      {viewMode !== 'alerts' && (
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by SKU, color, or product name..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+      {/* Statistics Cards - only show for grid and matrix views */}
+      {viewMode !== 'vendor' && viewMode !== 'alerts' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <Package className="h-8 w-8 text-blue-600" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Total Variants</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
             </div>
-            
-            {/* Category Filter */}
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value as FilterCategory)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Categories</option>
-              <option value="Suits">Suits</option>
-              <option value="Dress Shirts">Dress Shirts</option>
-              <option value="Suspenders">Suspenders</option>
-              <option value="Vests">Vests</option>
-              <option value="Accessories">Accessories</option>
-            </select>
-            
-            {/* Stock Filter */}
-            <select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value as StockFilter)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Stock Status</option>
-              <option value="in_stock">In Stock</option>
-              <option value="low_stock">Low Stock</option>
-              <option value="out_of_stock">Out of Stock</option>
-            </select>
           </div>
-          
-          {/* Bulk Actions */}
-          {selectedVariants.size > 0 && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-800">
-                  {selectedVariants.size} variant{selectedVariants.size === 1 ? '' : 's'} selected
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowBulkEdit(true)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-                  >
-                    Bulk Edit
-                  </button>
-                  <button
-                    onClick={() => setSelectedVariants(new Set())}
-                    className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-                  >
-                    Clear Selection
-                  </button>
-                </div>
+        
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
+                <div className="h-4 w-4 bg-green-600 rounded-full"></div>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">In Stock</p>
+                <p className="text-2xl font-bold text-green-600">{stats.inStock}</p>
               </div>
             </div>
-          )}
+          </div>
+        
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Low Stock</p>
+                <p className="text-2xl font-bold text-yellow-600">{stats.lowStock}</p>
+              </div>
+            </div>
+          </div>
+        
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
+                <div className="h-4 w-4 bg-red-600 rounded-full"></div>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Out of Stock</p>
+                <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
+              </div>
+            </div>
+          </div>
+        
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <span className="text-purple-600 font-bold text-sm">$</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Total Value</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  ${(stats.totalValue / 100).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Content based on view mode */}
+      {/* View Content */}
       {viewMode === 'grid' && (
         <div className="space-y-4">
           {filteredVariants.length > 0 && (
@@ -378,7 +316,7 @@ export function EnhancedInventoryManager() {
           </div>
         </div>
       )}
-
+      
       {viewMode === 'matrix' && (
         <div className="space-y-6">
           {Array.from(variantsByProduct.entries()).map(([productId, productVariants]) => {
@@ -396,8 +334,14 @@ export function EnhancedInventoryManager() {
           })}
         </div>
       )}
-
-      {viewMode === 'alerts' && <LowStockAlerts />}
+      
+      {viewMode === 'alerts' && (
+        <LowStockAlerts />
+      )}
+      
+      {viewMode === 'vendor' && (
+        <VendorInbox />
+      )}
 
       {/* Modals */}
       {showBulkEdit && (

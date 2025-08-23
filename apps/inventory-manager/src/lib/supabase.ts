@@ -65,6 +65,27 @@ export interface LowStockAlert {
   updated_at: string
 }
 
+// Add the Vendor Inbox Variant interface
+export interface VendorInboxVariant {
+  shopify_variant_id: string
+  shopify_product_id: string
+  sku: string
+  title: string
+  color_name: string
+  size: string
+  color_code: string
+  base_product_code: string
+  product_title: string
+  category: string
+  price: number
+  inventory_quantity: number
+  status: string
+  created_at: string
+  image_src?: string
+  decision: 'none' | 'import' | 'skip' | 'staged'
+  decided_at?: string
+}
+
 export interface SizingCategory {
   id: string
   name: string
@@ -173,6 +194,80 @@ export const inventoryService = {
     }
     
     return results
+  },
+
+  // Get vendor inbox variants
+  async getVendorInboxVariants(page: number = 1, limit: number = 50, filters: {
+    search?: string
+    category?: string
+    decision?: string
+  } = {}) {
+    let query = supabase
+      .from('v_vendor_inbox_variants')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    // Apply search filter
+    if (filters.search) {
+      query = query.or(`title.ilike.%${filters.search}%,sku.ilike.%${filters.search}%`)
+    }
+    
+    // Apply category filter
+    if (filters.category) {
+      query = query.eq('category', filters.category)
+    }
+    
+    // Apply decision filter
+    if (filters.decision) {
+      query = query.eq('decision', filters.decision)
+    }
+    
+    // Apply pagination
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+    query = query.range(from, to)
+    
+    const { data, error, count } = await query
+    
+    if (error) throw error
+    
+    return {
+      variants: data as VendorInboxVariant[],
+      total: count || 0
+    }
+  },
+
+  // Update vendor import decision
+  async updateVendorImportDecision(shopifyProductId: string, decision: 'import' | 'skip' | 'staged') {
+    const { data, error } = await supabase
+      .from('vendor_import_decisions')
+      .upsert({
+        shopify_product_id: shopifyProductId,
+        decision,
+        decided_at: new Date().toISOString()
+      }, {
+        onConflict: 'shopify_product_id'
+      })
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Bulk update vendor import decisions
+  async bulkUpdateVendorImportDecisions(decisions: Array<{
+    shopify_product_id: string
+    decision: 'import' | 'skip' | 'staged'
+  }>) {
+    const { data, error } = await supabase
+      .from('vendor_import_decisions')
+      .upsert(decisions, {
+        onConflict: 'shopify_product_id'
+      })
+    
+    if (error) throw error
+    return data
   },
 
   // Get low stock alerts

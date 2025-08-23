@@ -1,78 +1,50 @@
-# Analytics Dashboard
+# React + TypeScript + Vite
 
-A mobile-optimized business analytics dashboard with PWA capabilities for KCT Menswear.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- **Mobile-First Design**: Fully responsive interface optimized for touch devices
-- **PWA Support**: Installable as a native app with offline capabilities
-- **Real-time Analytics**: Dashboard with KPIs, charts, and business insights
-- **Product Management**: View and manage product catalog with variants
-- **Order Tracking**: Monitor customer orders and fulfillment status
-- **Customer Insights**: Analyze customer behavior and segmentation
-- **Reports Generation**: Exportable business reports
-- **User Authentication**: Secure login and session management
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Tech Stack
+## Expanding the ESLint configuration
 
-- React 18 + TypeScript + Vite
-- Supabase (Database, Auth, Storage)
-- TanStack React Query (Server State Management)
-- Tailwind CSS (Styling)
-- Lucide React (Icons)
-- Vite PWA Plugin
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-## Getting Started
+- Configure the top-level `parserOptions` property like this:
 
-1. Clone the repository
-2. Navigate to the analytics-dashboard directory:
-   ```bash
-   cd apps/analytics-dashboard
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Create a `.env.local` file with your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_SUPABASE_SERVICE_ROLE=your_service_role_key
-   ```
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
 
-## Deployment
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
 
-The app is configured for deployment on Vercel with the following settings:
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react'
 
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Install Command: `npm install`
-
-## Mobile Optimization Features
-
-- Safe area insets for notched devices
-- Touch-optimized UI components
-- Prevent zoom on input focus
-- Proper viewport configuration
-- PWA install prompt
-- Native app-like experience when installed
-
-## PWA Capabilities
-
-- Standalone display mode
-- App shortcuts for quick navigation
-- Offline caching strategies
-- Installable on home screen
-- Push notification support (planned)
-
-## Environment Variables
-
-The following environment variables must be set:
-
-- `VITE_SUPABASE_URL`: Your Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
-- `VITE_SUPABASE_SERVICE_ROLE`: Your Supabase service role key (for server-side operations)
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+})
+```

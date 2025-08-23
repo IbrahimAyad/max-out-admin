@@ -180,8 +180,8 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
               
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">Status:</span>
-                <span className={`text-sm font-medium capitalize ${getStockStatusColor(variant.stock_status)}`}>
-                  {variant.stock_status.replace('_', ' ')}
+                <span className={`text-sm font-medium capitalize ${getStockStatusColor(variant.stock_status || '')}`}>
+                  {(variant.stock_status || '').replace('_', ' ')}
                 </span>
               </div>
               

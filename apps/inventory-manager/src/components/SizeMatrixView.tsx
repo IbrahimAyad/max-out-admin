@@ -142,7 +142,7 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
                         return (
                           <td key={size} className="px-3 py-2 text-center">
                             <div className={`w-16 h-12 border rounded flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow ${
-                              getStockStatusClass(variant.stock_status)
+                              getStockStatusClass(variant.stock_status || '')
                             }`}>
                               {editingCell === variant.id ? (
                                 <div className="flex items-center gap-1">

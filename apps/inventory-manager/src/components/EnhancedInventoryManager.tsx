@@ -38,7 +38,7 @@ export function EnhancedInventoryManager() {
       
       // Stock filter
       const stockMatch = stockFilter === 'all' || 
-        variant.stock_status === stockFilter
+        (variant.stock_status || '') === stockFilter
       
       return searchMatch && categoryMatch && stockMatch
     })
@@ -60,9 +60,9 @@ export function EnhancedInventoryManager() {
   // Statistics
   const stats = useMemo(() => {
     const total = filteredVariants.length
-    const inStock = filteredVariants.filter(v => v.stock_status === 'in_stock').length
-    const lowStock = filteredVariants.filter(v => v.stock_status === 'low_stock').length
-    const outOfStock = filteredVariants.filter(v => v.stock_status === 'out_of_stock').length
+    const inStock = filteredVariants.filter(v => (v.stock_status || '') === 'in_stock').length
+    const lowStock = filteredVariants.filter(v => (v.stock_status || '') === 'low_stock').length
+    const outOfStock = filteredVariants.filter(v => (v.stock_status || '') === 'out_of_stock').length
     const totalValue = filteredVariants.reduce((sum, v) => sum + (v.price_cents * v.available_quantity), 0)
     
     return { total, inStock, lowStock, outOfStock, totalValue }
@@ -107,7 +107,7 @@ export function EnhancedInventoryManager() {
       Type: variant.variant_type,
       'Available Quantity': variant.available_quantity,
       'Total Inventory': variant.inventory_quantity,
-      'Stock Status': variant.stock_status,
+      'Stock Status': variant.stock_status || '',
       'Price': `$${(variant.price_cents / 100).toFixed(2)}`,
       'Last Updated': new Date(variant.last_inventory_update).toLocaleDateString()
     }))

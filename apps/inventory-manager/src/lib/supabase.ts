@@ -392,6 +392,18 @@ export const inventoryService = {
     return data
   },
 
+  // Create new product
+  async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at' | 'variant_count' | 'in_stock'>) {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([product])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
   // Delete variant
   async deleteVariant(variantId: string) {
     const { error } = await supabase

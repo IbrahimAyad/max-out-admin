@@ -5,6 +5,7 @@ import { ProductVariantCard } from './ProductVariantCard'
 import { SizeMatrixView } from './SizeMatrixView'
 import { BulkEditModal } from './BulkEditModal'
 import { AddVariantModal } from './AddVariantModal'
+import { AddProductModal } from './AddProductModal'
 import { LowStockAlerts } from './LowStockAlerts'
 import { VendorInbox } from './VendorInbox'
 import type { EnhancedProductVariant } from '@/lib/supabase'
@@ -14,7 +15,7 @@ type FilterCategory = 'all' | 'Suits' | 'Dress Shirts' | 'Suspenders' | 'Vests' 
 type StockFilter = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock'
 
 export function EnhancedInventoryManager() {
-  const { variants, products, loading, error, loadVariants, updateVariant, bulkUpdate } = useInventory()
+  const { variants, products, loading, error, loadVariants, loadProducts, updateVariant, bulkUpdate } = useInventory()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all')
@@ -22,6 +23,7 @@ export function EnhancedInventoryManager() {
   const [selectedVariants, setSelectedVariants] = useState<Set<string>>(new Set())
   const [showBulkEdit, setShowBulkEdit] = useState(false)
   const [showAddVariant, setShowAddVariant] = useState(false)
+  const [showAddProduct, setShowAddProduct] = useState(false)
 
   // Filter and search variants
   const filteredVariants = useMemo(() => {
@@ -98,6 +100,18 @@ export function EnhancedInventoryManager() {
     setShowBulkEdit(false)
   }
 
+  const handleAddProduct = () => {
+    setShowAddProduct(true)
+  }
+
+  const handleProductAdded = () => {
+    loadProducts()
+  }
+
+  const handleVariantAdded = () => {
+    loadVariants()
+  }
+
   const exportData = () => {
     const csvData = filteredVariants.map(variant => ({
       SKU: variant.sku,
@@ -155,6 +169,13 @@ export function EnhancedInventoryManager() {
         </div>
         
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleAddProduct}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add Product
+          </button>
           <button
             onClick={() => setShowAddVariant(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
@@ -355,11 +376,15 @@ export function EnhancedInventoryManager() {
       {showAddVariant && (
         <AddVariantModal
           products={products}
-          onSave={() => {
-            setShowAddVariant(false)
-            loadVariants()
-          }}
+          onSave={handleVariantAdded}
           onClose={() => setShowAddVariant(false)}
+        />
+      )}
+      
+      {showAddProduct && (
+        <AddProductModal
+          onSave={handleProductAdded}
+          onClose={() => setShowAddProduct(false)}
         />
       )}
     </div>

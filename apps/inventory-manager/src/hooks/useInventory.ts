@@ -10,8 +10,6 @@ export function useInventoryProducts() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      console.log('Fetching products from Supabase...')
-      
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -20,26 +18,16 @@ export function useInventoryProducts() {
         .order('name', { ascending: true })
 
       if (error) throw error
-      
-      console.log('Products fetched:', data)
 
       // Enhance products with variant data
       const enhancedProducts = await Promise.all(
         data.map(async (product) => {
-          console.log(`Fetching variants for product ${product.id}...`)
-          const { data: variants, error: variantsError } = await supabase
+          const { data: variants } = await supabase
             .from('enhanced_product_variants')
             .select('*')
             .eq('product_id', product.id)
             .eq('is_active', true)
 
-          if (variantsError) {
-            console.error(`Error fetching variants for product ${product.id}:`, variantsError)
-            throw variantsError
-          }
-
-          console.log(`Variants for product ${product.id}:`, variants)
-          
           const totalStock = variants?.reduce((sum, v) => sum + (v.stock_quantity || 0), 0) || 0
           const lowStockVariants = variants?.filter(v => v.stock_quantity <= v.low_stock_threshold).length || 0
 
@@ -52,10 +40,8 @@ export function useInventoryProducts() {
         })
       )
 
-      console.log('Enhanced products:', enhancedProducts)
       setProducts(enhancedProducts)
     } catch (err) {
-      console.error('Error fetching products:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch products')
     } finally {
       setLoading(false)
@@ -78,8 +64,6 @@ export function useInventoryVariants(productId?: number) {
   const fetchVariants = async () => {
     try {
       setLoading(true)
-      console.log('Fetching variants from Supabase...', { productId })
-      
       let query = supabase
         .from('enhanced_product_variants')
         .select('*')
@@ -92,13 +76,10 @@ export function useInventoryVariants(productId?: number) {
       const { data, error } = await query.order('sku', { ascending: true })
 
       if (error) throw error
-      
-      console.log('Variants fetched:', data)
 
       // Enhance variants with related data
       const enhancedVariants = await Promise.all(
         data.map(async (variant) => {
-          console.log(`Enhancing variant ${variant.id}...`)
           const [productData, sizeData, colorData] = await Promise.all([
             variant.product_id ? supabase
               .from('products')
@@ -117,8 +98,6 @@ export function useInventoryVariants(productId?: number) {
               .maybeSingle() : null
           ])
 
-          console.log(`Related data for variant ${variant.id}:`, { productData, sizeData, colorData })
-          
           const stockStatus = 
             variant.stock_quantity === 0 ? 'out_of_stock' :
             variant.stock_quantity <= variant.low_stock_threshold ? 'low_stock' : 'in_stock'
@@ -133,10 +112,8 @@ export function useInventoryVariants(productId?: number) {
         })
       )
 
-      console.log('Enhanced variants:', enhancedVariants)
       setVariants(enhancedVariants)
     } catch (err) {
-      console.error('Error fetching variants:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch variants')
     } finally {
       setLoading(false)
@@ -161,8 +138,6 @@ export function useDefinitions() {
     const fetchDefinitions = async () => {
       try {
         setLoading(true)
-        console.log('Fetching size and color definitions from Supabase...')
-        
         const [sizesResponse, colorsResponse] = await Promise.all([
           supabase
             .from('size_definitions')
@@ -178,9 +153,6 @@ export function useDefinitions() {
         if (sizesResponse.error) throw sizesResponse.error
         if (colorsResponse.error) throw colorsResponse.error
 
-        console.log('Size definitions fetched:', sizesResponse.data)
-        console.log('Color definitions fetched:', colorsResponse.data)
-
         // Group sizes by category
         const sizesByCategory = sizesResponse.data.reduce((acc, size) => {
           if (!acc[size.category]) acc[size.category] = []
@@ -188,12 +160,9 @@ export function useDefinitions() {
           return acc
         }, {} as Record<string, SizeDefinition[]>)
 
-        console.log('Sizes grouped by category:', sizesByCategory)
-        
         setSizes(sizesByCategory)
         setColors(colorsResponse.data)
       } catch (err) {
-        console.error('Error fetching definitions:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch definitions')
       } finally {
         setLoading(false)
@@ -264,7 +233,7 @@ export function useStockUpdate() {
     }
   }
 
-  const bulkUpdateStock = async (updates: Array<{ variantId: number; newQuantity: number; notes?: string }>) => {
+  const bulkUpdateStock = async (updates: Array<{ variantId: number; newQuantity: number; notes?: string }>) {
     try {
       setUpdating(true)
       setError(null)

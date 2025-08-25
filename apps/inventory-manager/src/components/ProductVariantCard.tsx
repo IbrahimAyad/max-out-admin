@@ -172,8 +172,8 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">Stock:</span>
-                <div className={`flex items-center gap-1 ${getStockStatusColor(variant.stock_status)}`}>
-                  {getStockStatusIcon(variant.stock_status)}
+                <div className={`flex items-center gap-1 ${getStockStatusColor(variant.stock_status || '')}`}>
+                  {getStockStatusIcon(variant.stock_status || '')}
                   <span className="text-sm font-medium">{variant.available_quantity}</span>
                 </div>
               </div>

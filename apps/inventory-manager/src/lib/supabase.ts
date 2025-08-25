@@ -6,6 +6,10 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE || import.meta.en
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
+// Log Supabase client initialization
+console.log('Supabase client initialized with URL:', supabaseUrl)
+console.log('Using Supabase key type:', import.meta.env.VITE_SUPABASE_SERVICE_ROLE ? 'Service Role' : 'Anonymous Key')
+
 // Enhanced Product Variant types
 export interface EnhancedProductVariant {
   id: string
@@ -104,6 +108,11 @@ export const inventoryService = {
     variant_type?: string
   } = {}) {
     console.log('Fetching enhanced variants with filters:', filters)
+    
+    // Check current session
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('Current session:', session ? 'Authenticated' : 'Not authenticated')
+    
     let query = supabase
       .from('enhanced_product_variants')
       .select('*')
@@ -124,8 +133,20 @@ export const inventoryService = {
     
     console.log('Query result - Data:', data, 'Error:', error, 'Count:', count)
     
+    // Log the actual SQL query being executed
+    console.log('Query debug info:', {
+      query: query['query'],
+      params: query['params']
+    })
+    
     if (error) {
       console.error('Error fetching enhanced variants:', error)
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
       throw error
     }
     
@@ -156,6 +177,11 @@ export const inventoryService = {
   // Get products with their variant counts
   async getProductsWithVariants() {
     console.log('Fetching products with variants')
+    
+    // Check current session
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('Current session:', session ? 'Authenticated' : 'Not authenticated')
+    
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -164,10 +190,19 @@ export const inventoryService = {
     
     console.log('Products query result - Data:', data, 'Error:', error)
     
+    // Log error details if there is an error
     if (error) {
       console.error('Error fetching products:', error)
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
       throw error
     }
+    
+    console.log('Number of products fetched:', data?.length || 0)
     return data as Product[]
   },
 

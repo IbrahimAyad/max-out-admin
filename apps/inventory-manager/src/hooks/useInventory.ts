@@ -13,7 +13,8 @@ export function useInventory() {
       console.log('Loading variants with filters:', filters)
       const data = await inventoryService.getEnhancedVariants(filters)
       console.log('Loaded variants:', data)
-      setVariants(data)
+      console.log('Number of variants loaded:', data?.length || 0)
+      setVariants(data || [])
     } catch (err) {
       console.error('Failed to load variants:', err)
       setError(err instanceof Error ? err.message : 'Failed to load variants')
@@ -27,7 +28,8 @@ export function useInventory() {
       console.log('Loading products')
       const data = await inventoryService.getProductsWithVariants()
       console.log('Loaded products:', data)
-      setProducts(data)
+      console.log('Number of products loaded:', data?.length || 0)
+      setProducts(data || [])
     } catch (err) {
       console.error('Failed to load products:', err)
       setError(err instanceof Error ? err.message : 'Failed to load products')
@@ -60,6 +62,7 @@ export function useInventory() {
   }
 
   useEffect(() => {
+    console.log('Initializing inventory data loading...')
     loadVariants()
     loadProducts()
   }, [])
@@ -85,7 +88,7 @@ export function useLowStockAlerts() {
     try {
       setLoading(true)
       const data = await inventoryService.getLowStockAlerts(status)
-      setAlerts(data)
+      setAlerts(data || [])
     } catch (err) {
       console.error('Failed to load alerts:', err)
     } finally {

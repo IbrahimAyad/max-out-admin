@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { EnhancedInventoryManager } from './components/EnhancedInventoryManager'
 import { LoginForm } from './components/LoginForm'
@@ -6,6 +6,10 @@ import './App.css'
 
 function AppContent() {
   const { user, loading } = useAuth()
+
+  useEffect(() => {
+    console.log('AppContent rendered with user:', user, 'loading:', loading)
+  }, [user, loading])
 
   if (loading) {
     return (
@@ -16,9 +20,11 @@ function AppContent() {
   }
 
   if (!user) {
+    console.log('No user, showing login form')
     return <LoginForm />
   }
 
+  console.log('User authenticated, showing inventory manager')
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">

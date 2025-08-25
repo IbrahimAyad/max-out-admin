@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X, Plus } from 'lucide-react'
-import { inventoryService } from '@/lib/supabase'
+import { inventoryService, supabase } from '@/lib/supabase'
 import { useDefinitions } from '@/hooks/useDefinitions'
 import type { Product } from '@/lib/supabase'
 
@@ -80,8 +80,14 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
 
       const product = await inventoryService.createProduct(productData)
       
-      // Note: In this version, we're not auto-generating variants like in the kct-inventory-dashboard
-      // Variants will be added manually through the AddVariantModal
+      // Generate basic variants based on product type
+      if (formData.requires_size && formData.requires_color) {
+        // Products that need both size and color (suits, shirts, vests)
+        await generateSizedVariants(product, formData.category)
+      } else if (formData.requires_color) {
+        // Products that only need color (suspenders, accessories)
+        await generateColorVariants(product)
+      }
 
       onSave()
       onClose()
@@ -89,6 +95,88 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
       setError(err instanceof Error ? err.message : 'Failed to create product')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const generateSizedVariants = async (product: Product, category: string) => {
+    const categoryKey = category.toLowerCase().replace(' ', '_').replace('dress_', '')
+    const relevantSizes = sizes[categoryKey] || []
+    const basicColors = colors.slice(0, 5) // Start with 5 basic colors
+    const pieceTypes = category === 'Suits' ? ['2-piece', '3-piece'] : ['slim', 'classic']
+
+    const variants = []
+    for (const color of basicColors) {
+      for (const pieceType of pieceTypes) {
+        for (const size of relevantSizes) {
+          const sku = `${product.sku}-${color.color_code.toUpperCase()}-${size.size_code}-${pieceType === '2-piece' ? '2PC' : pieceType === '3-piece' ? '3PC' : pieceType.toUpperCase()}`
+          const price_cents = pieceType === '3-piece' ? product.base_price + 5000 : product.base_price // Add $50 for 3-piece
+          
+          variants.push({
+            product_id: product.id,
+            variant_type: category === 'Suits' ? `suit_${pieceType === '2-piece' ? '2piece' : '3piece'}` : `shirt_${pieceType === 'slim' ? 'slim' : 'classic'}`,
+            color: color.color_name,
+            size: size.size_label,
+            sku,
+            price_cents,
+            inventory_quantity: 0,
+            available_quantity: 0,
+            reserved_quantity: 0,
+            committed_quantity: 0,
+            low_stock_threshold: 5,
+            stock_status: 'out_of_stock',
+            allow_backorders: false,
+            weight_grams: category === 'Suits' ? 3000 : 500,
+            stripe_active: true
+          })
+        }
+      }
+    }
+
+    if (variants.length > 0) {
+      // Insert variants in batches to avoid Supabase limits
+      const batchSize = 100
+      for (let i = 0; i < variants.length; i += batchSize) {
+        const batch = variants.slice(i, i + batchSize)
+        const { error: variantError } = await supabase
+          .from('enhanced_product_variants')
+          .insert(batch)
+        
+        if (variantError) throw variantError
+      }
+    }
+  }
+
+  const generateColorVariants = async (product: Product) => {
+    const basicColors = colors.slice(0, 10) // Start with 10 colors for accessories
+    
+    const variants = basicColors.map(color => ({
+      product_id: product.id,
+      variant_type: 'color_only',
+      color: color.color_name,
+      sku: `${product.sku}-${color.color_code.toUpperCase()}`,
+      price_cents: product.base_price,
+      inventory_quantity: 0,
+      available_quantity: 0,
+      reserved_quantity: 0,
+      committed_quantity: 0,
+      low_stock_threshold: 5,
+      stock_status: 'out_of_stock',
+      allow_backorders: false,
+      weight_grams: 200,
+      stripe_active: true
+    }))
+
+    if (variants.length > 0) {
+      // Insert variants in batches to avoid Supabase limits
+      const batchSize = 100
+      for (let i = 0; i < variants.length; i += batchSize) {
+        const batch = variants.slice(i, i + batchSize)
+        const { error: variantError } = await supabase
+          .from('enhanced_product_variants')
+          .insert(batch)
+        
+        if (variantError) throw variantError
+      }
     }
   }
 
@@ -267,7 +355,8 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
 
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> After creating the product, you can add variants using the "Add Variant" button.
+                  <strong>Note:</strong> Basic variants will be automatically created based on these settings.
+                  You can add more variants and update stock quantities after creating the product.
                 </p>
               </div>
             </div>

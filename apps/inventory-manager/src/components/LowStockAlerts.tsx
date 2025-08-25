@@ -1,9 +1,14 @@
 import React from 'react'
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react'
-import { useLowStockAlerts } from '@/hooks/useInventory'
+import { useInventoryVariants } from '@/hooks/useInventory'
 
 export function LowStockAlerts() {
-  const { alerts, loading } = useLowStockAlerts()
+  const { variants: alerts, loading } = useInventoryVariants()
+  
+  // Filter for low stock variants
+  const lowStockAlerts = alerts.filter(variant => 
+    variant.stock_status === 'low_stock' || variant.stock_status === 'out_of_stock'
+  )
 
   if (loading) {
     return (
@@ -13,7 +18,7 @@ export function LowStockAlerts() {
     )
   }
 
-  if (alerts.length === 0) {
+  if (lowStockAlerts.length === 0) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
         <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
@@ -29,20 +34,19 @@ export function LowStockAlerts() {
         <div className="flex items-center">
           <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
           <span className="text-yellow-800 font-medium">
-            {alerts.length} variant{alerts.length === 1 ? '' : 's'} need attention
+            {lowStockAlerts.length} variant{lowStockAlerts.length === 1 ? '' : 's'} need attention
           </span>
         </div>
       </div>
       
       <div className="grid gap-4">
-        {alerts.map(alert => {
-          const variant = alert.variant
-          const product = alert.product
+        {lowStockAlerts.map(variant => {
+          const product = variant.product
           
-          if (!variant || !product) return null
+          if (!product) return null
           
           return (
-            <div key={alert.id} className="bg-white border border-yellow-300 rounded-lg p-4">
+            <div key={variant.id} className="bg-white border border-yellow-300 rounded-lg p-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -57,18 +61,18 @@ export function LowStockAlerts() {
                     </div>
                     <div>
                       <span className="text-gray-600">Color:</span>
-                      <span className="ml-2">{variant.color}</span>
+                      <span className="ml-2">{variant.color?.color_name || 'N/A'}</span>
                     </div>
                     {variant.size && (
                       <div>
                         <span className="text-gray-600">Size:</span>
-                        <span className="ml-2">{variant.size}</span>
+                        <span className="ml-2">{variant.size.size_label}</span>
                       </div>
                     )}
                     <div>
                       <span className="text-gray-600">Type:</span>
                       <span className="ml-2 capitalize">
-                        {variant.variant_type.replace('_', ' ')}
+                        {variant.piece_type || 'Standard'}
                       </span>
                     </div>
                   </div>
@@ -77,13 +81,13 @@ export function LowStockAlerts() {
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-600">Current Stock:</span>
                       <span className="text-sm font-bold text-red-600">
-                        {alert.current_quantity}
+                        {variant.stock_quantity}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-600">Threshold:</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {alert.alert_threshold}
+                        {variant.low_stock_threshold}
                       </span>
                     </div>
                   </div>
@@ -92,7 +96,7 @@ export function LowStockAlerts() {
                 <div className="text-right">
                   <div className="flex items-center text-sm text-gray-500 mb-2">
                     <Clock className="h-4 w-4 mr-1" />
-                    {new Date(alert.created_at).toLocaleDateString()}
+                    {new Date(variant.updated_at).toLocaleDateString()}
                   </div>
                   
                   <div className="space-y-2">

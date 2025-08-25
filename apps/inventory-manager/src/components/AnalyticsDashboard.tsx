@@ -60,7 +60,7 @@ export function AnalyticsDashboard() {
       const totalPageViews = pageViews?.length || 0
       const totalSessions = sessions?.length || 0
       const totalEvents = events?.length || 0
-      const conversionRate = totalSessions > 0 ? (events?.filter(e => e.event_type === 'conversion').length || 0) / totalSessions * 100 : 0
+      const conversionRate = totalSessions > 0 ? ((events?.filter(e => e.event_type === 'conversion').length || 0) as number) / (totalSessions as number) * 100 : 0
 
       // Top pages
       const pageViewCounts = pageViews?.reduce((acc, pv) => {
@@ -69,9 +69,9 @@ export function AnalyticsDashboard() {
       }, {} as Record<string, number>) || {}
       
       const topPages = Object.entries(pageViewCounts)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 5)
-        .map(([page, views]) => ({ page, views }))
+        .map(([page, views]) => ({ page, views: views as number }))
 
       // Top products
       const productViews = events?.filter(e => e.event_type === 'product_view').reduce((acc, event) => {
@@ -83,9 +83,9 @@ export function AnalyticsDashboard() {
       }, {} as Record<string, number>) || {}
       
       const topProducts = Object.entries(productViews)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 5)
-        .map(([product_id, views]) => ({ product_id, views }))
+        .map(([product_id, views]) => ({ product_id, views: views as number }))
 
       // Daily views for chart
       const dailyViewCounts = pageViews?.reduce((acc, pv) => {
@@ -96,7 +96,7 @@ export function AnalyticsDashboard() {
       
       const dailyViews = Object.entries(dailyViewCounts)
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([date, views]) => ({ date, views }))
+        .map(([date, views]) => ({ date, views: views as number }))
 
       setAnalytics({
         totalPageViews,

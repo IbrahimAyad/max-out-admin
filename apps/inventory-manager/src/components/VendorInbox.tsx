@@ -229,15 +229,15 @@ export function VendorInbox() {
                 <div className="flex items-start gap-4">
                   {/* Product Image */}
                   <div className="flex-shrink-0">
-                    {firstVariant.image_src ? (
-                      <img 
-                        src={firstVariant.image_src} 
+                    {firstVariant.image_url ? (
+                      <img
+                        src={firstVariant.image_url}
                         alt={firstVariant.title}
-                        className="w-16 h-16 object-cover rounded-md border border-gray-200"
+                        className="w-full h-32 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center">
-                        <ImageIcon className="h-6 w-6 text-gray-400" />
+                      <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="h-8 w-8 text-gray-400" />
                       </div>
                     )}
                   </div>
@@ -247,20 +247,20 @@ export function VendorInbox() {
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900 truncate">
-                          {firstVariant.product_title}
+                          {firstVariant.title}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          Color: {firstVariant.color_name} | SKU: {firstVariant.sku}
+                          Color: {firstVariant.color_family} | SKU: {firstVariant.sku}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Category: {firstVariant.category} | Base Code: {firstVariant.base_product_code}
+                          Category: {firstVariant.product_type} | Base Code: {firstVariant.base_product_code}
                         </p>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDecisionColor(firstVariant.decision)}`}>
-                          {getDecisionIcon(firstVariant.decision)}
-                          <span className="ml-1 capitalize">{firstVariant.decision || 'None'}</span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDecisionColor(firstVariant.import_decision)}`}>
+                          {getDecisionIcon(firstVariant.import_decision)}
+                          <span className="ml-1 capitalize">{firstVariant.import_decision || 'None'}</span>
                         </span>
                       </div>
                     </div>
@@ -270,7 +270,7 @@ export function VendorInbox() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                         {group.map(variant => (
                           <div 
-                            key={variant.shopify_variant_id}
+                            key={variant.id}
                             className="bg-gray-50 rounded-md p-2 text-center"
                           >
                             <div className="text-sm font-medium text-gray-900">
@@ -280,7 +280,7 @@ export function VendorInbox() {
                               Qty: {variant.inventory_quantity || 0}
                             </div>
                             <div className="text-xs text-gray-500">
-                              ${variant.price}
+                              ${(variant.price_cents / 100).toFixed(2)}
                             </div>
                           </div>
                         ))}

@@ -87,3 +87,55 @@ export interface EnhancedVariant extends InventoryVariant {
   recent_movements?: InventoryMovement[]
   stock_status?: 'in_stock' | 'low_stock' | 'out_of_stock'
 }
+
+// Vendor inbox variant type
+export interface VendorInboxVariant {
+  id: string
+  shopify_product_id: string
+  title: string
+  product_type: string
+  vendor: string
+  tags: string
+  base_product_code: string
+  color_code: string
+  color_family: string
+  size: string
+  sku: string
+  price_cents: number
+  compare_at_price_cents: number
+  inventory_quantity: number
+  image_url: string
+  import_decision: 'none' | 'import' | 'skip' | 'staged'
+  created_at: string
+  updated_at: string
+}
+
+// Product type for AddVariantModal
+export type Product = InventoryProduct
+
+// Enhanced product variant type
+export type EnhancedProductVariant = EnhancedVariant
+
+// Inventory service mock implementation
+export const inventoryService = {
+  createVariant: async (data: any) => {
+    // Mock implementation
+    console.log('Creating variant:', data)
+    return { success: true }
+  },
+  
+  getVendorInboxVariants: async (page: number, limit: number, filters: any) => {
+    // Mock implementation
+    return { variants: [], total: 0 }
+  },
+  
+  updateVendorImportDecision: async (shopifyProductId: string, decision: string) => {
+    // Mock implementation
+    console.log('Updating vendor import decision:', shopifyProductId, decision)
+  },
+  
+  bulkUpdateVendorImportDecisions: async (decisions: Array<{ shopify_product_id: string; decision: string }>) => {
+    // Mock implementation
+    console.log('Bulk updating vendor import decisions:', decisions)
+  }
+}

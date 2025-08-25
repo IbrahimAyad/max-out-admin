@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Edit2, Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
-import type { EnhancedProductVariant } from '@/lib/supabase'
+import type { EnhancedVariant as EnhancedProductVariant } from '@/lib/supabase'
 
 interface ProductVariantCardProps {
   variant: EnhancedProductVariant
@@ -11,25 +11,24 @@ interface ProductVariantCardProps {
 
 export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: ProductVariantCardProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [quantity, setQuantity] = useState(variant.available_quantity)
-  const [threshold, setThreshold] = useState(variant.low_stock_threshold)
+  const [quantity, setQuantity] = useState(variant.stock_quantity || 0)
+  const [threshold, setThreshold] = useState(variant.low_stock_threshold || 0)
 
   const handleSave = async () => {
-    await onUpdate(variant.id, {
-      available_quantity: quantity,
-      inventory_quantity: quantity,
+    await onUpdate(variant.id.toString(), {
+      stock_quantity: quantity,
       low_stock_threshold: threshold
     })
     setIsEditing(false)
   }
 
   const handleCancel = () => {
-    setQuantity(variant.available_quantity)
-    setThreshold(variant.low_stock_threshold)
+    setQuantity(variant.stock_quantity || 0)
+    setThreshold(variant.low_stock_threshold || 0)
     setIsEditing(false)
   }
 
-  const getStockStatusColor = (status: string) => {
+  const getStockStatusColor = (status: string | undefined) => {
     switch (status) {
       case 'in_stock': return 'text-green-600'
       case 'low_stock': return 'text-yellow-600'
@@ -38,7 +37,7 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
     }
   }
 
-  const getStockStatusIcon = (status: string) => {
+  const getStockStatusIcon = (status: string | undefined) => {
     switch (status) {
       case 'in_stock': return <CheckCircle className="h-4 w-4" />
       case 'low_stock': return <AlertTriangle className="h-4 w-4" />
@@ -47,15 +46,9 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
     }
   }
 
-  const getVariantTypeLabel = (type: string) => {
-    switch (type) {
-      case 'suit_2piece': return '2-Piece Suit'
-      case 'suit_3piece': return '3-Piece Suit'
-      case 'shirt_slim': return 'Slim Fit Shirt'
-      case 'shirt_classic': return 'Classic Fit Shirt'
-      case 'color_only': return 'One Size'
-      default: return type
-    }
+  const getVariantTypeLabel = (type: string | undefined) => {
+    if (!type) return 'Standard'
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   }
 
   return (
@@ -76,7 +69,7 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
               <h3 className="font-medium text-gray-900">
                 {variant.product?.name || 'Unknown Product'}
               </h3>
-              <p className="text-sm text-gray-600">{getVariantTypeLabel(variant.variant_type)}</p>
+              <p className="text-sm text-gray-600">{getVariantTypeLabel(variant.piece_type)}</p>
             </div>
           </div>
           
@@ -100,25 +93,27 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700">Color:</span>
             <div className="flex items-center gap-2">
-              <div 
-                className="w-4 h-4 rounded-full border border-gray-300"
-                style={{ backgroundColor: variant.color.toLowerCase() }}
-              ></div>
-              <span className="text-sm text-gray-900">{variant.color}</span>
+              {variant.color?.hex_value && (
+                <div 
+                  className="w-4 h-4 rounded-full border border-gray-300"
+                  style={{ backgroundColor: variant.color.hex_value }}
+                ></div>
+              )}
+              <span className="text-sm text-gray-900">{variant.color?.color_name || 'N/A'}</span>
             </div>
           </div>
           
           {variant.size && (
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Size:</span>
-              <span className="text-sm text-gray-900">{variant.size}</span>
+              <span className="text-sm text-gray-900">{variant.size.size_label}</span>
             </div>
           )}
           
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700">Price:</span>
             <span className="text-sm text-gray-900 font-medium">
-              ${(variant.price_cents / 100).toFixed(2)}
+              ${variant.price.toFixed(2)}
             </span>
           </div>
         </div>
@@ -172,15 +167,15 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">Stock:</span>
-                <div className={`flex items-center gap-1 ${getStockStatusColor(variant.stock_status || '')}`}>
-                  {getStockStatusIcon(variant.stock_status || '')}
-                  <span className="text-sm font-medium">{variant.available_quantity}</span>
+                <div className={`flex items-center gap-1 ${getStockStatusColor(variant.stock_status)}`}>
+                  {getStockStatusIcon(variant.stock_status)}
+                  <span className="text-sm font-medium">{variant.stock_quantity}</span>
                 </div>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">Status:</span>
-                <span className={`text-sm font-medium capitalize ${getStockStatusColor(variant.stock_status || '')}`}>
+                <span className={`text-sm font-medium capitalize ${getStockStatusColor(variant.stock_status)}`}>
                   {(variant.stock_status || '').replace('_', ' ')}
                 </span>
               </div>
@@ -193,7 +188,7 @@ export function ProductVariantCard({ variant, selected, onSelect, onUpdate }: Pr
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">Last Updated:</span>
                 <span className="text-sm text-gray-600">
-                  {new Date(variant.last_inventory_update).toLocaleDateString()}
+                  {new Date(variant.updated_at).toLocaleDateString()}
                 </span>
               </div>
             </div>

@@ -1,14 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { Edit2, Save, X, AlertTriangle } from 'lucide-react'
-import type { EnhancedProductVariant, Product } from '@/lib/supabase'
+import type { EnhancedVariant as EnhancedProductVariant, InventoryProduct as Product } from '@/lib/supabase'
 
 interface SizeMatrixViewProps {
-  product: {
-    id: string
-    name: string
-    category: string
-    sku: string
-  }
+  product: Product
   variants: EnhancedProductVariant[]
   onUpdateVariant: (variantId: string, updates: any) => void
 }
@@ -21,21 +16,22 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
   const variantMatrix = useMemo(() => {
     const byType = new Map<string, EnhancedProductVariant[]>()
     variants.forEach(variant => {
-      if (!byType.has(variant.variant_type)) {
-        byType.set(variant.variant_type, [])
+      const type = variant.piece_type || 'standard'
+      if (!byType.has(type)) {
+        byType.set(type, [])
       }
-      byType.get(variant.variant_type)!.push(variant)
+      byType.get(type)!.push(variant)
     })
     
     // For each type, create a matrix
     const matrices = new Map()
     byType.forEach((typeVariants, type) => {
-      const sizes = [...new Set(typeVariants.map(v => v.size || 'One Size'))].sort()
-      const colors = [...new Set(typeVariants.map(v => v.color))].sort()
+      const sizes = [...new Set(typeVariants.map(v => v.size?.size_label || 'One Size'))].sort()
+      const colors = [...new Set(typeVariants.map(v => v.color?.color_name || ''))].filter(c => c).sort()
       
       const matrix = new Map()
       typeVariants.forEach(variant => {
-        const key = `${variant.color}-${variant.size || 'One Size'}`
+        const key = `${variant.color?.color_name || 'N/A'}-${variant.size?.size_label || 'One Size'}`
         matrix.set(key, variant)
       })
       
@@ -46,17 +42,11 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
   }, [variants])
 
   const getVariantTypeLabel = (type: string) => {
-    switch (type) {
-      case 'suit_2piece': return '2-Piece Suit'
-      case 'suit_3piece': return '3-Piece Suit'
-      case 'shirt_slim': return 'Slim Fit'
-      case 'shirt_classic': return 'Classic Fit'
-      case 'color_only': return 'Color Variants'
-      default: return type
-    }
+    if (type === 'standard') return 'Standard Variants'
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   }
 
-  const getStockStatusClass = (status: string) => {
+  const getStockStatusClass = (status: string | undefined) => {
     switch (status) {
       case 'in_stock': return 'bg-green-100 text-green-800 border-green-200'
       case 'low_stock': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
@@ -66,15 +56,14 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
   }
 
   const handleCellEdit = (variant: EnhancedProductVariant) => {
-    setEditingCell(variant.id)
-    setEditValue(variant.available_quantity.toString())
+    setEditingCell(variant.id.toString())
+    setEditValue(variant.stock_quantity?.toString() || '0')
   }
 
   const handleSaveEdit = async (variant: EnhancedProductVariant) => {
     const newQuantity = parseInt(editValue) || 0
-    await onUpdateVariant(variant.id, {
-      available_quantity: newQuantity,
-      inventory_quantity: newQuantity
+    await onUpdateVariant(variant.id.toString(), {
+      stock_quantity: newQuantity
     })
     setEditingCell(null)
     setEditValue('')
@@ -89,7 +78,7 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900">{product.name}</h3>
-        <p className="text-sm text-gray-600">{product.category} • SKU: {product.sku}</p>
+        <p className="text-sm text-gray-600">{product.category} • SKU: {product.sku_prefix}</p>
       </div>
       
       <div className="p-6 space-y-8">
@@ -118,10 +107,6 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
                     <tr key={color}>
                       <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <div 
-                            className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: color.toLowerCase() }}
-                          ></div>
                           <span className="text-sm font-medium text-gray-900">{color}</span>
                         </div>
                       </td>
@@ -142,9 +127,9 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
                         return (
                           <td key={size} className="px-3 py-2 text-center">
                             <div className={`w-16 h-12 border rounded flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow ${
-                              getStockStatusClass(variant.stock_status || '')
+                              getStockStatusClass(variant.stock_status)
                             }`}>
-                              {editingCell === variant.id ? (
+                              {editingCell === variant.id.toString() ? (
                                 <div className="flex items-center gap-1">
                                   <input
                                     type="number"
@@ -174,8 +159,8 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
                                   onClick={() => handleCellEdit(variant)}
                                   className="w-full h-full flex flex-col items-center justify-center group"
                                 >
-                                  <span className="text-sm font-bold">{variant.available_quantity}</span>
-                                  {variant.available_quantity <= variant.low_stock_threshold && (
+                                  <span className="text-sm font-bold">{variant.stock_quantity}</span>
+                                  {variant.stock_quantity !== undefined && variant.stock_quantity <= variant.low_stock_threshold && (
                                     <AlertTriangle className="h-3 w-3 text-yellow-600" />
                                   )}
                                   <Edit2 className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -183,7 +168,7 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
                               )}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
-                              ${(variant.price_cents / 100).toFixed(0)}
+                              ${variant.price.toFixed(0)}
                             </div>
                           </td>
                         )
@@ -207,10 +192,6 @@ export function SizeMatrixView({ product, variants, onUpdateVariant }: SizeMatri
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-red-100 border border-red-200 rounded"></div>
                 <span>Out of Stock</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3 text-yellow-600" />
-                <span>Below Threshold</span>
               </div>
             </div>
           </div>

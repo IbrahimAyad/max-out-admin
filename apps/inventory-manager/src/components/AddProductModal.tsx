@@ -1,28 +1,25 @@
 import { useState } from 'react'
 import { X, Plus } from 'lucide-react'
-import { inventoryService, supabase } from '@/lib/supabase'
-import { useDefinitions } from '@/hooks/useDefinitions'
-import type { Product } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { useDefinitions } from '@/hooks/useInventory'
 
 interface AddProductModalProps {
-  onSave: () => void
   onClose: () => void
+  onAdd: () => void
 }
 
-type ProductCategory = 'Suits' | 'Dress Shirts' | 'Suspenders' | 'Vests' | 'Accessories'
+type ProductCategory = 'suits' | 'shirts' | 'accessories'
 
-export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
+export function AddProductModal({ onClose, onAdd }: AddProductModalProps) {
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Suits' as ProductCategory,
+    category: 'suits' as ProductCategory,
     subcategory: '',
-    sku: '',
+    sku_prefix: '',
     base_price: '',
     description: '',
     requires_size: true,
-    requires_color: true,
-    status: 'active' as 'active' | 'inactive' | 'discontinued',
-    track_inventory: true
+    requires_color: true
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,11 +32,9 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
     // Auto-update requirements based on category
     if (field === 'category') {
       const newRequirements = {
-        'Suits': { requires_size: true, requires_color: true },
-        'Dress Shirts': { requires_size: true, requires_color: true },
-        'Suspenders': { requires_size: false, requires_color: true },
-        'Vests': { requires_size: true, requires_color: true },
-        'Accessories': { requires_size: false, requires_color: true }
+        suits: { requires_size: true, requires_color: true },
+        shirts: { requires_size: true, requires_color: true },
+        accessories: { requires_size: false, requires_color: true }
       }
       
       setFormData(prev => ({
@@ -57,7 +52,7 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
 
     try {
       // Validate required fields
-      if (!formData.name || !formData.sku || !formData.base_price) {
+      if (!formData.name || !formData.sku_prefix || !formData.base_price) {
         throw new Error('Please fill in all required fields')
       }
 
@@ -67,29 +62,35 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
       }
 
       // Create the product
-      const productData = {
-        name: formData.name,
-        category: formData.category,
-        subcategory: formData.subcategory || null,
-        sku: formData.sku.toUpperCase(),
-        base_price: Math.round(price * 100), // Convert to cents
-        description: formData.description || null,
-        status: formData.status,
-        track_inventory: formData.track_inventory
-      }
+      const { data: product, error: productError } = await supabase
+        .from('inventory_products')
+        .insert({
+          name: formData.name,
+          category: formData.category.charAt(0).toUpperCase() + formData.category.slice(1),
+          subcategory: formData.subcategory || null,
+          sku_prefix: formData.sku_prefix.toUpperCase(),
+          base_price: price,
+          description: formData.description || null,
+          requires_size: formData.requires_size,
+          requires_color: formData.requires_color,
+          sizing_category: formData.requires_size ? formData.category : null,
+          is_active: true
+        })
+        .select()
+        .single()
 
-      const product = await inventoryService.createProduct(productData)
-      
+      if (productError) throw productError
+
       // Generate basic variants based on product type
       if (formData.requires_size && formData.requires_color) {
-        // Products that need both size and color (suits, shirts, vests)
+        // Products that need both size and color (suits, shirts)
         await generateSizedVariants(product, formData.category)
       } else if (formData.requires_color) {
-        // Products that only need color (suspenders, accessories)
+        // Products that only need color (accessories)
         await generateColorVariants(product)
       }
 
-      onSave()
+      onAdd()
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create product')
@@ -98,85 +99,63 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
     }
   }
 
-  const generateSizedVariants = async (product: Product, category: string) => {
-    const categoryKey = category.toLowerCase().replace(' ', '_').replace('dress_', '')
-    const relevantSizes = sizes[categoryKey] || []
+  const generateSizedVariants = async (product: any, category: string) => {
+    const relevantSizes = sizes[category] || []
     const basicColors = colors.slice(0, 5) // Start with 5 basic colors
-    const pieceTypes = category === 'Suits' ? ['2-piece', '3-piece'] : ['slim', 'classic']
+    const pieceTypes = category === 'suits' ? ['2-piece', '3-piece'] : ['slim', 'classic']
 
     const variants = []
     for (const color of basicColors) {
       for (const pieceType of pieceTypes) {
         for (const size of relevantSizes) {
-          const sku = `${product.sku}-${color.color_code.toUpperCase()}-${size.size_code}-${pieceType === '2-piece' ? '2PC' : pieceType === '3-piece' ? '3PC' : pieceType.toUpperCase()}`
-          const price_cents = pieceType === '3-piece' ? product.base_price + 5000 : product.base_price // Add $50 for 3-piece
+          const sku = `${product.sku_prefix}-${color.color_code.toUpperCase()}-${size.size_code}-${pieceType.toUpperCase()}`
+          const price = pieceType === '3-piece' ? product.base_price + 50 : product.base_price
           
           variants.push({
             product_id: product.id,
-            variant_type: category === 'Suits' ? `suit_${pieceType === '2-piece' ? '2piece' : '3piece'}` : `shirt_${pieceType === 'slim' ? 'slim' : 'classic'}`,
-            color: color.color_name,
-            size: size.size_label,
+            size_id: size.id,
+            color_id: color.id,
+            piece_type: pieceType,
             sku,
-            price_cents,
-            inventory_quantity: 0,
-            available_quantity: 0,
-            reserved_quantity: 0,
-            committed_quantity: 0,
+            price,
+            stock_quantity: 0,
             low_stock_threshold: 5,
-            stock_status: 'out_of_stock',
-            allow_backorders: false,
-            weight_grams: category === 'Suits' ? 3000 : 500,
-            stripe_active: true
+            is_active: true
           })
         }
       }
     }
 
     if (variants.length > 0) {
-      // Insert variants in batches to avoid Supabase limits
-      const batchSize = 100
-      for (let i = 0; i < variants.length; i += batchSize) {
-        const batch = variants.slice(i, i + batchSize)
-        const { error: variantError } = await supabase
-          .from('enhanced_product_variants')
-          .insert(batch)
-        
-        if (variantError) throw variantError
-      }
+      const { error: variantError } = await supabase
+        .from('inventory_variants')
+        .insert(variants)
+      
+      if (variantError) throw variantError
     }
   }
 
-  const generateColorVariants = async (product: Product) => {
+  const generateColorVariants = async (product: any) => {
     const basicColors = colors.slice(0, 10) // Start with 10 colors for accessories
     
     const variants = basicColors.map(color => ({
       product_id: product.id,
-      variant_type: 'color_only',
-      color: color.color_name,
-      sku: `${product.sku}-${color.color_code.toUpperCase()}`,
-      price_cents: product.base_price,
-      inventory_quantity: 0,
-      available_quantity: 0,
-      reserved_quantity: 0,
-      committed_quantity: 0,
+      size_id: null,
+      color_id: color.id,
+      piece_type: null,
+      sku: `${product.sku_prefix}-${color.color_code.toUpperCase()}`,
+      price: product.base_price,
+      stock_quantity: 0,
       low_stock_threshold: 5,
-      stock_status: 'out_of_stock',
-      allow_backorders: false,
-      weight_grams: 200,
-      stripe_active: true
+      is_active: true
     }))
 
     if (variants.length > 0) {
-      // Insert variants in batches to avoid Supabase limits
-      const batchSize = 100
-      for (let i = 0; i < variants.length; i += batchSize) {
-        const batch = variants.slice(i, i + batchSize)
-        const { error: variantError } = await supabase
-          .from('enhanced_product_variants')
-          .insert(batch)
-        
-        if (variantError) throw variantError
-      }
+      const { error: variantError } = await supabase
+        .from('inventory_variants')
+        .insert(variants)
+      
+      if (variantError) throw variantError
     }
   }
 
@@ -222,11 +201,9 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="Suits">Suits</option>
-                    <option value="Dress Shirts">Dress Shirts</option>
-                    <option value="Suspenders">Suspenders</option>
-                    <option value="Vests">Vests</option>
-                    <option value="Accessories">Accessories</option>
+                    <option value="suits">Suits</option>
+                    <option value="shirts">Shirts</option>
+                    <option value="accessories">Accessories</option>
                   </select>
                 </div>
 
@@ -245,13 +222,13 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    SKU *
+                    SKU Prefix *
                   </label>
                   <input
                     type="text"
-                    value={formData.sku}
-                    onChange={(e) => handleInputChange('sku', e.target.value.toUpperCase())}
-                    placeholder="e.g., KCT-SUIT-001"
+                    value={formData.sku_prefix}
+                    onChange={(e) => handleInputChange('sku_prefix', e.target.value.toUpperCase())}
+                    placeholder="e.g., SUIT-NAV, SHIRT-SLM"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
                     required
                   />
@@ -305,7 +282,7 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="requires_size" className="ml-2 text-sm text-gray-700">
-                    Product requires sizing (suits, shirts, vests)
+                    Product requires sizing (suits, shirts)
                   </label>
                 </div>
 
@@ -320,36 +297,6 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
                   <label htmlFor="requires_color" className="ml-2 text-sm text-gray-700">
                     Product has color variants
                   </label>
-                </div>
-                
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="track_inventory"
-                    checked={formData.track_inventory}
-                    onChange={(e) => handleInputChange('track_inventory', e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="track_inventory" className="ml-2 text-sm text-gray-700">
-                    Track inventory for this product
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="discontinued">Discontinued</option>
-                  </select>
                 </div>
               </div>
 
@@ -380,7 +327,7 @@ export function AddProductModal({ onSave, onClose }: AddProductModalProps) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !formData.name || !formData.sku || !formData.base_price}
+            disabled={loading || !formData.name || !formData.sku_prefix || !formData.base_price}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />

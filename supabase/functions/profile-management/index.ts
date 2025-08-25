@@ -96,7 +96,93 @@ Deno.serve(async (req) => {
 
         const profiles = await profileResponse.json();
         console.log('Found profiles:', profiles.length);
-        const profile = profiles[0] || null;
+        let profile = profiles[0] || null;
+        
+        // If no profile exists, create one
+        if (!profile) {
+          console.log('No profile found, creating new profile for user:', userId);
+          
+          // Get user email from auth
+          const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'apikey': serviceKey
+            }
+          });
+          
+          let userEmail = 'user@example.com';
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            userEmail = userData.email || userEmail;
+          }
+          
+          // Create new profile with defaults
+          const newProfileData = {
+            user_id: userId,
+            email: userEmail,
+            total_orders: 0,
+            total_spent: 0,
+            average_order_value: 0,
+            lifetime_value: 0,
+            engagement_score: 0,
+            customer_tier: 'Bronze',
+            customer_segment: 'new',
+            repeat_customer: false,
+            vip_status: false,
+            account_status: 'active',
+            onboarding_completed: false,
+            email_verified: false,
+            is_wedding_customer: false,
+            size_profile: {
+              preferred_fit: 'regular',
+              measurement_unit: 'imperial',
+              measured_by: 'self'
+            },
+            notification_preferences: {
+              sms_orders: false,
+              email_orders: true,
+              sms_marketing: false,
+              email_marketing: false,
+              email_recommendations: false
+            },
+            saved_addresses: [],
+            saved_payment_methods: [],
+            wishlist_items: [],
+            style_preferences: {},
+            measurements: {},
+            measurement_history: {},
+            wedding_preferences: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          const createResponse = await fetch(
+            `${supabaseUrl}/rest/v1/user_profiles`,
+            {
+              method: 'POST',
+              headers: {
+                'apikey': serviceKey,
+                'Authorization': `Bearer ${serviceKey}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+              },
+              body: JSON.stringify(newProfileData)
+            }
+          );
+          
+          if (!createResponse.ok) {
+            const errorText = await createResponse.text();
+            console.error('Failed to create profile:', errorText);
+            // Return null profile instead of throwing error
+            return new Response(JSON.stringify({ success: true, data: null }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          
+          const createdProfile = await createResponse.json();
+          profile = createdProfile[0] || null;
+          console.log('Created new profile:', profile);
+        }
 
         return new Response(JSON.stringify({ success: true, data: profile }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }

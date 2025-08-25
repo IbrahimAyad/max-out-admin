@@ -63,7 +63,7 @@ export function AddProductModal({ onClose, onAdd }: AddProductModalProps) {
 
       // Create the product
       const { data: product, error: productError } = await supabase
-        .from('inventory_products')
+        .from('products')
         .insert({
           name: formData.name,
           category: formData.category.charAt(0).toUpperCase() + formData.category.slice(1),
@@ -128,7 +128,7 @@ export function AddProductModal({ onClose, onAdd }: AddProductModalProps) {
 
     if (variants.length > 0) {
       const { error: variantError } = await supabase
-        .from('inventory_variants')
+        .from('enhanced_product_variants')
         .insert(variants)
       
       if (variantError) throw variantError
@@ -152,7 +152,7 @@ export function AddProductModal({ onClose, onAdd }: AddProductModalProps) {
 
     if (variants.length > 0) {
       const { error: variantError } = await supabase
-        .from('inventory_variants')
+        .from('enhanced_product_variants')
         .insert(variants)
       
       if (variantError) throw variantError

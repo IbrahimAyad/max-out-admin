@@ -11,7 +11,7 @@ export function useInventoryProducts() {
     try {
       setLoading(true)
       const { data, error } = await supabase
-        .from('inventory_products')
+        .from('products')
         .select('*')
         .eq('is_active', true)
         .order('category', { ascending: true })
@@ -23,7 +23,7 @@ export function useInventoryProducts() {
       const enhancedProducts = await Promise.all(
         data.map(async (product) => {
           const { data: variants } = await supabase
-            .from('inventory_variants')
+            .from('enhanced_product_variants')
             .select('*')
             .eq('product_id', product.id)
             .eq('is_active', true)
@@ -65,7 +65,7 @@ export function useInventoryVariants(productId?: number) {
     try {
       setLoading(true)
       let query = supabase
-        .from('inventory_variants')
+        .from('enhanced_product_variants')
         .select('*')
         .eq('is_active', true)
 
@@ -82,7 +82,7 @@ export function useInventoryVariants(productId?: number) {
         data.map(async (variant) => {
           const [productData, sizeData, colorData] = await Promise.all([
             variant.product_id ? supabase
-              .from('inventory_products')
+              .from('products')
               .select('*')
               .eq('id', variant.product_id)
               .maybeSingle() : null,
@@ -187,7 +187,7 @@ export function useStockUpdate() {
 
       // Get current quantity for inventory movement
       const { data: currentVariant, error: fetchError } = await supabase
-        .from('inventory_variants')
+        .from('enhanced_product_variants')
         .select('stock_quantity')
         .eq('id', variantId)
         .maybeSingle()
@@ -200,7 +200,7 @@ export function useStockUpdate() {
 
       // Update the stock quantity
       const { error: updateError } = await supabase
-        .from('inventory_variants')
+        .from('enhanced_product_variants')
         .update({
           stock_quantity: newQuantity,
           updated_at: new Date().toISOString()
